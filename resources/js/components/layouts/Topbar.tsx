@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-    Bell, 
     ChevronDown, 
     Menu, 
     LogOut,
@@ -13,9 +12,12 @@ import ThemeToggle from '../commons/ThemeToggle';
 interface TopbarProps {
     isCollapsed: boolean;
     setIsCollapsed: (collapsed: boolean) => void;
+    isMobileOpen?: boolean;
+    setIsMobileOpen?: (open: boolean) => void;
+    title?: string;
 }
 
-export default function Topbar({ isCollapsed, setIsCollapsed }: TopbarProps) {
+export default function Topbar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen, title }: TopbarProps) {
     const { auth } = usePage().props as any;
     const user = auth?.user || { name: 'User POS', email: 'user@pos.com' };
     
@@ -36,13 +38,28 @@ export default function Topbar({ isCollapsed, setIsCollapsed }: TopbarProps) {
     };
 
     return (
-        <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-slate-200/80 bg-white/80 px-6 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
+        <header className="sticky top-0 z-40 flex h-14 md:h-16 shrink-0 items-center justify-between border-b border-transparent md:border-slate-200/80 bg-white/80 px-4 md:px-6 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
             <div className="flex flex-1 items-center gap-4">
-                {/* Collapse / Expand Button */}
+                {/* Mobile hamburger menu button */}
+                <button
+                    onClick={() => setIsMobileOpen?.(!isMobileOpen)}
+                    className="md:hidden rounded-lg p-2 pl-0 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                >
+                    <Menu className="h-5 w-5" />
+                </button>
+
+                {/* Mobile Only: Title Page */}
+                {title && (
+                    <span className="md:hidden text-base font-bold text-slate-900 dark:text-white truncate">
+                        {title}
+                    </span>
+                )}
+
+                {/* Desktop Collapse / Expand Button */}
                 {isCollapsed && (
                     <button
                         onClick={() => setIsCollapsed(false)}
-                        className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                        className="hidden md:block rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-300"
                     >
                         <Menu className="h-5 w-5" />
                     </button>
@@ -50,19 +67,10 @@ export default function Topbar({ isCollapsed, setIsCollapsed }: TopbarProps) {
             </div>
 
             <div className="flex items-center gap-4">
-                {/* Theme Toggle Wrapper with relative adjust */}
-                <div className="relative flex size-9 items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                {/* Theme Toggle Wrapper with relative adjust (Desktop Only) */}
+                <div className="hidden md:flex relative flex size-9 items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                     <ThemeToggle className="relative inset-0" />
                 </div>
-
-                {/* Notifications Button */}
-                <button className="relative flex size-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-300">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute right-2 top-2 flex h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900"></span>
-                </button>
-
-                {/* Vertical Divider */}
-                <div className="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
 
                 {/* User Dropdown */}
                 <div className="relative">
@@ -94,6 +102,13 @@ export default function Topbar({ isCollapsed, setIsCollapsed }: TopbarProps) {
                                 onClick={() => setIsUserMenuOpen(false)}
                             />
                             <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-800 dark:bg-slate-950 z-40">
+                                {/* Mobile Only: Theme Toggle inside Profile Dropdown */}
+                                <div className="md:hidden flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-55 dark:hover:bg-slate-900 transition-colors">
+                                    <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold">Ubah Tema</span>
+                                    <ThemeToggle className="relative inset-0" />
+                                </div>
+                                <div className="md:hidden my-1.5 border-t border-slate-200 dark:border-slate-800" />
+
                                 <Link 
                                     href="/pengaturan" 
                                     className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"

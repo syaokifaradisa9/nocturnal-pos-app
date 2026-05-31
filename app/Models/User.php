@@ -56,11 +56,4 @@ class User extends Authenticatable implements PasskeyUser
             ->withPivot('role_id');
     }
 
-    /**
-     * The direct permissions assigned to the user.
-     */
-    public function permissions(): BelongsToMany
-    {
-        return $this->belongsToMany(Permission::class, 'user_permission');
-    }
 }

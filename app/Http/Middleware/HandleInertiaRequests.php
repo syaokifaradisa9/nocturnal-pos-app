@@ -23,6 +23,10 @@ class HandleInertiaRequests extends Middleware
      */
     public function version(Request $request): ?string
     {
+        if (file_exists(public_path('hot'))) {
+            return null;
+        }
+
         return parent::version($request);
     }
 
@@ -39,9 +43,21 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'username' => $request->user()->username,
+                    'permissions' => $request->user()->permissions()->pluck('name')->toArray()
+                ] : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+                'type' => $request->session()->has('success') ? 'success' : ($request->session()->has('error') ? 'error' : null),
+                'message' => $request->session()->get('success') ?? $request->session()->get('error'),
+            ],
         ];
     }
 }

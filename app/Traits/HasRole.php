@@ -2,10 +2,12 @@
 
 namespace App\Traits;
 
-use App\Models\Role;
+use App\Enums\UserPermission;
 use App\Models\Permission;
-use Illuminate\Support\Facades\DB;
+use App\Models\Role;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 trait HasRole
 {
@@ -162,6 +164,14 @@ trait HasRole
     }
 
     /**
+     * The direct permissions relationship.
+     */
+    public function directPermissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'user_permission');
+    }
+
+    /**
      * Assign direct permissions to the user.
      *
      * @param  mixed  $permissions
@@ -184,7 +194,7 @@ trait HasRole
             return Permission::where('name', $permission)->value('id');
         }, $permissions));
 
-        $this->permissions()->syncWithoutDetaching($permissionIds);
+        $this->directPermissions()->syncWithoutDetaching($permissionIds);
         return $this;
     }
 
@@ -211,7 +221,7 @@ trait HasRole
             return Permission::where('name', $permission)->value('id');
         }, $permissions));
 
-        $this->permissions()->sync($permissionIds);
+        $this->directPermissions()->sync($permissionIds);
         return $this;
     }
 
@@ -238,7 +248,7 @@ trait HasRole
      *
      * @return Collection
      */
-    public function getPermissions(): Collection
+    public function permissions(): Collection
     {
         $direct = Permission::select('permissions.name', 'permissions.description')
             ->join('user_permission', 'permissions.id', '=', 'user_permission.permission_id')
@@ -262,12 +272,31 @@ trait HasRole
     }
 
     /**
+     * Get all permissions associated with the user (both direct and role-inherited).
+     *
+     * @return Collection
+     */
+    public function getPermissions(): Collection
+    {
+        return $this->permissions();
+    }
+
+    /**
      * Alias to support user typo getPermisisons.
      *
      * @return Collection
      */
     public function getPermisisons(): Collection
     {
-        return $this->getPermissions();
+        return $this->permissions();
+    }
+
+    /**
+     * Check if the user has a specific permission.
+     */
+    public function hasPermission(string|UserPermission $permission): bool
+    {
+        $name = $permission instanceof UserPermission ? $permission->value : $permission;
+        return $this->permissions()->pluck('name')->contains($name);
     }
 }

@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Repositories\BusinessRepository;
+use App\Repositories\EloquentBusinessRepository;
+use App\Repositories\RoleRepository;
+use App\Repositories\EloquentRoleRepository;
+use App\Repositories\UserRepository;
+use App\Repositories\EloquentUserRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -10,12 +16,24 @@ use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         \Laravel\Fortify\Fortify::ignoreRoutes();
+
+        $this->app->singleton(
+            BusinessRepository::class,
+            EloquentBusinessRepository::class
+        );
+
+        $this->app->singleton(
+            RoleRepository::class,
+            EloquentRoleRepository::class
+        );
+
+        $this->app->singleton(
+            UserRepository::class,
+            EloquentUserRepository::class
+        );
     }
 
     /**

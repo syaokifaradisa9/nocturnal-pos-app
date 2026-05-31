@@ -1,56 +1,23 @@
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { 
-    LayoutDashboard, 
     ShoppingBag, 
     TrendingUp, 
-    Users, 
     DollarSign, 
     Package, 
-    LogOut, 
     Plus, 
     ArrowUpRight, 
     ArrowDownRight 
 } from 'lucide-react';
 import React from 'react';
-import ThemeToggle from '../components/commons/ThemeToggle';
+import DashboardLayout from '../components/layouts/DashboardLayout';
 
 export default function Dashboard() {
-    const handleLogout = (e: React.FormEvent) => {
-        e.preventDefault();
-        router.post('/auth/logout');
-    };
-
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+        <DashboardLayout>
             <Head title="Dashboard" />
             
-            {/* Top Navigation Bar */}
-            <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
-                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center rounded-lg bg-primary p-2 text-white shadow-md shadow-primary/20">
-                            <LayoutDashboard className="h-5 w-5" />
-                        </div>
-                        <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                            Nocturnal POS
-                        </span>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <ThemeToggle />
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
-                        >
-                            <LogOut className="h-4 w-4" />
-                            Keluar
-                        </button>
-                    </div>
-                </div>
-            </header>
-
             {/* Main Content Area */}
-            <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 {/* Greeting & Header Action */}
                 <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -224,7 +191,7 @@ export default function Dashboard() {
                         </ul>
                     </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </DashboardLayout>
     );
 }

@@ -25,4 +25,17 @@ enum UserPermission: string
     case DELETE_ANY_BRANCH = 'Hapus Data Cabang Keseluruhan';
     case DELETE_ASSOCIATED_BRANCH = 'Hapus Data Cabang Penanggungjawab Bisnis';
     case DELETE_OWN_BRANCH = 'Hapus Data Cabang Pribadi';
+
+    case VIEW_ANY_PRODUCT = 'Lihat Data Produk Keseluruhan';
+    case VIEW_ASSOCIATED_PRODUCT = 'Lihat Data Produk Penempatan Bisnis';
+    case VIEW_OWN_PRODUCT = 'Lihat Data Produk Pribadi';
+    case CREATE_ANY_PRODUCT = 'Tambah Data Produk Keseluruhan';
+    case CREATE_ASSOCIATED_PRODUCT = 'Tambah Data Produk Penempatan Bisnis';
+    case CREATE_OWN_PRODUCT = 'Tambah Data Produk Pribadi';
+    case EDIT_ANY_PRODUCT = 'Edit Data Produk Keseluruhan';
+    case EDIT_ASSOCIATED_PRODUCT = 'Edit Data Produk Penempatan Bisnis';
+    case EDIT_OWN_PRODUCT = 'Edit Data Produk Pribadi';
+    case DELETE_ANY_PRODUCT = 'Hapus Data Produk Keseluruhan';
+    case DELETE_ASSOCIATED_PRODUCT = 'Hapus Data Produk Penempatan Bisnis';
+    case DELETE_OWN_PRODUCT = 'Hapus Data Produk Pribadi';
 }

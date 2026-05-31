@@ -3,7 +3,8 @@ import {
     LayoutDashboard, 
     Store,
     Building,
-    ChevronLeft
+    ChevronLeft,
+    ShoppingBag
 } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 import { UserPermission } from '../../types';
@@ -21,6 +22,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const userPermissions = user?.permissions || [];
     const hasBusinessPermission = userPermissions.includes(UserPermission.VIEW_ANY_BUSINESS) || userPermissions.includes(UserPermission.VIEW_OWN_BUSINESS);
     const hasBranchPermission = userPermissions.includes(UserPermission.VIEW_ANY_BRANCH) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_BRANCH) || userPermissions.includes(UserPermission.VIEW_OWN_BRANCH);
+    const hasProductPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT);
 
     const menuGroups = [
         {
@@ -35,6 +37,14 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 items: [
                     ...(hasBusinessPermission ? [{ name: 'Bisnis', icon: Store, href: '/businesses' }] : []),
                     ...(hasBranchPermission ? [{ name: 'Cabang', icon: Building, href: '/branches' }] : [])
+                ]
+            }
+        ] : []),
+        ...(hasProductPermission ? [
+            {
+                groupName: 'Produk',
+                items: [
+                    { name: 'Produk Penjualan', icon: ShoppingBag, href: '/products' }
                 ]
             }
         ] : [])

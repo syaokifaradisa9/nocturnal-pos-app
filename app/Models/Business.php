@@ -39,4 +39,12 @@ class Business extends Model
     {
         return $this->hasMany(Branch::class);
     }
+
+    /**
+     * The products associated with the business.
+     */
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'business_products');
+    }
 }

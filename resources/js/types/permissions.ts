@@ -19,5 +19,18 @@ export enum UserPermission {
     EDIT_OWN_BRANCH = 'Edit Data Cabang Pribadi',
     DELETE_ANY_BRANCH = 'Hapus Data Cabang Keseluruhan',
     DELETE_ASSOCIATED_BRANCH = 'Hapus Data Cabang Penanggungjawab Bisnis',
-    DELETE_OWN_BRANCH = 'Hapus Data Cabang Pribadi'
+    DELETE_OWN_BRANCH = 'Hapus Data Cabang Pribadi',
+
+    VIEW_ANY_PRODUCT = 'Lihat Data Produk Keseluruhan',
+    VIEW_ASSOCIATED_PRODUCT = 'Lihat Data Produk Penempatan Bisnis',
+    VIEW_OWN_PRODUCT = 'Lihat Data Produk Pribadi',
+    CREATE_ANY_PRODUCT = 'Tambah Data Produk Keseluruhan',
+    CREATE_ASSOCIATED_PRODUCT = 'Tambah Data Produk Penempatan Bisnis',
+    CREATE_OWN_PRODUCT = 'Tambah Data Produk Pribadi',
+    EDIT_ANY_PRODUCT = 'Edit Data Produk Keseluruhan',
+    EDIT_ASSOCIATED_PRODUCT = 'Edit Data Produk Penempatan Bisnis',
+    EDIT_OWN_PRODUCT = 'Edit Data Produk Pribadi',
+    DELETE_ANY_PRODUCT = 'Hapus Data Produk Keseluruhan',
+    DELETE_ASSOCIATED_PRODUCT = 'Hapus Data Produk Penempatan Bisnis',
+    DELETE_OWN_PRODUCT = 'Hapus Data Produk Pribadi'
 }

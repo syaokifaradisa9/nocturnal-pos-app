@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'business.permission' => \App\Http\Middleware\CheckBusinessUserPermission::class,
+            'branch.permission' => \App\Http\Middleware\CheckBranchUserPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

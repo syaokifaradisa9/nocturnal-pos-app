@@ -8,6 +8,8 @@ use App\Repositories\RoleRepository;
 use App\Repositories\EloquentRoleRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\EloquentUserRepository;
+use App\Repositories\BranchRepository;
+use App\Repositories\EloquentBranchRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +35,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(
             UserRepository::class,
             EloquentUserRepository::class
+        );
+
+        $this->app->singleton(
+            BranchRepository::class,
+            EloquentBranchRepository::class
         );
     }
 

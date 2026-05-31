@@ -2,6 +2,7 @@ import React from 'react';
 import { 
     LayoutDashboard, 
     Store,
+    Building,
     ChevronLeft
 } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
@@ -18,7 +19,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const { url, props } = usePage();
     const user = props.auth?.user as any;
     const userPermissions = user?.permissions || [];
-    const hasOverallPermission = userPermissions.includes(UserPermission.VIEW_ANY_BUSINESS);
+    const hasBusinessPermission = userPermissions.includes(UserPermission.VIEW_ANY_BUSINESS) || userPermissions.includes(UserPermission.VIEW_OWN_BUSINESS);
+    const hasBranchPermission = userPermissions.includes(UserPermission.VIEW_ANY_BRANCH) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_BRANCH) || userPermissions.includes(UserPermission.VIEW_OWN_BRANCH);
 
     const menuGroups = [
         {
@@ -27,11 +29,12 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' }
             ]
         },
-        ...(hasOverallPermission ? [
+        ...((hasBusinessPermission || hasBranchPermission) ? [
             {
-                groupName: 'Data Bisnis',
+                groupName: 'Data Master',
                 items: [
-                    { name: 'Bisnis', icon: Store, href: '/businesses' }
+                    ...(hasBusinessPermission ? [{ name: 'Bisnis', icon: Store, href: '/businesses' }] : []),
+                    ...(hasBranchPermission ? [{ name: 'Cabang', icon: Building, href: '/branches' }] : [])
                 ]
             }
         ] : [])

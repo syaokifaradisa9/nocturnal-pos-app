@@ -27,6 +27,19 @@ class DatabaseSeeder extends Seeder
             'Edit Data Bisnis Keseluruhan',
             'Hapus Data Bisnis Pribadi',
             'Hapus Data Bisnis Keseluruhan',
+
+            'Lihat Data Cabang Keseluruhan',
+            'Lihat Data Cabang Penanggungjawab Bisnis',
+            'Lihat Data Cabang Pribadi',
+            'Tambah Data Cabang Keseluruhan',
+            'Tambah Data Cabang Penanggungjawab Bisnis',
+            'Tambah Data Cabang Pribadi',
+            'Edit Data Cabang Keseluruhan',
+            'Edit Data Cabang Penanggungjawab Bisnis',
+            'Edit Data Cabang Pribadi',
+            'Hapus Data Cabang Keseluruhan',
+            'Hapus Data Cabang Penanggungjawab Bisnis',
+            'Hapus Data Cabang Pribadi',
         ];
 
         foreach ($permissions as $permissionName) {
@@ -36,12 +49,15 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        $user = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'username' => 'testuser',
-            'password' => Hash::make('password'),
-        ]);
+        $user = User::where('username', 'testuser')->first();
+        if (!$user) {
+            $user = User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'username' => 'testuser',
+                'password' => Hash::make('password'),
+            ]);
+        }
 
         // Assign all permissions directly to the test user
         $user->assignPermissions($permissions);
@@ -53,19 +69,25 @@ class DatabaseSeeder extends Seeder
         );
 
         // Seed some sample businesses
-        $business1 = Business::create([
-            'user_id' => $user->id,
-            'name' => 'Nocturnal Studio',
-            'description' => 'Bisnis pribadi yang berfokus pada software development.',
-        ]);
+        $business1 = Business::firstOrCreate(
+            ['name' => 'Nocturnal Studio'],
+            [
+                'user_id' => $user->id,
+                'description' => 'Bisnis pribadi yang berfokus pada software development.',
+            ]
+        );
 
-        $business2 = Business::create([
-            'user_id' => null,
-            'name' => 'Global Retail POS',
-            'description' => 'Bisnis retail waralaba berskala nasional.',
-        ]);
+        $business2 = Business::firstOrCreate(
+            ['name' => 'Global Retail POS'],
+            [
+                'user_id' => null,
+                'description' => 'Bisnis retail waralaba berskala nasional.',
+            ]
+        );
 
-        // Link Test User to Business 1 (makes it "Pribadi") via pivot table
-        $user->businesses()->attach($business1->id, ['role_id' => $adminRole->id]);
+        // Link Test User to Business 1 (makes it "Pribadi") via pivot table if not already linked
+        if (!$user->businesses()->where('businesses.id', $business1->id)->exists()) {
+            $user->businesses()->attach($business1->id, ['role_id' => $adminRole->id]);
+        }
     }
 }

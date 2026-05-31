@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+use App\Concerns\HasPermission;
+
 #[Fillable(['name', 'description'])]
 class Role extends Model
 {
-    use HasFactory;
+    use HasFactory, HasPermission;
 
     /**
      * The permissions associated with the role.

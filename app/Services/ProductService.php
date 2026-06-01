@@ -204,4 +204,12 @@ class ProductService
 
         return compact('businesses', 'users');
     }
+
+    /**
+     * Get businesses by User ID.
+     */
+    public function getBusinessesByUserId(int $userId): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->businessRepository->query()->where('user_id', $userId)->get();
+    }
 }

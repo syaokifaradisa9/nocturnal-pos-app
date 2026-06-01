@@ -128,6 +128,8 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
 
     // Selected owner state for dynamic filtering in CREATE_ANY_PRODUCT
     const [selectedOwnerId, setSelectedOwnerId] = useState<string>('');
+    const [fetchedBusinesses, setFetchedBusinesses] = useState<Business[]>([]);
+    const [isFetchingBusinesses, setIsFetchingBusinesses] = useState(false);
 
     /* Create Form */
     const { data: createData, setData: setCreateData, post: postCreate, reset: resetCreate, errors: createErrors, processing: createProcessing, clearErrors: clearCreateErrors } = useForm({
@@ -146,6 +148,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                 setIsCreateModalOpen(false);
                 resetCreate();
                 setSelectedOwnerId('');
+                setFetchedBusinesses([]);
                 datatableRef.current?.fetchData();
             }
         });
@@ -179,13 +182,37 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         });
     };
 
-    const openEditModal = (product: Product) => {
+    const openEditModal = async (product: Product) => {
         const associatedBusinessIds = product.businesses ? product.businesses.map(b => b.id) : [];
+        const ownerId = product.businesses && product.businesses.length > 0
+            ? String(product.businesses[0].user_id || '')
+            : '';
         setSelectedProduct(product);
         setEditData({
             name: product.name,
             business_ids: associatedBusinessIds
         });
+        setSelectedOwnerId(ownerId);
+
+        if (ownerId) {
+            setIsFetchingBusinesses(true);
+            try {
+                const response = await fetch(`/products/owner-businesses?user_id=${ownerId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setFetchedBusinesses(data);
+                } else {
+                    setFetchedBusinesses([]);
+                }
+            } catch (error) {
+                console.error('Error fetching businesses:', error);
+                setFetchedBusinesses([]);
+            } finally {
+                setIsFetchingBusinesses(false);
+            }
+        } else {
+            setFetchedBusinesses([]);
+        }
         setIsEditModalOpen(true);
     };
 
@@ -193,9 +220,30 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         setDeleteTarget(product);
     };
 
-    const filteredBusinessesForCreate = hasCreateAnyProduct && selectedOwnerId
-        ? businesses.filter(b => b.user_id === Number(selectedOwnerId))
-        : businesses;
+    const handleOwnerChange = async (ownerId: string, setFormData: (key: string, value: any) => void) => {
+        setSelectedOwnerId(ownerId);
+        setFormData('business_ids', []);
+        
+        if (ownerId) {
+            setIsFetchingBusinesses(true);
+            try {
+                const response = await fetch(`/products/owner-businesses?user_id=${ownerId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setFetchedBusinesses(data);
+                } else {
+                    setFetchedBusinesses([]);
+                }
+            } catch (error) {
+                console.error('Error fetching businesses:', error);
+                setFetchedBusinesses([]);
+            } finally {
+                setIsFetchingBusinesses(false);
+            }
+        } else {
+            setFetchedBusinesses([]);
+        }
+    };
 
     const renderFormFields = (
         formData: any,
@@ -203,10 +251,12 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         formErrors: any,
         isEdit: boolean = false
     ) => {
-        const showOwnerSelector = !isEdit && hasCreateAnyProduct;
-        const showBusinessSelector = isEdit 
-            ? hasCreateAnyProduct // edit is only permitted to change business if admin
-            : (hasCreateAnyProduct || (hasCreateAssociatedProduct && businesses.length > 1));
+        const showOwnerSelector = hasCreateAnyProduct;
+        const showBusinessSelector = hasCreateAnyProduct 
+            ? (selectedOwnerId !== '')
+            : (isEdit ? false : (hasCreateAssociatedProduct && businesses.length > 1));
+
+        const displayBusinesses = hasCreateAnyProduct ? fetchedBusinesses : businesses;
 
         const handleCheckboxChange = (businessId: number, checked: boolean) => {
             const currentIds = formData.business_ids || [];
@@ -232,12 +282,9 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                         name="owner_id"
                         label="Pilih Owner Bisnis"
                         value={selectedOwnerId}
-                        onChange={(e) => {
-                            setSelectedOwnerId(e.target.value);
-                            setFormData('business_ids', []);
-                        }}
+                        onChange={(e) => handleOwnerChange(e.target.value, setFormData)}
                     >
-                        <option value="">Semua Owner</option>
+                        <option value="">Pilih Owner</option>
                         {users.map((owner) => (
                             <option key={owner.id} value={owner.id}>
                                 {owner.name}
@@ -246,33 +293,45 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                     </FormSelect>
                 )}
 
-                {showBusinessSelector && (
+                {isFetchingBusinesses && (
+                    <div className="text-xs font-medium text-slate-500 animate-pulse py-2">
+                        Memuat data bisnis...
+                    </div>
+                )}
+
+                {!isFetchingBusinesses && showBusinessSelector && (
                     <div className="space-y-2">
                         <label className="block text-xs font-medium text-slate-500 dark:text-slate-400">
                             Pilih Bisnis
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30">
-                            {filteredBusinessesForCreate.map((b) => {
-                                const isChecked = (formData.business_ids || []).includes(b.id);
-                                return (
-                                    <label
-                                        key={b.id}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all ${
-                                            isChecked
-                                                ? 'border-sky-500 bg-sky-500/5 text-sky-900 dark:text-sky-300 dark:border-sky-500/50'
-                                                : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-850'
-                                        }`}
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={isChecked}
-                                            onChange={(e) => handleCheckboxChange(b.id, e.target.checked)}
-                                            className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-800"
-                                        />
-                                        <span className="text-sm font-medium">{b.name}</span>
-                                    </label>
-                                );
-                            })}
+                            {displayBusinesses.length === 0 ? (
+                                <div className="col-span-full py-4 text-center text-xs text-slate-400">
+                                    Owner ini belum memiliki bisnis
+                                </div>
+                            ) : (
+                                displayBusinesses.map((b) => {
+                                    const isChecked = (formData.business_ids || []).includes(b.id);
+                                    return (
+                                        <label
+                                            key={b.id}
+                                            className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all ${
+                                                isChecked
+                                                    ? 'border-sky-500 bg-sky-500/5 text-sky-900 dark:text-sky-300 dark:border-sky-500/50'
+                                                    : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-850'
+                                            }`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={(e) => handleCheckboxChange(b.id, e.target.checked)}
+                                                className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-800"
+                                            />
+                                            <span className="text-sm font-medium">{b.name}</span>
+                                        </label>
+                                    );
+                                })
+                            )}
                         </div>
                         {formErrors.business_ids && (
                             <p className="mt-1.5 text-xs text-rose-500 font-medium">{formErrors.business_ids}</p>
@@ -433,13 +492,13 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
             </div>
 
             {/* ─── Create Modal ─── */}
-            <Modal open={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); resetCreate(); setSelectedOwnerId(''); clearCreateErrors(); }} title="Tambah Produk Baru">
+            <Modal open={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); resetCreate(); setSelectedOwnerId(''); setFetchedBusinesses([]); clearCreateErrors(); }} title="Tambah Produk Baru">
                 <form onSubmit={handleCreateSubmit}>
                     {renderFormFields(createData, setCreateData, createErrors)}
                     <div className="mt-6 flex justify-end gap-3">
                         <button
                             type="button"
-                            onClick={() => { setIsCreateModalOpen(false); resetCreate(); setSelectedOwnerId(''); clearCreateErrors(); }}
+                            onClick={() => { setIsCreateModalOpen(false); resetCreate(); setSelectedOwnerId(''); setFetchedBusinesses([]); clearCreateErrors(); }}
                             className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
                         >
                             Batal
@@ -458,7 +517,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
             {/* ─── Edit Modal ─── */}
             <Modal
                 open={isEditModalOpen}
-                onClose={() => { setIsEditModalOpen(false); resetEdit(); setSelectedProduct(null); clearEditErrors(); }}
+                onClose={() => { setIsEditModalOpen(false); resetEdit(); setSelectedProduct(null); setSelectedOwnerId(''); setFetchedBusinesses([]); clearEditErrors(); }}
                 title="Edit Produk"
             >
                 <form onSubmit={handleEditSubmit}>
@@ -466,8 +525,8 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                     <div className="mt-6 flex justify-end gap-3">
                         <button
                             type="button"
-                            onClick={() => { setIsEditModalOpen(false); resetEdit(); setSelectedProduct(null); clearEditErrors(); }}
-                            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                            onClick={() => { setIsEditModalOpen(false); resetEdit(); setSelectedProduct(null); setSelectedOwnerId(''); setFetchedBusinesses([]); clearEditErrors(); }}
+                            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-850 transition-colors"
                         >
                             Batal
                         </button>

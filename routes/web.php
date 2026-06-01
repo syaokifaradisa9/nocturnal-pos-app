@@ -62,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/datatable', 'datatable')->name('datatable');
+            Route::get('/owner-businesses', 'ownerBusinesses')->name('owner_businesses');
             Route::get('/create', 'create')->name('create');
             Route::post('/store', 'store')->name('store');
             Route::prefix('print')->name('print.')->group(function () {

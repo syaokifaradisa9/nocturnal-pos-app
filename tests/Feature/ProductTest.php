@@ -225,3 +225,19 @@ test('users can delete product if they have permission', function () {
     $response->assertRedirect(route('products.index'));
     $this->assertSoftDeleted('products', ['id' => $product->id]);
 });
+
+test('admins can fetch businesses by owner id', function () {
+    $admin = User::factory()->create();
+    $admin->assignPermissions(['Tambah Data Produk Keseluruhan']);
+
+    $owner = User::factory()->create();
+    $business = Business::create(['name' => 'Owner Business', 'user_id' => $owner->id]);
+
+    $response = $this->actingAs($admin)
+        ->getJson(route('products.owner_businesses', ['user_id' => $owner->id]));
+
+    $response->assertOk();
+    $data = $response->json();
+    expect($data)->toHaveCount(1);
+    expect($data[0]['name'])->toBe('Owner Business');
+});

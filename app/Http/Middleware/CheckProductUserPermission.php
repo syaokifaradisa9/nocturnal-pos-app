@@ -27,6 +27,7 @@ class CheckProductUserPermission
         $permissionMap = [
             'index' => [UserPermission::VIEW_ANY_PRODUCT, UserPermission::VIEW_ASSOCIATED_PRODUCT, UserPermission::VIEW_OWN_PRODUCT],
             'datatable' => [UserPermission::VIEW_ANY_PRODUCT, UserPermission::VIEW_ASSOCIATED_PRODUCT, UserPermission::VIEW_OWN_PRODUCT],
+            'ownerBusinesses' => [UserPermission::VIEW_ANY_PRODUCT, UserPermission::CREATE_ANY_PRODUCT, UserPermission::EDIT_ANY_PRODUCT],
             'printPdf' => [UserPermission::VIEW_ANY_PRODUCT, UserPermission::VIEW_ASSOCIATED_PRODUCT, UserPermission::VIEW_OWN_PRODUCT],
             'printExcel' => [UserPermission::VIEW_ANY_PRODUCT, UserPermission::VIEW_ASSOCIATED_PRODUCT, UserPermission::VIEW_OWN_PRODUCT],
             'create' => [UserPermission::CREATE_ANY_PRODUCT, UserPermission::CREATE_ASSOCIATED_PRODUCT, UserPermission::CREATE_OWN_PRODUCT],

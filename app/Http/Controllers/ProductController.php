@@ -121,4 +121,18 @@ class ProductController extends Controller
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil dihapus.');
     }
+
+    /**
+     * Get businesses by owner (user) ID.
+     */
+    public function ownerBusinesses(Request $request): JsonResponse
+    {
+        $userId = $request->query('user_id');
+        if (!$userId) {
+            return response()->json([]);
+        }
+
+        $businesses = $this->service->getBusinessesByUserId((int) $userId);
+        return response()->json($businesses);
+    }
 }

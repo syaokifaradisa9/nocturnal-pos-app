@@ -51,4 +51,9 @@ enum UserPermission: string
     case DELETE_ANY_SUPPLIER = 'Hapus Data Supplier Keseluruhan';
     case DELETE_ASSOCIATED_SUPPLIER = 'Hapus Data Supplier Penempatan Bisnis';
     case DELETE_OWN_SUPPLIER = 'Hapus Data Supplier Pribadi';
+
+    case VIEW_ROLE = 'Lihat Data Role Permisison';
+    case CREATE_ROLE = 'Tambah Data Role Permisison';
+    case EDIT_ROLE = 'Edit Data Role Permisison';
+    case DELETE_ROLE = 'Hapus Data Role Permission';
 }

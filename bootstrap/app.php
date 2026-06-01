@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'branch.permission' => \App\Http\Middleware\CheckBranchUserPermission::class,
             'product.permission' => \App\Http\Middleware\CheckProductUserPermission::class,
             'supplier.permission' => \App\Http\Middleware\CheckSupplierUserPermission::class,
+            'role.permission' => \App\Http\Middleware\CheckRoleUserPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

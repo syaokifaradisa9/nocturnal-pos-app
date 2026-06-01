@@ -45,5 +45,10 @@ export enum UserPermission {
     EDIT_OWN_SUPPLIER = 'Edit Data Supplier Pribadi',
     DELETE_ANY_SUPPLIER = 'Hapus Data Supplier Keseluruhan',
     DELETE_ASSOCIATED_SUPPLIER = 'Hapus Data Supplier Penempatan Bisnis',
-    DELETE_OWN_SUPPLIER = 'Hapus Data Supplier Pribadi'
+    DELETE_OWN_SUPPLIER = 'Hapus Data Supplier Pribadi',
+
+    VIEW_ROLE = 'Lihat Data Role Permisison',
+    CREATE_ROLE = 'Tambah Data Role Permisison',
+    EDIT_ROLE = 'Edit Data Role Permisison',
+    DELETE_ROLE = 'Hapus Data Role Permission'
 }

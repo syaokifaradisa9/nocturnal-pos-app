@@ -66,6 +66,11 @@ class DatabaseSeeder extends Seeder
             'Hapus Data Supplier Keseluruhan',
             'Hapus Data Supplier Penempatan Bisnis',
             'Hapus Data Supplier Pribadi',
+
+            'Lihat Data Role Permisison',
+            'Tambah Data Role Permisison',
+            'Edit Data Role Permisison',
+            'Hapus Data Role Permission',
         ];
 
         foreach ($permissions as $permissionName) {

@@ -96,6 +96,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::delete('/delete', 'destroy')->name('destroy');
             });
         });
+
+    Route::controller(\App\Http\Controllers\RoleController::class)
+        ->prefix('roles')
+        ->name('roles.')
+        ->middleware('role.permission')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/datatable', 'datatable')->name('datatable');
+            Route::post('/store', 'store')->name('store');
+            Route::prefix('{id}')->group(function () {
+                Route::put('/update', 'update')->name('update');
+                Route::delete('/delete', 'destroy')->name('destroy');
+            });
+        });
 });
 
 Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');

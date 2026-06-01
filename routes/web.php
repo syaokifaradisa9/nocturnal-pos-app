@@ -193,6 +193,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::delete('/delete', 'destroy')->name('destroy');
             });
         });
+
+    Route::controller(\App\Http\Controllers\PurchaseReceiptController::class)
+        ->prefix('purchase-receipts')
+        ->name('purchase-receipts.')
+        ->middleware('purchase_receipt.permission')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/datatable', 'datatable')->name('datatable');
+            Route::get('/create', 'create')->name('create');
+            Route::get('/owner-data', 'ownerData')->name('owner_data');
+            Route::post('/store', 'store')->name('store');
+            Route::prefix('print')->name('print.')->group(function () {
+                Route::get('/pdf', 'printPdf')->name('pdf');
+                Route::get('/excel', 'printExcel')->name('excel');
+            });
+            Route::delete('/{id}/delete', 'destroy')->name('destroy');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}/update', 'update')->name('update');
+            Route::get('/{id}', 'show')->name('show');
+            Route::get('/{id}/confirm', 'confirmPage')->name('confirm_page');
+            Route::post('/{id}/confirm', 'confirm')->name('confirm');
+        });
+
+    Route::controller(\App\Http\Controllers\StockMonitoringController::class)
+        ->prefix('stock-monitoring')
+        ->name('stock-monitoring.')
+        ->middleware('purchase_receipt.permission')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+        });
 });
 
 Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');

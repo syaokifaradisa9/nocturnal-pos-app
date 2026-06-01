@@ -108,4 +108,9 @@ enum UserPermission: string
     case DELETE_ANY_PRODUCT_ITEM = 'Hapus Data Item Produk Keseluruhan';
     case DELETE_ASSOCIATED_PRODUCT_ITEM = 'Hapus Data Item Produk Penempatan Bisnis';
     case DELETE_OWN_PRODUCT_ITEM = 'Hapus Data Item Produk Pribadi';
+
+    case VIEW_ANY_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Keseluruhan';
+    case VIEW_OWN_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Pribadi';
+    case VIEW_ASSOCIATED_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Penempatan Bisnis';
+    case CONFIRM_PURCHASE_RECEIPT = 'Konfirmasi Data Penerimaan Barang';
 }

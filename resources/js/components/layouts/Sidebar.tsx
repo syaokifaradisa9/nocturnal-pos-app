@@ -10,7 +10,8 @@ import {
     Users,
     Scale,
     Gift,
-    Package
+    Package,
+    ClipboardCheck
 } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 import { UserPermission } from '../../types';
@@ -35,6 +36,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const hasProductUnitPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT_UNIT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT_UNIT) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT_UNIT);
     const hasRewardPermission = userPermissions.includes(UserPermission.VIEW_ANY_REWARD) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_REWARD) || userPermissions.includes(UserPermission.VIEW_OWN_REWARD);
     const hasProductItemPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT_ITEM) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT_ITEM) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT_ITEM);
+    const hasPurchaseReceiptPermission = userPermissions.includes(UserPermission.VIEW_ANY_PURCHASE_RECEIPT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PURCHASE_RECEIPT) || userPermissions.includes(UserPermission.VIEW_OWN_PURCHASE_RECEIPT);
 
     const menuGroups = [
         {
@@ -43,6 +45,15 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' }
             ]
         },
+        ...(hasPurchaseReceiptPermission ? [
+            {
+                groupName: 'Operasional',
+                items: [
+                    { name: 'Penerimaan Barang', icon: ClipboardCheck, href: '/purchase-receipts' },
+                    { name: 'Monitoring Stok', icon: Package, href: '/stock-monitoring' }
+                ]
+            }
+        ] : []),
         ...(hasRolePermission ? [
             {
                 groupName: 'Data Master',

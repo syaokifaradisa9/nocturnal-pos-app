@@ -76,6 +76,26 @@ class AppServiceProvider extends ServiceProvider
             RewardRepository::class,
             EloquentRewardRepository::class
         );
+
+        $this->app->singleton(
+            \App\Repositories\PurchaseReceiptRepository::class,
+            \App\Repositories\EloquentPurchaseReceiptRepository::class
+        );
+
+        $this->app->singleton(
+            \App\Repositories\PurchaseReceiptItemRepository::class,
+            \App\Repositories\EloquentPurchaseReceiptItemRepository::class
+        );
+
+        $this->app->singleton(
+            \App\Repositories\PurchaseReceiptRejectRepository::class,
+            \App\Repositories\EloquentPurchaseReceiptRejectRepository::class
+        );
+
+        $this->app->singleton(
+            \App\Repositories\InventoryBatchRepository::class,
+            \App\Repositories\EloquentInventoryBatchRepository::class
+        );
     }
 
     /**

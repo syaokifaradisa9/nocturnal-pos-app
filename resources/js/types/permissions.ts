@@ -102,5 +102,9 @@ export enum UserPermission {
     EDIT_OWN_PRODUCT_ITEM = 'Edit Data Item Produk Pribadi',
     DELETE_ANY_PRODUCT_ITEM = 'Hapus Data Item Produk Keseluruhan',
     DELETE_ASSOCIATED_PRODUCT_ITEM = 'Hapus Data Item Produk Penempatan Bisnis',
-    DELETE_OWN_PRODUCT_ITEM = 'Hapus Data Item Produk Pribadi'
+    DELETE_OWN_PRODUCT_ITEM = 'Hapus Data Item Produk Pribadi',
+
+    VIEW_ANY_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Keseluruhan',
+    VIEW_OWN_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Pribadi',
+    VIEW_ASSOCIATED_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Penempatan Bisnis'
 }

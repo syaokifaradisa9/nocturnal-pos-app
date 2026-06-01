@@ -18,6 +18,8 @@ use App\Repositories\CustomerRepository;
 use App\Repositories\EloquentCustomerRepository;
 use App\Repositories\ProductUnitRepository;
 use App\Repositories\EloquentProductUnitRepository;
+use App\Repositories\RewardRepository;
+use App\Repositories\EloquentRewardRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -68,6 +70,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(
             ProductUnitRepository::class,
             EloquentProductUnitRepository::class
+        );
+
+        $this->app->singleton(
+            RewardRepository::class,
+            EloquentRewardRepository::class
         );
     }
 

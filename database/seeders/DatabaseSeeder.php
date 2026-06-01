@@ -97,6 +97,19 @@ class DatabaseSeeder extends Seeder
             'Hapus Data Satuan Produk Keseluruhan',
             'Hapus Data Satuan Produk Penempatan Bisnis',
             'Hapus Data Satuan Produk Pribadi',
+
+            'Lihat Data Reward Keseluruhan',
+            'Lihat Data Reward Penempatan Bisnis',
+            'Lihat Data Reward Pribadi',
+            'Tambah Data Reward Keseluruhan',
+            'Tambah Data Reward Penempatan Bisnis',
+            'Tambah Data Reward Pribadi',
+            'Edit Data Reward Keseluruhan',
+            'Edit Data Reward Penempatan Bisnis',
+            'Edit Data Reward Pribadi',
+            'Hapus Data Reward Keseluruhan',
+            'Hapus Data Reward Penempatan Bisnis',
+            'Hapus Data Reward Pribadi',
         ];
 
         foreach ($permissions as $permissionName) {

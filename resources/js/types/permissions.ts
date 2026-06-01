@@ -76,5 +76,18 @@ export enum UserPermission {
     EDIT_OWN_PRODUCT_UNIT = 'Edit Data Satuan Produk Pribadi',
     DELETE_ANY_PRODUCT_UNIT = 'Hapus Data Satuan Produk Keseluruhan',
     DELETE_ASSOCIATED_PRODUCT_UNIT = 'Hapus Data Satuan Produk Penempatan Bisnis',
-    DELETE_OWN_PRODUCT_UNIT = 'Hapus Data Satuan Produk Pribadi'
+    DELETE_OWN_PRODUCT_UNIT = 'Hapus Data Satuan Produk Pribadi',
+
+    VIEW_ANY_REWARD = 'Lihat Data Reward Keseluruhan',
+    VIEW_ASSOCIATED_REWARD = 'Lihat Data Reward Penempatan Bisnis',
+    VIEW_OWN_REWARD = 'Lihat Data Reward Pribadi',
+    CREATE_ANY_REWARD = 'Tambah Data Reward Keseluruhan',
+    CREATE_ASSOCIATED_REWARD = 'Tambah Data Reward Penempatan Bisnis',
+    CREATE_OWN_REWARD = 'Tambah Data Reward Pribadi',
+    EDIT_ANY_REWARD = 'Edit Data Reward Keseluruhan',
+    EDIT_ASSOCIATED_REWARD = 'Edit Data Reward Penempatan Bisnis',
+    EDIT_OWN_REWARD = 'Edit Data Reward Pribadi',
+    DELETE_ANY_REWARD = 'Hapus Data Reward Keseluruhan',
+    DELETE_ASSOCIATED_REWARD = 'Hapus Data Reward Penempatan Bisnis',
+    DELETE_OWN_REWARD = 'Hapus Data Reward Pribadi'
 }

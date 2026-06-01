@@ -110,6 +110,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::delete('/delete', 'destroy')->name('destroy');
             });
         });
+
+    Route::controller(\App\Http\Controllers\CustomerController::class)
+        ->prefix('customers')
+        ->name('customers.')
+        ->middleware('customer.permission')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/datatable', 'datatable')->name('datatable');
+            Route::get('/owner-businesses', 'ownerBusinesses')->name('owner_businesses');
+            Route::post('/store', 'store')->name('store');
+            Route::prefix('print')->name('print.')->group(function () {
+                Route::get('/pdf', 'printPdf')->name('pdf');
+                Route::get('/excel', 'printExcel')->name('excel');
+            });
+
+            Route::prefix('{id}')->group(function () {
+                Route::put('/update', 'update')->name('update');
+                Route::delete('/delete', 'destroy')->name('destroy');
+            });
+        });
 });
 
 Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');

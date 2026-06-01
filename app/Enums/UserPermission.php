@@ -56,4 +56,17 @@ enum UserPermission: string
     case CREATE_ROLE = 'Tambah Data Role Permisison';
     case EDIT_ROLE = 'Edit Data Role Permisison';
     case DELETE_ROLE = 'Hapus Data Role Permission';
+
+    case VIEW_ANY_CUSTOMER = 'Lihat Data Customer Keseluruhan';
+    case VIEW_ASSOCIATED_CUSTOMER = 'Lihat Data Customer Penempatan Bisnis';
+    case VIEW_OWN_CUSTOMER = 'Lihat Data Customer Pribadi';
+    case CREATE_ANY_CUSTOMER = 'Tambah Data Customer Keseluruhan';
+    case CREATE_ASSOCIATED_CUSTOMER = 'Tambah Data Customer Penempatan Bisnis';
+    case CREATE_OWN_CUSTOMER = 'Tambah Data Customer Pribadi';
+    case EDIT_ANY_CUSTOMER = 'Edit Data Customer Keseluruhan';
+    case EDIT_ASSOCIATED_CUSTOMER = 'Edit Data Customer Penempatan Bisnis';
+    case EDIT_OWN_CUSTOMER = 'Edit Data Customer Pribadi';
+    case DELETE_ANY_CUSTOMER = 'Hapus Data Customer Keseluruhan';
+    case DELETE_ASSOCIATED_CUSTOMER = 'Hapus Data Customer Penempatan Bisnis';
+    case DELETE_OWN_CUSTOMER = 'Hapus Data Customer Pribadi';
 }

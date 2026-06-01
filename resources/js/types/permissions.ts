@@ -50,5 +50,18 @@ export enum UserPermission {
     VIEW_ROLE = 'Lihat Data Role Permisison',
     CREATE_ROLE = 'Tambah Data Role Permisison',
     EDIT_ROLE = 'Edit Data Role Permisison',
-    DELETE_ROLE = 'Hapus Data Role Permission'
+    DELETE_ROLE = 'Hapus Data Role Permission',
+
+    VIEW_ANY_CUSTOMER = 'Lihat Data Customer Keseluruhan',
+    VIEW_ASSOCIATED_CUSTOMER = 'Lihat Data Customer Penempatan Bisnis',
+    VIEW_OWN_CUSTOMER = 'Lihat Data Customer Pribadi',
+    CREATE_ANY_CUSTOMER = 'Tambah Data Customer Keseluruhan',
+    CREATE_ASSOCIATED_CUSTOMER = 'Tambah Data Customer Penempatan Bisnis',
+    CREATE_OWN_CUSTOMER = 'Tambah Data Customer Pribadi',
+    EDIT_ANY_CUSTOMER = 'Edit Data Customer Keseluruhan',
+    EDIT_ASSOCIATED_CUSTOMER = 'Edit Data Customer Penempatan Bisnis',
+    EDIT_OWN_CUSTOMER = 'Edit Data Customer Pribadi',
+    DELETE_ANY_CUSTOMER = 'Hapus Data Customer Keseluruhan',
+    DELETE_ASSOCIATED_CUSTOMER = 'Hapus Data Customer Penempatan Bisnis',
+    DELETE_OWN_CUSTOMER = 'Hapus Data Customer Pribadi'
 }

@@ -71,6 +71,19 @@ class DatabaseSeeder extends Seeder
             'Tambah Data Role Permisison',
             'Edit Data Role Permisison',
             'Hapus Data Role Permission',
+
+            'Lihat Data Customer Keseluruhan',
+            'Lihat Data Customer Penempatan Bisnis',
+            'Lihat Data Customer Pribadi',
+            'Tambah Data Customer Keseluruhan',
+            'Tambah Data Customer Penempatan Bisnis',
+            'Tambah Data Customer Pribadi',
+            'Edit Data Customer Keseluruhan',
+            'Edit Data Customer Penempatan Bisnis',
+            'Edit Data Customer Pribadi',
+            'Hapus Data Customer Keseluruhan',
+            'Hapus Data Customer Penempatan Bisnis',
+            'Hapus Data Customer Pribadi',
         ];
 
         foreach ($permissions as $permissionName) {

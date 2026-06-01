@@ -6,7 +6,8 @@ import {
     ChevronLeft,
     ShoppingBag,
     Truck,
-    ShieldCheck
+    ShieldCheck,
+    Users
 } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 import { UserPermission } from '../../types';
@@ -27,6 +28,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const hasProductPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT);
     const hasSupplierPermission = userPermissions.includes(UserPermission.VIEW_ANY_SUPPLIER) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_SUPPLIER) || userPermissions.includes(UserPermission.VIEW_OWN_SUPPLIER);
     const hasRolePermission = userPermissions.includes(UserPermission.VIEW_ROLE);
+    const hasCustomerPermission = userPermissions.includes(UserPermission.VIEW_ANY_CUSTOMER) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_CUSTOMER) || userPermissions.includes(UserPermission.VIEW_OWN_CUSTOMER);
 
     const menuGroups = [
         {
@@ -35,13 +37,14 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' }
             ]
         },
-        ...((hasBusinessPermission || hasBranchPermission || hasSupplierPermission || hasRolePermission) ? [
+        ...((hasBusinessPermission || hasBranchPermission || hasSupplierPermission || hasRolePermission || hasCustomerPermission) ? [
             {
                 groupName: 'Data Master',
                 items: [
                     ...(hasBusinessPermission ? [{ name: 'Bisnis', icon: Store, href: '/businesses' }] : []),
                     ...(hasBranchPermission ? [{ name: 'Cabang', icon: Building, href: '/branches' }] : []),
                     ...(hasSupplierPermission ? [{ name: 'Supplier', icon: Truck, href: '/suppliers' }] : []),
+                    ...(hasCustomerPermission ? [{ name: 'Customer', icon: Users, href: '/customers' }] : []),
                     ...(hasRolePermission ? [{ name: 'Role & Izin', icon: ShieldCheck, href: '/roles' }] : [])
                 ]
             }

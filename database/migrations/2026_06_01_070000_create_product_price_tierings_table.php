@@ -1,5 +1,5 @@
 <?php
-
+ 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_items', function (Blueprint $table) {
+        Schema::create('product_price_tierings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('products')->onDelete('restrict');
-            $table->string('name');
-            $table->boolean('is_active')->default(true);
-            $table->softDeletes();
+            $table->foreignId('product_item_measurement_id')
+                ->constrained('product_item_measurements')
+                ->onDelete('cascade');
+            $table->integer('minimum')->default(1);
+            $table->decimal('price', 15, 2)->default(0.00);
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_items');
+        Schema::dropIfExists('product_price_tierings');
     }
 };

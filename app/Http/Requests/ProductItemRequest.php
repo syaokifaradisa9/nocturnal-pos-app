@@ -22,14 +22,18 @@ class ProductItemRequest extends FormRequest
     {
         $rules = [
             'product_id' => ['required', 'exists:products,id'],
-            'name' => ['nullable', 'string', 'max:255'],
+            'old_name' => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'business_ids' => ['nullable', 'array'],
             'business_ids.*' => ['exists:businesses,id'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.measurement_unit_id' => ['required', 'exists:product_units,id'],
+            'items.*.target_measurement_unit_id' => ['nullable', 'exists:product_units,id'],
             'items.*.is_base_unit' => ['required', 'boolean'],
             'items.*.conversion_rate' => ['required', 'numeric', 'min:0'],
-            'items.*.is_active' => ['nullable', 'boolean'],
+            'items.*.price_tierings' => ['nullable', 'array'],
+            'items.*.price_tierings.*.minimum' => ['required', 'integer', 'min:1'],
+            'items.*.price_tierings.*.price' => ['required', 'numeric', 'min:0'],
         ];
 
         return $rules;
@@ -41,9 +45,9 @@ class ProductItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Nama produk wajib diisi.',
-            'name.string' => 'Nama produk harus berupa string.',
-            'name.max' => 'Nama produk maksimal 255 karakter.',
+            'name.required' => 'Nama item varian wajib diisi.',
+            'name.string' => 'Nama item varian harus berupa string.',
+            'name.max' => 'Nama item varian maksimal 255 karakter.',
             'business_ids.required' => 'Bisnis wajib dipilih minimal satu.',
             'business_ids.array' => 'Format bisnis tidak valid.',
             'business_ids.min' => 'Bisnis wajib dipilih minimal satu.',

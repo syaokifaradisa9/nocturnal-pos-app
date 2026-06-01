@@ -86,6 +86,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/datatable', 'datatable')->name('datatable');
             Route::get('/owner-businesses', 'ownerBusinesses')->name('owner_businesses');
             Route::get('/owner-products', 'ownerProducts')->name('owner_products');
+            Route::get('/create', 'create')->name('create');
             Route::post('/store', 'store')->name('store');
             Route::prefix('print')->name('print.')->group(function () {
                 Route::get('/pdf', 'printPdf')->name('pdf');

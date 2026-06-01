@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Product;
+use App\Models\ProductItem;
 use App\Models\User;
 use App\Repositories\ProductRepository;
 use App\Repositories\BusinessRepository;
@@ -20,13 +20,18 @@ class ProductItemService
     ) {}
 
     /**
-     * Get authorized product by ID.
+     * Get authorized product item by ID.
      */
-    public function getAuthorizedProduct(int $id, User $user): Product
+    public function getAuthorizedProductItem(int $id, User $user): ProductItem
     {
-        $product = $this->repository->findOrFail($id);
-        $product->load(['items.measurementUnit', 'businesses']);
+        $productItem = ProductItem::findOrFail($id);
+        $productItem->load(['measurements.measurementUnit', 'measurements.targetMeasurementUnit', 'measurements.priceTierings', 'product.businesses']);
         $isAuthorized = false;
+
+        $product = $productItem->product;
+        if (!$product) {
+            throw new \Exception('Produk induk tidak ditemukan.');
+        }
 
         if ($user->hasPermission(UserPermission::VIEW_ANY_PRODUCT_ITEM)) {
             $isAuthorized = true;
@@ -45,16 +50,16 @@ class ProductItemService
         }
 
         if (!$isAuthorized) {
-            throw new AuthorizationException('Anda tidak memiliki izin untuk mengakses produk ini.');
+            throw new AuthorizationException('Anda tidak memiliki izin untuk mengakses varian produk ini.');
         }
 
-        return $product;
+        return $productItem;
     }
 
     /**
      * Create product item.
      */
-    public function create(array $payload, User $user): Product
+    public function create(array $payload, User $user): ProductItem
     {
         $businessIds = $payload['business_ids'] ?? [];
 
@@ -101,15 +106,20 @@ class ProductItemService
 
         $payload['business_ids'] = $businessIds;
 
-        return $this->catalogService->storeProduct($payload);
+        return $this->catalogService->storeProductItem($payload);
     }
 
     /**
      * Update product item.
      */
-    public function update(int $id, array $payload, User $user): Product
+    public function update(int $id, array $payload, User $user): ProductItem
     {
-        $product = $this->repository->findOrFail($id);
+        $productItem = ProductItem::findOrFail($id);
+        $product = $productItem->product;
+        if (!$product) {
+            throw new \Exception('Produk induk tidak ditemukan.');
+        }
+        
         $isAuthorized = false;
 
         if ($user->hasPermission(UserPermission::EDIT_ANY_PRODUCT_ITEM)) {
@@ -129,7 +139,7 @@ class ProductItemService
         }
 
         if (!$isAuthorized) {
-            throw new AuthorizationException('Anda tidak memiliki izin untuk mengubah produk ini.');
+            throw new AuthorizationException('Anda tidak memiliki izin untuk mengubah varian produk ini.');
         }
 
         $businessIds = $payload['business_ids'] ?? null;
@@ -153,15 +163,20 @@ class ProductItemService
 
         $payload['business_ids'] = $resolvedBusinessIds;
 
-        return $this->catalogService->updateProduct($product, $payload);
+        return $this->catalogService->updateProductItem($productItem, $payload);
     }
 
     /**
-     * Delete product.
+     * Delete product item.
      */
     public function delete(int $id, User $user): bool
     {
-        $product = $this->repository->findOrFail($id);
+        $productItem = ProductItem::findOrFail($id);
+        $product = $productItem->product;
+        if (!$product) {
+            throw new \Exception('Produk induk tidak ditemukan.');
+        }
+
         $isAuthorized = false;
 
         if ($user->hasPermission(UserPermission::DELETE_ANY_PRODUCT_ITEM)) {
@@ -181,12 +196,11 @@ class ProductItemService
         }
 
         if (!$isAuthorized) {
-            throw new AuthorizationException('Anda tidak memiliki izin untuk menghapus produk ini.');
+            throw new AuthorizationException('Anda tidak memiliki izin untuk menghapus varian produk ini.');
         }
 
-        // Under transactional security, delete the items as well
-        $product->items()->delete();
-        return $this->repository->delete($id);
+        // Cascade deletion of measurements is handled by database onDelete('cascade')
+        return $productItem->delete();
     }
 
     /**

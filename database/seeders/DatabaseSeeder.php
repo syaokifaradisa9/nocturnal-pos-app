@@ -172,5 +172,92 @@ class DatabaseSeeder extends Seeder
         if (!$user->businesses()->where('businesses.id', $business1->id)->exists()) {
             $user->businesses()->attach($business1->id, ['role_id' => $adminRole->id]);
         }
+
+        // Seed Product Units
+        $unitKg = \App\Models\ProductUnit::firstOrCreate(
+            ['name' => 'Kilogram', 'business_id' => $business1->id],
+            ['short_name' => 'Kg']
+        );
+        $unitKarung = \App\Models\ProductUnit::firstOrCreate(
+            ['name' => 'Karung', 'business_id' => $business1->id],
+            ['short_name' => 'Krg']
+        );
+        $unitButir = \App\Models\ProductUnit::firstOrCreate(
+            ['name' => 'Butir', 'business_id' => $business1->id],
+            ['short_name' => 'Btr']
+        );
+        $unitRak = \App\Models\ProductUnit::firstOrCreate(
+            ['name' => 'Rak', 'business_id' => $business1->id],
+            ['short_name' => 'Rak']
+        );
+
+        // Seed Products (Induk)
+        $prodBeras = \App\Models\Product::firstOrCreate(['name' => 'Beras']);
+        $prodTelur = \App\Models\Product::firstOrCreate(['name' => 'Telur']);
+
+        // Sync businesses to products
+        if (!$prodBeras->businesses()->where('businesses.id', $business1->id)->exists()) {
+            $prodBeras->businesses()->attach($business1->id);
+        }
+        if (!$prodTelur->businesses()->where('businesses.id', $business1->id)->exists()) {
+            $prodTelur->businesses()->attach($business1->id);
+        }
+
+        // Seed Product Items (Varian) & Measurements
+        // 1. Beras Mayang
+        $itemBerasMayang = \App\Models\ProductItem::firstOrCreate(
+            ['product_id' => $prodBeras->id, 'name' => 'Beras Mayang'],
+            ['is_active' => true]
+        );
+        \App\Models\ProductItemMeasurement::firstOrCreate(
+            ['product_item_id' => $itemBerasMayang->id, 'measurement_unit_id' => $unitKg->id],
+            ['is_base_unit' => true, 'conversion_rate' => 1.0000]
+        );
+        \App\Models\ProductItemMeasurement::firstOrCreate(
+            ['product_item_id' => $itemBerasMayang->id, 'measurement_unit_id' => $unitKarung->id],
+            ['is_base_unit' => false, 'conversion_rate' => 10.0000] // Karung 10kg
+        );
+
+        // 2. Beras Lopo Ijo
+        $itemBerasLopoIjo = \App\Models\ProductItem::firstOrCreate(
+            ['product_id' => $prodBeras->id, 'name' => 'Beras Lopo Ijo'],
+            ['is_active' => true]
+        );
+        \App\Models\ProductItemMeasurement::firstOrCreate(
+            ['product_item_id' => $itemBerasLopoIjo->id, 'measurement_unit_id' => $unitKg->id],
+            ['is_base_unit' => true, 'conversion_rate' => 1.0000]
+        );
+        \App\Models\ProductItemMeasurement::firstOrCreate(
+            ['product_item_id' => $itemBerasLopoIjo->id, 'measurement_unit_id' => $unitKarung->id],
+            ['is_base_unit' => false, 'conversion_rate' => 25.0000] // Karung 25kg
+        );
+
+        // 3. Telur Ayam
+        $itemTelurAyam = \App\Models\ProductItem::firstOrCreate(
+            ['product_id' => $prodTelur->id, 'name' => 'Telur Ayam'],
+            ['is_active' => true]
+        );
+        \App\Models\ProductItemMeasurement::firstOrCreate(
+            ['product_item_id' => $itemTelurAyam->id, 'measurement_unit_id' => $unitButir->id],
+            ['is_base_unit' => true, 'conversion_rate' => 1.0000]
+        );
+        \App\Models\ProductItemMeasurement::firstOrCreate(
+            ['product_item_id' => $itemTelurAyam->id, 'measurement_unit_id' => $unitRak->id],
+            ['is_base_unit' => false, 'conversion_rate' => 30.0000] // 1 Rak = 30 Butir
+        );
+
+        // 4. Telur Ayam Kampung
+        $itemTelurAyamKampung = \App\Models\ProductItem::firstOrCreate(
+            ['product_id' => $prodTelur->id, 'name' => 'Telur Ayam Kampung'],
+            ['is_active' => true]
+        );
+        \App\Models\ProductItemMeasurement::firstOrCreate(
+            ['product_item_id' => $itemTelurAyamKampung->id, 'measurement_unit_id' => $unitButir->id],
+            ['is_base_unit' => true, 'conversion_rate' => 1.0000]
+        );
+        \App\Models\ProductItemMeasurement::firstOrCreate(
+            ['product_item_id' => $itemTelurAyamKampung->id, 'measurement_unit_id' => $unitRak->id],
+            ['is_base_unit' => false, 'conversion_rate' => 30.0000] // 1 Rak = 30 Butir
+        );
     }
 }

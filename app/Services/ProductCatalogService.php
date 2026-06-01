@@ -4,22 +4,24 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductItem;
+use App\Models\ProductItemMeasurement;
+use App\Models\ProductPriceTiering;
 use Illuminate\Support\Facades\DB;
 
 class ProductCatalogService
 {
     /**
-     * Store a product and its units atomically.
+     * Store a product item and its measurements atomically.
      *
      * @param array $payload
-     * @return Product
+     * @return ProductItem
      * @throws \InvalidArgumentException
      */
-    public function storeProduct(array $payload): Product
+    public function storeProductItem(array $payload): ProductItem
     {
         $items = $payload['items'] ?? [];
         if (!is_array($items) || empty($items)) {
-            throw new \InvalidArgumentException('Product must have at least one unit item.');
+            throw new \InvalidArgumentException('Varian produk harus memiliki minimal satu satuan kemasan.');
         }
 
         // Count how many base units are present in the payload
@@ -32,62 +34,68 @@ class ProductCatalogService
         }
 
         if ($baseUnitCount !== 1) {
-            throw new \InvalidArgumentException('A product must have exactly one base unit.');
+            throw new \InvalidArgumentException('Varian produk harus memiliki tepat satu base unit.');
         }
 
         return DB::transaction(function () use ($payload, $items) {
-            if (!empty($payload['product_id'])) {
-                $product = Product::findOrFail($payload['product_id']);
-                // Clear existing packaging items for this product first
-                $product->items()->delete();
-                if (!empty($payload['name'])) {
-                    $product->update(['name' => $payload['name']]);
-                }
-            } else {
-                // Create the Product
-                $product = Product::create([
-                    'name' => $payload['name'] ?? null,
-                ]);
-            }
+            // Create the ProductItem
+            $productItem = ProductItem::create([
+                'product_id' => $payload['product_id'],
+                'name' => $payload['name'],
+                'is_active' => filter_var($payload['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            ]);
 
             // Sync businesses if business_ids are present in payload
             if (!empty($payload['business_ids'])) {
+                $product = Product::findOrFail($payload['product_id']);
                 $product->businesses()->sync($payload['business_ids']);
             }
 
-            // Insert product items
+            // Insert measurements
             foreach ($items as $item) {
                 $isBase = isset($item['is_base_unit']) && filter_var($item['is_base_unit'], FILTER_VALIDATE_BOOLEAN);
                 
                 // If it is base unit, forcibly override conversion rate to 1
                 $conversionRate = $isBase ? 1.0000 : ($item['conversion_rate'] ?? 1.0000);
 
-                ProductItem::create([
-                    'product_id' => $product->id,
+                $targetUnitId = $isBase ? null : ($item['target_measurement_unit_id'] ?? null);
+
+                $measurement = ProductItemMeasurement::create([
+                    'product_item_id' => $productItem->id,
                     'measurement_unit_id' => $item['measurement_unit_id'],
                     'is_base_unit' => $isBase,
                     'conversion_rate' => $conversionRate,
-                    'is_active' => filter_var($item['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                    'target_measurement_unit_id' => $targetUnitId,
                 ]);
+
+                if (!empty($item['price_tierings']) && is_array($item['price_tierings'])) {
+                    foreach ($item['price_tierings'] as $tier) {
+                        ProductPriceTiering::create([
+                            'product_item_measurement_id' => $measurement->id,
+                            'minimum' => $tier['minimum'],
+                            'price' => $tier['price'],
+                        ]);
+                    }
+                }
             }
 
-            return $product->load('items');
+            return $productItem->load('measurements');
         });
     }
 
     /**
-     * Update a product and its units atomically.
+     * Update a product item and its measurements atomically.
      *
-     * @param Product $product
+     * @param ProductItem $productItem
      * @param array $payload
-     * @return Product
+     * @return ProductItem
      * @throws \InvalidArgumentException
      */
-    public function updateProduct(Product $product, array $payload): Product
+    public function updateProductItem(ProductItem $productItem, array $payload): ProductItem
     {
         $items = $payload['items'] ?? [];
         if (!is_array($items) || empty($items)) {
-            throw new \InvalidArgumentException('Product must have at least one unit item.');
+            throw new \InvalidArgumentException('Varian produk harus memiliki minimal satu satuan kemasan.');
         }
 
         // Count how many base units are present in the payload
@@ -100,40 +108,57 @@ class ProductCatalogService
         }
 
         if ($baseUnitCount !== 1) {
-            throw new \InvalidArgumentException('A product must have exactly one base unit.');
+            throw new \InvalidArgumentException('Varian produk harus memiliki tepat satu base unit.');
         }
 
-        return DB::transaction(function () use ($product, $payload, $items) {
-            // Update the Product name
-            $product->update([
-                'name' => $payload['name'] ?? $product->name,
+        return DB::transaction(function () use ($productItem, $payload, $items) {
+            // Update the ProductItem
+            $productItem->update([
+                'product_id' => $payload['product_id'] ?? $productItem->product_id,
+                'name' => $payload['name'] ?? $productItem->name,
+                'is_active' => filter_var($payload['is_active'] ?? $productItem->is_active, FILTER_VALIDATE_BOOLEAN),
             ]);
 
             // Sync businesses if business_ids are present in payload
             if (isset($payload['business_ids'])) {
-                $product->businesses()->sync($payload['business_ids']);
+                $product = $productItem->product;
+                if ($product) {
+                    $product->businesses()->sync($payload['business_ids']);
+                }
             }
 
-            // Delete old items
-            $product->items()->delete();
+            // Delete old measurements
+            $productItem->measurements()->delete();
 
-            // Insert new product items
+            // Insert new measurements
             foreach ($items as $item) {
                 $isBase = isset($item['is_base_unit']) && filter_var($item['is_base_unit'], FILTER_VALIDATE_BOOLEAN);
                 
                 // If it is base unit, forcibly override conversion rate to 1
                 $conversionRate = $isBase ? 1.0000 : ($item['conversion_rate'] ?? 1.0000);
 
-                ProductItem::create([
-                    'product_id' => $product->id,
+                $targetUnitId = $isBase ? null : ($item['target_measurement_unit_id'] ?? null);
+
+                $measurement = ProductItemMeasurement::create([
+                    'product_item_id' => $productItem->id,
                     'measurement_unit_id' => $item['measurement_unit_id'],
                     'is_base_unit' => $isBase,
                     'conversion_rate' => $conversionRate,
-                    'is_active' => filter_var($item['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                    'target_measurement_unit_id' => $targetUnitId,
                 ]);
+
+                if (!empty($item['price_tierings']) && is_array($item['price_tierings'])) {
+                    foreach ($item['price_tierings'] as $tier) {
+                        ProductPriceTiering::create([
+                            'product_item_measurement_id' => $measurement->id,
+                            'minimum' => $tier['minimum'],
+                            'price' => $tier['price'],
+                        ]);
+                    }
+                }
             }
 
-            return $product->load('items');
+            return $productItem->load('measurements');
         });
     }
 }

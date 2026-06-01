@@ -45,8 +45,13 @@
                         @foreach($product->items as $item)
                             <span class="badge {{ $item->is_base_unit ? 'badge-base' : '' }}">
                                 {{ $item->measurementUnit ? $item->measurementUnit->short_name : 'Unit' }}: 
-                                {{ floatval($item->conversion_rate) }}
-                                {{ $item->is_base_unit ? ' (Base)' : '' }}
+                                @if($item->is_base_unit)
+                                    1 (Base)
+                                @elseif($item->targetMeasurementUnit)
+                                    {{ floatval($item->conversion_rate) }} {{ $item->targetMeasurementUnit->short_name }}
+                                @else
+                                    {{ floatval($item->conversion_rate) }}
+                                @endif
                             </span>
                         @endforeach
                     </td>

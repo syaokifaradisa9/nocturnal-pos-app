@@ -8,15 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['product_id', 'measurement_unit_id', 'is_base_unit', 'conversion_rate', 'is_active'])]
+#[Fillable(['product_id', 'name', 'is_active'])]
 class ProductItem extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $casts = [
-        'is_base_unit' => 'boolean',
         'is_active' => 'boolean',
-        'conversion_rate' => 'decimal:4',
     ];
 
     /**
@@ -28,10 +26,10 @@ class ProductItem extends Model
     }
 
     /**
-     * Get the measurement unit associated with this item.
+     * Get all measurements associated with this product item.
      */
-    public function measurementUnit(): BelongsTo
+    public function measurements(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->belongsTo(ProductUnit::class, 'measurement_unit_id');
+        return $this->hasMany(ProductItemMeasurement::class);
     }
 }

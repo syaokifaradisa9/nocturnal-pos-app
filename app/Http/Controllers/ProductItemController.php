@@ -25,9 +25,17 @@ class ProductItemController extends Controller
      */
     public function index(Request $request): Response
     {
+        return Inertia::render('product-items/index');
+    }
+
+    /**
+     * Show the form for creating a new product item.
+     */
+    public function create(Request $request): Response
+    {
         $selection = $this->service->getSelectionData(Auth::user());
 
-        return Inertia::render('product-items/index', [
+        return Inertia::render('product-items/create', [
             'businesses' => $selection['businesses'],
             'users' => $selection['users'],
             'product_units' => $selection['productUnits'],
@@ -41,11 +49,11 @@ class ProductItemController extends Controller
     public function edit(int $id, Request $request): Response
     {
         $user = Auth::user();
-        $product = $this->service->getAuthorizedProduct($id, $user);
+        $productItem = $this->service->getAuthorizedProductItem($id, $user);
         $selection = $this->service->getSelectionData($user);
 
-        return Inertia::render('product-items/index', [
-            'product' => $product,
+        return Inertia::render('product-items/edit', [
+            'product' => $productItem,
             'businesses' => $selection['businesses'],
             'users' => $selection['users'],
             'product_units' => $selection['productUnits'],

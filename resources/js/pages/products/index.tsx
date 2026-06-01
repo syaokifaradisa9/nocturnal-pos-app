@@ -372,8 +372,8 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
     ];
 
     return (
-        <DashboardLayout title="Data Produk">
-            <Head title="Data Produk" />
+        <DashboardLayout title="Produk Induk">
+            <Head title="Produk Induk" />
 
             <div className="mx-auto max-w-7xl px-0 pt-2 pb-6 md:py-6 sm:px-6 lg:px-8">
                 {/* ─── Header ─── */}
@@ -383,10 +383,10 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/10">
                                 <ShoppingBag className="h-4.5 w-4.5 text-sky-600 dark:text-sky-400" />
                             </div>
-                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Data Produk</h1>
+                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Produk Induk</h1>
                         </div>
                         <p className="ml-12 text-sm text-slate-500 dark:text-slate-400">
-                            Kelola data produk penjualan sesuai hak akses Anda.
+                            Kelola template data produk induk penjualan sesuai hak akses Anda.
                         </p>
                     </div>
 

@@ -6,9 +6,10 @@ interface ModalProps {
     onClose: () => void;
     title: string;
     children: React.ReactNode;
+    maxWidth?: string;
 }
 
-export default function Modal({ open, onClose, title, children }: ModalProps) {
+export default function Modal({ open, onClose, title, children, maxWidth = 'max-w-lg' }: ModalProps) {
     if (!open) return null;
     return (
         <div
@@ -20,7 +21,7 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
 
             {/* Panel */}
             <div
-                className="relative w-full max-w-lg rounded-2xl border border-slate-200/60 bg-white p-0 shadow-2xl dark:border-slate-800 dark:bg-slate-900 animate-in zoom-in-95 duration-200"
+                className={`relative w-full ${maxWidth} rounded-2xl border border-slate-200/60 bg-white p-0 shadow-2xl dark:border-slate-800 dark:bg-slate-900 animate-in zoom-in-95 duration-200`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}

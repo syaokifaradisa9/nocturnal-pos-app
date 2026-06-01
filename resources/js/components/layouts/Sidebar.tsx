@@ -61,8 +61,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
             {
                 groupName: 'Produk',
                 items: [
-                    ...(hasProductPermission ? [{ name: 'Produk Penjualan', icon: ShoppingBag, href: '/products' }] : []),
-                    ...(hasProductItemPermission ? [{ name: 'Item & Kemasan', icon: Package, href: '/product-items' }] : [])
+                    ...(hasProductPermission ? [{ name: 'Produk Induk', icon: ShoppingBag, href: '/products' }] : []),
+                    ...(hasProductItemPermission ? [{ name: 'Produk Penjualan', icon: Package, href: '/product-items' }] : [])
                 ]
             }
         ] : [])

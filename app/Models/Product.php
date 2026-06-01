@@ -20,4 +20,12 @@ class Product extends Model
     {
         return $this->belongsToMany(Business::class, 'business_products');
     }
+
+    /**
+     * Get the items (SKU/variants) for the product.
+     */
+    public function items(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProductItem::class);
+    }
 }

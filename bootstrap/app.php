@@ -37,6 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer.permission' => \App\Http\Middleware\CheckCustomerUserPermission::class,
             'product_unit.permission' => \App\Http\Middleware\CheckProductUnitUserPermission::class,
             'reward.permission' => \App\Http\Middleware\CheckRewardUserPermission::class,
+            'product_item.permission' => \App\Http\Middleware\CheckProductItemUserPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

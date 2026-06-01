@@ -9,7 +9,8 @@ import {
     ShieldCheck,
     Users,
     Scale,
-    Gift
+    Gift,
+    Package
 } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 import { UserPermission } from '../../types';
@@ -33,6 +34,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const hasCustomerPermission = userPermissions.includes(UserPermission.VIEW_ANY_CUSTOMER) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_CUSTOMER) || userPermissions.includes(UserPermission.VIEW_OWN_CUSTOMER);
     const hasProductUnitPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT_UNIT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT_UNIT) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT_UNIT);
     const hasRewardPermission = userPermissions.includes(UserPermission.VIEW_ANY_REWARD) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_REWARD) || userPermissions.includes(UserPermission.VIEW_OWN_REWARD);
+    const hasProductItemPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT_ITEM) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT_ITEM) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT_ITEM);
 
     const menuGroups = [
         {
@@ -55,11 +57,12 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 ]
             }
         ] : []),
-        ...(hasProductPermission ? [
+        ...((hasProductPermission || hasProductItemPermission) ? [
             {
                 groupName: 'Produk',
                 items: [
-                    { name: 'Produk Penjualan', icon: ShoppingBag, href: '/products' }
+                    ...(hasProductPermission ? [{ name: 'Produk Penjualan', icon: ShoppingBag, href: '/products' }] : []),
+                    ...(hasProductItemPermission ? [{ name: 'Item & Kemasan', icon: Package, href: '/product-items' }] : [])
                 ]
             }
         ] : [])

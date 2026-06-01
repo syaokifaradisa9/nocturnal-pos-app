@@ -77,6 +77,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             });
         });
 
+    Route::controller(\App\Http\Controllers\ProductItemController::class)
+        ->prefix('product-items')
+        ->name('product_items.')
+        ->middleware('product_item.permission')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/datatable', 'datatable')->name('datatable');
+            Route::get('/owner-businesses', 'ownerBusinesses')->name('owner_businesses');
+            Route::get('/owner-products', 'ownerProducts')->name('owner_products');
+            Route::post('/store', 'store')->name('store');
+            Route::prefix('print')->name('print.')->group(function () {
+                Route::get('/pdf', 'printPdf')->name('pdf');
+                Route::get('/excel', 'printExcel')->name('excel');
+            });
+
+            Route::prefix('{id}')->group(function () {
+                Route::get('/edit', 'edit')->name('edit');
+                Route::put('/update', 'update')->name('update');
+                Route::delete('/delete', 'destroy')->name('destroy');
+            });
+        });
+
     Route::controller(\App\Http\Controllers\SupplierController::class)
         ->prefix('suppliers')
         ->name('suppliers.')

@@ -95,4 +95,17 @@ enum UserPermission: string
     case DELETE_ANY_REWARD = 'Hapus Data Reward Keseluruhan';
     case DELETE_ASSOCIATED_REWARD = 'Hapus Data Reward Penempatan Bisnis';
     case DELETE_OWN_REWARD = 'Hapus Data Reward Pribadi';
+
+    case VIEW_ANY_PRODUCT_ITEM = 'Lihat Data Item Produk Keseluruhan';
+    case VIEW_ASSOCIATED_PRODUCT_ITEM = 'Lihat Data Item Produk Penempatan Bisnis';
+    case VIEW_OWN_PRODUCT_ITEM = 'Lihat Data Item Produk Pribadi';
+    case CREATE_ANY_PRODUCT_ITEM = 'Tambah Data Item Produk Keseluruhan';
+    case CREATE_ASSOCIATED_PRODUCT_ITEM = 'Tambah Data Item Produk Penempatan Bisnis';
+    case CREATE_OWN_PRODUCT_ITEM = 'Tambah Data Item Produk Pribadi';
+    case EDIT_ANY_PRODUCT_ITEM = 'Edit Data Item Produk Keseluruhan';
+    case EDIT_ASSOCIATED_PRODUCT_ITEM = 'Edit Data Item Produk Penempatan Bisnis';
+    case EDIT_OWN_PRODUCT_ITEM = 'Edit Data Item Produk Pribadi';
+    case DELETE_ANY_PRODUCT_ITEM = 'Hapus Data Item Produk Keseluruhan';
+    case DELETE_ASSOCIATED_PRODUCT_ITEM = 'Hapus Data Item Produk Penempatan Bisnis';
+    case DELETE_OWN_PRODUCT_ITEM = 'Hapus Data Item Produk Pribadi';
 }

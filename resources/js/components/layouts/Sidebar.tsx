@@ -7,7 +7,8 @@ import {
     ShoppingBag,
     Truck,
     ShieldCheck,
-    Users
+    Users,
+    Scale
 } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 import { UserPermission } from '../../types';
@@ -29,6 +30,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const hasSupplierPermission = userPermissions.includes(UserPermission.VIEW_ANY_SUPPLIER) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_SUPPLIER) || userPermissions.includes(UserPermission.VIEW_OWN_SUPPLIER);
     const hasRolePermission = userPermissions.includes(UserPermission.VIEW_ROLE);
     const hasCustomerPermission = userPermissions.includes(UserPermission.VIEW_ANY_CUSTOMER) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_CUSTOMER) || userPermissions.includes(UserPermission.VIEW_OWN_CUSTOMER);
+    const hasProductUnitPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT_UNIT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT_UNIT) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT_UNIT);
 
     const menuGroups = [
         {
@@ -37,7 +39,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' }
             ]
         },
-        ...((hasBusinessPermission || hasBranchPermission || hasSupplierPermission || hasRolePermission || hasCustomerPermission) ? [
+        ...((hasBusinessPermission || hasBranchPermission || hasSupplierPermission || hasRolePermission || hasCustomerPermission || hasProductUnitPermission) ? [
             {
                 groupName: 'Data Master',
                 items: [
@@ -45,6 +47,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                     ...(hasBranchPermission ? [{ name: 'Cabang', icon: Building, href: '/branches' }] : []),
                     ...(hasSupplierPermission ? [{ name: 'Supplier', icon: Truck, href: '/suppliers' }] : []),
                     ...(hasCustomerPermission ? [{ name: 'Customer', icon: Users, href: '/customers' }] : []),
+                    ...(hasProductUnitPermission ? [{ name: 'Satuan Produk', icon: Scale, href: '/product-units' }] : []),
                     ...(hasRolePermission ? [{ name: 'Role & Izin', icon: ShieldCheck, href: '/roles' }] : [])
                 ]
             }

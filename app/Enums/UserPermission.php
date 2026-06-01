@@ -69,4 +69,17 @@ enum UserPermission: string
     case DELETE_ANY_CUSTOMER = 'Hapus Data Customer Keseluruhan';
     case DELETE_ASSOCIATED_CUSTOMER = 'Hapus Data Customer Penempatan Bisnis';
     case DELETE_OWN_CUSTOMER = 'Hapus Data Customer Pribadi';
+
+    case VIEW_ANY_PRODUCT_UNIT = 'Lihat Data Satuan Produk Keseluruhan';
+    case VIEW_ASSOCIATED_PRODUCT_UNIT = 'Lihat Data Satuan Produk Penempatan Bisnis';
+    case VIEW_OWN_PRODUCT_UNIT = 'Lihat Data Satuan Produk Pribadi';
+    case CREATE_ANY_PRODUCT_UNIT = 'Tambah Data Satuan Produk Keseluruhan';
+    case CREATE_ASSOCIATED_PRODUCT_UNIT = 'Tambah Data Satuan Produk Penempatan Bisnis';
+    case CREATE_OWN_PRODUCT_UNIT = 'Tambah Data Satuan Produk Pribadi';
+    case EDIT_ANY_PRODUCT_UNIT = 'Edit Data Satuan Produk Keseluruhan';
+    case EDIT_ASSOCIATED_PRODUCT_UNIT = 'Edit Data Satuan Produk Penempatan Bisnis';
+    case EDIT_OWN_PRODUCT_UNIT = 'Edit Data Satuan Produk Pribadi';
+    case DELETE_ANY_PRODUCT_UNIT = 'Hapus Data Satuan Produk Keseluruhan';
+    case DELETE_ASSOCIATED_PRODUCT_UNIT = 'Hapus Data Satuan Produk Penempatan Bisnis';
+    case DELETE_OWN_PRODUCT_UNIT = 'Hapus Data Satuan Produk Pribadi';
 }

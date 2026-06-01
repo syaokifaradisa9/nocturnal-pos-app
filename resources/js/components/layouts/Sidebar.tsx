@@ -11,7 +11,8 @@ import {
     Scale,
     Gift,
     Package,
-    ClipboardCheck
+    ClipboardCheck,
+    ClipboardList
 } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 import { UserPermission } from '../../types';
@@ -37,6 +38,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const hasRewardPermission = userPermissions.includes(UserPermission.VIEW_ANY_REWARD) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_REWARD) || userPermissions.includes(UserPermission.VIEW_OWN_REWARD);
     const hasProductItemPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT_ITEM) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT_ITEM) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT_ITEM);
     const hasPurchaseReceiptPermission = userPermissions.includes(UserPermission.VIEW_ANY_PURCHASE_RECEIPT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PURCHASE_RECEIPT) || userPermissions.includes(UserPermission.VIEW_OWN_PURCHASE_RECEIPT);
+    const hasStockAdjustmentPermission = userPermissions.includes(UserPermission.VIEW_ANY_STOCK_ADJUSTMENT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_STOCK_ADJUSTMENT) || userPermissions.includes(UserPermission.VIEW_OWN_STOCK_ADJUSTMENT);
 
     const menuGroups = [
         {
@@ -45,12 +47,17 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' }
             ]
         },
-        ...(hasPurchaseReceiptPermission ? [
+        ...((hasPurchaseReceiptPermission || hasStockAdjustmentPermission) ? [
             {
                 groupName: 'Operasional',
                 items: [
-                    { name: 'Penerimaan Barang', icon: ClipboardCheck, href: '/purchase-receipts' },
-                    { name: 'Monitoring Stok', icon: Package, href: '/stock-monitoring' }
+                    ...(hasPurchaseReceiptPermission ? [
+                        { name: 'Penerimaan Barang', icon: ClipboardCheck, href: '/purchase-receipts' },
+                        { name: 'Monitoring Stok', icon: Package, href: '/stock-monitoring' }
+                    ] : []),
+                    ...(hasStockAdjustmentPermission ? [
+                        { name: 'Stock Opname', icon: ClipboardList, href: '/stock-adjustments' }
+                    ] : [])
                 ]
             }
         ] : []),

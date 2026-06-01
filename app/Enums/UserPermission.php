@@ -113,4 +113,8 @@ enum UserPermission: string
     case VIEW_OWN_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Pribadi';
     case VIEW_ASSOCIATED_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Penempatan Bisnis';
     case CONFIRM_PURCHASE_RECEIPT = 'Konfirmasi Data Penerimaan Barang';
+
+    case VIEW_ANY_STOCK_ADJUSTMENT = 'Lihat Data Stock Opname Keseluruhan';
+    case VIEW_OWN_STOCK_ADJUSTMENT = 'Lihat Data Stock Opname Pribadi';
+    case VIEW_ASSOCIATED_STOCK_ADJUSTMENT = 'Lihat Data Stock Opname Penempatan Bisnis';
 }

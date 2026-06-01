@@ -223,6 +223,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/', 'index')->name('index');
         });
+
+    Route::controller(\App\Http\Controllers\StockAdjustmentController::class)
+        ->prefix('stock-adjustments')
+        ->name('stock-adjustments.')
+        ->middleware('stock_adjustment.permission')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/datatable', 'datatable')->name('datatable');
+            Route::get('/create', 'create')->name('create');
+            Route::get('/branch-batches', 'branchBatches')->name('branch_batches');
+            Route::post('/store', 'store')->name('store');
+            Route::prefix('print')->name('print.')->group(function () {
+                Route::get('/pdf', 'printPdf')->name('pdf');
+                Route::get('/excel', 'printExcel')->name('excel');
+            });
+            Route::delete('/{id}/delete', 'destroy')->name('destroy');
+            Route::get('/{id}', 'show')->name('show');
+        });
 });
 
 Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');

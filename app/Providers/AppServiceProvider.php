@@ -96,6 +96,16 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\InventoryBatchRepository::class,
             \App\Repositories\EloquentInventoryBatchRepository::class
         );
+
+        $this->app->singleton(
+            \App\Repositories\StockAdjustmentRepository::class,
+            \App\Repositories\EloquentStockAdjustmentRepository::class
+        );
+
+        $this->app->singleton(
+            \App\Repositories\StockAdjustmentItemRepository::class,
+            \App\Repositories\EloquentStockAdjustmentItemRepository::class
+        );
     }
 
     /**

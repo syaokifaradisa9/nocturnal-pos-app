@@ -106,5 +106,8 @@ export enum UserPermission {
 
     VIEW_ANY_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Keseluruhan',
     VIEW_OWN_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Pribadi',
-    VIEW_ASSOCIATED_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Penempatan Bisnis'
+    VIEW_ASSOCIATED_PURCHASE_RECEIPT = 'Lihat Data Penerimaan Barang Penempatan Bisnis',
+    VIEW_ANY_STOCK_ADJUSTMENT = 'Lihat Data Stock Opname Keseluruhan',
+    VIEW_OWN_STOCK_ADJUSTMENT = 'Lihat Data Stock Opname Pribadi',
+    VIEW_ASSOCIATED_STOCK_ADJUSTMENT = 'Lihat Data Stock Opname Penempatan Bisnis'
 }

@@ -128,6 +128,10 @@ class DatabaseSeeder extends Seeder
             'Lihat Data Penerimaan Barang Pribadi',
             'Lihat Data Penerimaan Barang Penempatan Bisnis',
             'Konfirmasi Data Penerimaan Barang',
+
+            'Lihat Data Stock Opname Keseluruhan',
+            'Lihat Data Stock Opname Pribadi',
+            'Lihat Data Stock Opname Penempatan Bisnis',
         ];
 
         foreach ($permissions as $permissionName) {
@@ -220,7 +224,7 @@ class DatabaseSeeder extends Seeder
         );
         \App\Models\ProductItemMeasurement::firstOrCreate(
             ['product_item_id' => $itemBerasMayang->id, 'measurement_unit_id' => $unitKarung->id],
-            ['is_base_unit' => false, 'conversion_rate' => 10.0000] // Karung 10kg
+            ['is_base_unit' => false, 'conversion_rate' => 10.0000, 'target_measurement_unit_id' => $unitKg->id] // Karung 10kg
         );
 
         // 2. Beras Lopo Ijo
@@ -234,7 +238,7 @@ class DatabaseSeeder extends Seeder
         );
         \App\Models\ProductItemMeasurement::firstOrCreate(
             ['product_item_id' => $itemBerasLopoIjo->id, 'measurement_unit_id' => $unitKarung->id],
-            ['is_base_unit' => false, 'conversion_rate' => 25.0000] // Karung 25kg
+            ['is_base_unit' => false, 'conversion_rate' => 25.0000, 'target_measurement_unit_id' => $unitKg->id] // Karung 25kg
         );
 
         // 3. Telur Ayam
@@ -248,7 +252,7 @@ class DatabaseSeeder extends Seeder
         );
         \App\Models\ProductItemMeasurement::firstOrCreate(
             ['product_item_id' => $itemTelurAyam->id, 'measurement_unit_id' => $unitRak->id],
-            ['is_base_unit' => false, 'conversion_rate' => 30.0000] // 1 Rak = 30 Butir
+            ['is_base_unit' => false, 'conversion_rate' => 30.0000, 'target_measurement_unit_id' => $unitButir->id] // 1 Rak = 30 Butir
         );
 
         // 4. Telur Ayam Kampung
@@ -262,7 +266,228 @@ class DatabaseSeeder extends Seeder
         );
         \App\Models\ProductItemMeasurement::firstOrCreate(
             ['product_item_id' => $itemTelurAyamKampung->id, 'measurement_unit_id' => $unitRak->id],
-            ['is_base_unit' => false, 'conversion_rate' => 30.0000] // 1 Rak = 30 Butir
+            ['is_base_unit' => false, 'conversion_rate' => 30.0000, 'target_measurement_unit_id' => $unitButir->id] // 1 Rak = 30 Butir
+        );
+
+        // 5. Seed Branches
+        $branchDago = \App\Models\Branch::firstOrCreate(
+            ['name' => 'Nocturnal POS - Cabang Dago', 'business_id' => $business1->id],
+            ['address' => 'Jl. Ir. H. Juanda No. 123, Coblong, Bandung', 'opening_time' => '08:00:00', 'end_time' => '22:00:00']
+        );
+
+        $branchPasteur = \App\Models\Branch::firstOrCreate(
+            ['name' => 'Nocturnal POS - Cabang Pasteur', 'business_id' => $business1->id],
+            ['address' => 'Jl. Dr. Djunjunan No. 45, Cicendo, Bandung', 'opening_time' => '09:00:00', 'end_time' => '21:00:00']
+        );
+
+        $branchSurabaya = \App\Models\Branch::firstOrCreate(
+            ['name' => 'Global Retail POS - Cabang Surabaya', 'business_id' => $business2->id],
+            ['address' => 'Jl. Raya Darmo No. 88, Tegalsari, Surabaya', 'opening_time' => '07:00:00', 'end_time' => '23:00:00']
+        );
+
+        // Link testuser to Dago & Pasteur branches
+        if (!$user->branches()->where('branches.id', $branchDago->id)->exists()) {
+            $user->branches()->attach($branchDago->id, ['role_id' => $adminRole->id]);
+        }
+        if (!$user->branches()->where('branches.id', $branchPasteur->id)->exists()) {
+            $user->branches()->attach($branchPasteur->id, ['role_id' => $adminRole->id]);
+        }
+
+        // 6. Seed Suppliers
+        $supSinarJaya = \App\Models\Supplier::firstOrCreate(
+            ['name' => 'PT. Sinar Jaya Sembako'],
+            [
+                'contact_name' => 'Budi Santoso',
+                'contact_phone' => '081234567890',
+                'address' => 'Kawasan Industri Candi Blok A No. 5, Semarang',
+                'description' => 'Supplier utama beras premium, gula pasir, dan minyak goreng.'
+            ]
+        );
+
+        $supTaniMakmur = \App\Models\Supplier::firstOrCreate(
+            ['name' => 'CV. Tani Makmur'],
+            [
+                'contact_name' => 'Joko Widodo',
+                'contact_phone' => '081398765432',
+                'address' => 'Jl. Tani Mulya No. 12, Klaten',
+                'description' => 'Koperasi tani penyedia telur ayam berkualitas langsung dari peternak.'
+            ]
+        );
+
+        $supSumberPangan = \App\Models\Supplier::firstOrCreate(
+            ['name' => 'PT. Sumber Pangan Nusantara'],
+            [
+                'contact_name' => 'Hendra Wijaya',
+                'contact_phone' => '081122334455',
+                'address' => 'Kawasan Pergudangan Pluit Blok B-12, Jakarta Utara',
+                'description' => 'Distributor sembako nasional dan bahan makanan pokok.'
+            ]
+        );
+
+        // Sync suppliers to business
+        if (!$supSinarJaya->businesses()->where('businesses.id', $business1->id)->exists()) {
+            $supSinarJaya->businesses()->attach($business1->id);
+        }
+        if (!$supTaniMakmur->businesses()->where('businesses.id', $business1->id)->exists()) {
+            $supTaniMakmur->businesses()->attach($business1->id);
+        }
+        if (!$supSumberPangan->businesses()->where('businesses.id', $business1->id)->exists()) {
+            $supSumberPangan->businesses()->attach($business1->id);
+        }
+
+        // 7. Seed Purchase Receipts & Items
+        // Get measurement mappings
+        $measBerasMayangKg = \App\Models\ProductItemMeasurement::where('product_item_id', $itemBerasMayang->id)->where('measurement_unit_id', $unitKg->id)->first();
+        $measBerasMayangKrg = \App\Models\ProductItemMeasurement::where('product_item_id', $itemBerasMayang->id)->where('measurement_unit_id', $unitKarung->id)->first();
+        $measTelurAyamBtr = \App\Models\ProductItemMeasurement::where('product_item_id', $itemTelurAyam->id)->where('measurement_unit_id', $unitButir->id)->first();
+        $measTelurAyamRak = \App\Models\ProductItemMeasurement::where('product_item_id', $itemTelurAyam->id)->where('measurement_unit_id', $unitRak->id)->first();
+        $measBerasLopoIjoKg = \App\Models\ProductItemMeasurement::where('product_item_id', $itemBerasLopoIjo->id)->where('measurement_unit_id', $unitKg->id)->first();
+        $measTelurAyamKampungBtr = \App\Models\ProductItemMeasurement::where('product_item_id', $itemTelurAyamKampung->id)->where('measurement_unit_id', $unitButir->id)->first();
+
+        // Receipt 1: Confirmed (Produces inventory batches)
+        $receipt1 = \App\Models\PurchaseReceipt::firstOrCreate(
+            ['receipt_number' => 'PR-260601-001'],
+            [
+                'supplier_id' => $supSinarJaya->id,
+                'branch_id' => $branchDago->id,
+                'receipt_date' => '2026-06-01',
+                'status' => 'Confirmed',
+                'notes' => 'Penerimaan stok bulanan awal untuk Cabang Dago. Kualitas beras sangat baik.'
+            ]
+        );
+
+        // Add items for Receipt 1
+        $item1_1 = \App\Models\PurchaseReceiptItem::firstOrCreate(
+            ['purchase_receipt_id' => $receipt1->id, 'product_item_measurement_id' => $measBerasMayangKg->id],
+            ['quantity' => 200, 'unit_cost' => 12000.00, 'expired_date' => '2026-12-01']
+        );
+        $item1_2 = \App\Models\PurchaseReceiptItem::firstOrCreate(
+            ['purchase_receipt_id' => $receipt1->id, 'product_item_measurement_id' => $measBerasMayangKrg->id],
+            ['quantity' => 20, 'unit_cost' => 110000.00, 'expired_date' => '2026-12-01']
+        );
+        $item1_3 = \App\Models\PurchaseReceiptItem::firstOrCreate(
+            ['purchase_receipt_id' => $receipt1->id, 'product_item_measurement_id' => $measTelurAyamBtr->id],
+            ['quantity' => 1000, 'unit_cost' => 1500.00, 'expired_date' => '2026-06-30']
+        );
+        $item1_4 = \App\Models\PurchaseReceiptItem::firstOrCreate(
+            ['purchase_receipt_id' => $receipt1->id, 'product_item_measurement_id' => $measTelurAyamRak->id],
+            ['quantity' => 50, 'unit_cost' => 43000.00, 'expired_date' => '2026-06-30']
+        );
+
+        // Create inventory batches for Confirmed Receipt 1
+        $batchNo1 = '2606011';
+        \App\Models\InventoryBatch::firstOrCreate(
+            ['purchase_receipt_item_id' => $item1_1->id],
+            [
+                'product_item_measurement_id' => $measBerasMayangKg->id,
+                'batch_number' => $batchNo1,
+                'initial_quantity' => 200,
+                'current_quantity' => 200,
+                'unit_cost' => 12000.00,
+                'expired_date' => '2026-12-01',
+                'status' => \App\Enums\InventoryBatchStatus::ACTIVE
+            ]
+        );
+        \App\Models\InventoryBatch::firstOrCreate(
+            ['purchase_receipt_item_id' => $item1_2->id],
+            [
+                'product_item_measurement_id' => $measBerasMayangKrg->id,
+                'batch_number' => $batchNo1,
+                'initial_quantity' => 20,
+                'current_quantity' => 20,
+                'unit_cost' => 110000.00,
+                'expired_date' => '2026-12-01',
+                'status' => \App\Enums\InventoryBatchStatus::ACTIVE
+            ]
+        );
+        \App\Models\InventoryBatch::firstOrCreate(
+            ['purchase_receipt_item_id' => $item1_3->id],
+            [
+                'product_item_measurement_id' => $measTelurAyamBtr->id,
+                'batch_number' => $batchNo1,
+                'initial_quantity' => 1000,
+                'current_quantity' => 1000,
+                'unit_cost' => 1500.00,
+                'expired_date' => '2026-06-30',
+                'status' => \App\Enums\InventoryBatchStatus::ACTIVE
+            ]
+        );
+        \App\Models\InventoryBatch::firstOrCreate(
+            ['purchase_receipt_item_id' => $item1_4->id],
+            [
+                'product_item_measurement_id' => $measTelurAyamRak->id,
+                'batch_number' => $batchNo1,
+                'initial_quantity' => 50,
+                'current_quantity' => 50,
+                'unit_cost' => 43000.00,
+                'expired_date' => '2026-06-30',
+                'status' => \App\Enums\InventoryBatchStatus::ACTIVE
+            ]
+        );
+
+        // Receipt 2: Confirmed (Produces inventory batches)
+        $receipt2 = \App\Models\PurchaseReceipt::firstOrCreate(
+            ['receipt_number' => 'PR-260601-002'],
+            [
+                'supplier_id' => $supTaniMakmur->id,
+                'branch_id' => $branchPasteur->id,
+                'receipt_date' => '2026-06-01',
+                'status' => 'Confirmed',
+                'notes' => 'Penerimaan telur ayam kampung dan beras Lopo Ijo untuk Cabang Pasteur.'
+            ]
+        );
+
+        // Add items for Receipt 2
+        $item2_1 = \App\Models\PurchaseReceiptItem::firstOrCreate(
+            ['purchase_receipt_id' => $receipt2->id, 'product_item_measurement_id' => $measBerasLopoIjoKg->id],
+            ['quantity' => 150, 'unit_cost' => 13000.00, 'expired_date' => '2027-01-15']
+        );
+        $item2_2 = \App\Models\PurchaseReceiptItem::firstOrCreate(
+            ['purchase_receipt_id' => $receipt2->id, 'product_item_measurement_id' => $measTelurAyamKampungBtr->id],
+            ['quantity' => 500, 'unit_cost' => 2500.00, 'expired_date' => '2026-06-25']
+        );
+
+        // Create inventory batches for Confirmed Receipt 2
+        $batchNo2 = '2606012';
+        \App\Models\InventoryBatch::firstOrCreate(
+            ['purchase_receipt_item_id' => $item2_1->id],
+            [
+                'product_item_measurement_id' => $measBerasLopoIjoKg->id,
+                'batch_number' => $batchNo2,
+                'initial_quantity' => 150,
+                'current_quantity' => 150,
+                'unit_cost' => 13000.00,
+                'expired_date' => '2027-01-15',
+                'status' => \App\Enums\InventoryBatchStatus::ACTIVE
+            ]
+        );
+        \App\Models\InventoryBatch::firstOrCreate(
+            ['purchase_receipt_item_id' => $item2_2->id],
+            [
+                'product_item_measurement_id' => $measTelurAyamKampungBtr->id,
+                'batch_number' => $batchNo2,
+                'initial_quantity' => 500,
+                'current_quantity' => 500,
+                'unit_cost' => 2500.00,
+                'expired_date' => '2026-06-25',
+                'status' => \App\Enums\InventoryBatchStatus::ACTIVE
+            ]
+        );
+
+        // Receipt 3: Draft (Does not produce inventory batches)
+        $receipt3 = \App\Models\PurchaseReceipt::firstOrCreate(
+            ['receipt_number' => 'PR-260601-003'],
+            [
+                'supplier_id' => $supSumberPangan->id,
+                'branch_id' => $branchDago->id,
+                'receipt_date' => '2026-06-01',
+                'status' => 'Draft',
+                'notes' => 'Pengiriman beras Mayang tambahan dari PT. Sumber Pangan Nusantara.'
+            ]
+        );
+        \App\Models\PurchaseReceiptItem::firstOrCreate(
+            ['purchase_receipt_id' => $receipt3->id, 'product_item_measurement_id' => $measBerasMayangKg->id],
+            ['quantity' => 100, 'unit_cost' => 12500.00, 'expired_date' => '2026-12-15']
         );
     }
 }

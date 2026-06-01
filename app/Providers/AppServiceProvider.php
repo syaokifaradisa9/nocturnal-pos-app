@@ -12,6 +12,8 @@ use App\Repositories\BranchRepository;
 use App\Repositories\EloquentBranchRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\EloquentProductRepository;
+use App\Repositories\SupplierRepository;
+use App\Repositories\EloquentSupplierRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +49,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(
             ProductRepository::class,
             EloquentProductRepository::class
+        );
+
+        $this->app->singleton(
+            SupplierRepository::class,
+            EloquentSupplierRepository::class
         );
     }
 

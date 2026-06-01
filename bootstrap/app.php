@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'business.permission' => \App\Http\Middleware\CheckBusinessUserPermission::class,
             'branch.permission' => \App\Http\Middleware\CheckBranchUserPermission::class,
             'product.permission' => \App\Http\Middleware\CheckProductUserPermission::class,
+            'supplier.permission' => \App\Http\Middleware\CheckSupplierUserPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

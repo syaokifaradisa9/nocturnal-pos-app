@@ -4,7 +4,8 @@ import {
     Store,
     Building,
     ChevronLeft,
-    ShoppingBag
+    ShoppingBag,
+    Truck
 } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 import { UserPermission } from '../../types';
@@ -23,6 +24,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const hasBusinessPermission = userPermissions.includes(UserPermission.VIEW_ANY_BUSINESS) || userPermissions.includes(UserPermission.VIEW_OWN_BUSINESS);
     const hasBranchPermission = userPermissions.includes(UserPermission.VIEW_ANY_BRANCH) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_BRANCH) || userPermissions.includes(UserPermission.VIEW_OWN_BRANCH);
     const hasProductPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT);
+    const hasSupplierPermission = userPermissions.includes(UserPermission.VIEW_ANY_SUPPLIER) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_SUPPLIER) || userPermissions.includes(UserPermission.VIEW_OWN_SUPPLIER);
 
     const menuGroups = [
         {
@@ -31,12 +33,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' }
             ]
         },
-        ...((hasBusinessPermission || hasBranchPermission) ? [
+        ...((hasBusinessPermission || hasBranchPermission || hasSupplierPermission) ? [
             {
                 groupName: 'Data Master',
                 items: [
                     ...(hasBusinessPermission ? [{ name: 'Bisnis', icon: Store, href: '/businesses' }] : []),
-                    ...(hasBranchPermission ? [{ name: 'Cabang', icon: Building, href: '/branches' }] : [])
+                    ...(hasBranchPermission ? [{ name: 'Cabang', icon: Building, href: '/branches' }] : []),
+                    ...(hasSupplierPermission ? [{ name: 'Supplier', icon: Truck, href: '/suppliers' }] : [])
                 ]
             }
         ] : []),

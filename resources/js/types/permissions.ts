@@ -32,5 +32,18 @@ export enum UserPermission {
     EDIT_OWN_PRODUCT = 'Edit Data Produk Pribadi',
     DELETE_ANY_PRODUCT = 'Hapus Data Produk Keseluruhan',
     DELETE_ASSOCIATED_PRODUCT = 'Hapus Data Produk Penempatan Bisnis',
-    DELETE_OWN_PRODUCT = 'Hapus Data Produk Pribadi'
+    DELETE_OWN_PRODUCT = 'Hapus Data Produk Pribadi',
+
+    VIEW_ANY_SUPPLIER = 'Lihat Data Supplier Keseluruhan',
+    VIEW_ASSOCIATED_SUPPLIER = 'Lihat Data Supplier Penempatan Bisnis',
+    VIEW_OWN_SUPPLIER = 'Lihat Data Supplier Pribadi',
+    CREATE_ANY_SUPPLIER = 'Tambah Data Supplier Keseluruhan',
+    CREATE_ASSOCIATED_SUPPLIER = 'Tambah Data Supplier Penempatan Bisnis',
+    CREATE_OWN_SUPPLIER = 'Tambah Data Supplier Pribadi',
+    EDIT_ANY_SUPPLIER = 'Edit Data Supplier Keseluruhan',
+    EDIT_ASSOCIATED_SUPPLIER = 'Edit Data Supplier Penempatan Bisnis',
+    EDIT_OWN_SUPPLIER = 'Edit Data Supplier Pribadi',
+    DELETE_ANY_SUPPLIER = 'Hapus Data Supplier Keseluruhan',
+    DELETE_ASSOCIATED_SUPPLIER = 'Hapus Data Supplier Penempatan Bisnis',
+    DELETE_OWN_SUPPLIER = 'Hapus Data Supplier Pribadi'
 }

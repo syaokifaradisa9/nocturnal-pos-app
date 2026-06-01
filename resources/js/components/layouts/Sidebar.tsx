@@ -43,26 +43,40 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' }
             ]
         },
-        ...((hasBusinessPermission || hasBranchPermission || hasSupplierPermission || hasRolePermission || hasCustomerPermission || hasProductUnitPermission || hasRewardPermission) ? [
+        ...(hasRolePermission ? [
             {
                 groupName: 'Data Master',
                 items: [
-                    ...(hasBusinessPermission ? [{ name: 'Bisnis', icon: Store, href: '/businesses' }] : []),
-                    ...(hasBranchPermission ? [{ name: 'Cabang', icon: Building, href: '/branches' }] : []),
-                    ...(hasSupplierPermission ? [{ name: 'Supplier', icon: Truck, href: '/suppliers' }] : []),
-                    ...(hasCustomerPermission ? [{ name: 'Customer', icon: Users, href: '/customers' }] : []),
-                    ...(hasProductUnitPermission ? [{ name: 'Satuan Produk', icon: Scale, href: '/product-units' }] : []),
-                    ...(hasRewardPermission ? [{ name: 'Reward', icon: Gift, href: '/rewards' }] : []),
-                    ...(hasRolePermission ? [{ name: 'Role & Izin', icon: ShieldCheck, href: '/roles' }] : [])
+                    { name: 'Role & Izin', icon: ShieldCheck, href: '/roles' }
                 ]
             }
         ] : []),
-        ...((hasProductPermission || hasProductItemPermission) ? [
+        ...((hasBusinessPermission || hasBranchPermission || hasSupplierPermission) ? [
+            {
+                groupName: 'Data Bisnis',
+                items: [
+                    ...(hasBusinessPermission ? [{ name: 'Bisnis', icon: Store, href: '/businesses' }] : []),
+                    ...(hasBranchPermission ? [{ name: 'Cabang', icon: Building, href: '/branches' }] : []),
+                    ...(hasSupplierPermission ? [{ name: 'Supplier', icon: Truck, href: '/suppliers' }] : [])
+                ]
+            }
+        ] : []),
+        ...((hasProductUnitPermission || hasProductPermission || hasProductItemPermission) ? [
             {
                 groupName: 'Produk',
                 items: [
+                    ...(hasProductUnitPermission ? [{ name: 'Satuan Produk', icon: Scale, href: '/product-units' }] : []),
                     ...(hasProductPermission ? [{ name: 'Produk Induk', icon: ShoppingBag, href: '/products' }] : []),
                     ...(hasProductItemPermission ? [{ name: 'Produk Penjualan', icon: Package, href: '/product-items' }] : [])
+                ]
+            }
+        ] : []),
+        ...((hasCustomerPermission || hasRewardPermission) ? [
+            {
+                groupName: 'Loyalitas Pelanggan',
+                items: [
+                    ...(hasCustomerPermission ? [{ name: 'Customer', icon: Users, href: '/customers' }] : []),
+                    ...(hasRewardPermission ? [{ name: 'Reward', icon: Gift, href: '/rewards' }] : [])
                 ]
             }
         ] : [])

@@ -589,7 +589,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
             <CheckPermission permissions={[UserPermission.CREATE_ANY_REWARD, UserPermission.CREATE_ASSOCIATED_REWARD, UserPermission.CREATE_OWN_REWARD]}>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="md:hidden fixed bottom-20 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-sky-50 text-white shadow-lg shadow-sky-500/35 hover:bg-sky-600 hover:scale-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                    className="md:hidden fixed bottom-20 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg shadow-sky-500/35 hover:bg-sky-600 hover:scale-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-sky-500/30"
                 >
                     <Plus className="h-6 w-6" />
                 </button>

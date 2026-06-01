@@ -393,7 +393,7 @@ export default function Index() {
                                           (userPermissions.includes(UserPermission.DELETE_OWN_PRODUCT_ITEM) && product.businesses?.some(pb => pb.user_id === user?.id));
 
                         return (
-                            <div key={product.id} className="p-4 space-y-3">
+                            <div key={product.id} className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col gap-3.5">
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="flex items-center gap-2.5">
                                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/10 dark:bg-sky-500/20">

@@ -66,6 +66,23 @@ class ProductItemDatatableService
         $query->when($sortField, function (Builder $q) use ($sortField, $sortOrder) {
             if ($sortField === 'name') {
                 $q->orderBy('product_items.name', $sortOrder);
+            } else if ($sortField === 'product') {
+                $q->leftJoin('products', 'product_items.product_id', '=', 'products.id')
+                  ->select('product_items.*')
+                  ->orderBy('products.name', $sortOrder);
+            } else if ($sortField === 'business') {
+                $q->leftJoin('products', 'product_items.product_id', '=', 'products.id')
+                  ->leftJoin('business_products', 'products.id', '=', 'business_products.product_id')
+                  ->leftJoin('businesses', 'business_products.business_id', '=', 'businesses.id')
+                  ->select('product_items.*')
+                  ->groupBy('product_items.id', 'product_items.product_id', 'product_items.name', 'product_items.is_active', 'product_items.created_at', 'product_items.updated_at', 'product_items.deleted_at')
+                  ->orderBy('businesses.name', $sortOrder);
+            } else if ($sortField === 'items') {
+                $q->leftJoin('product_item_measurements', 'product_items.id', '=', 'product_item_measurements.product_item_id')
+                  ->leftJoin('product_units', 'product_item_measurements.measurement_unit_id', '=', 'product_units.id')
+                  ->select('product_items.*')
+                  ->groupBy('product_items.id', 'product_items.product_id', 'product_items.name', 'product_items.is_active', 'product_items.created_at', 'product_items.updated_at', 'product_items.deleted_at')
+                  ->orderBy('product_units.name', $sortOrder);
             } else {
                 $q->orderBy($sortField, $sortOrder);
             }

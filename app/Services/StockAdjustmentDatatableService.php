@@ -69,7 +69,19 @@ class StockAdjustmentDatatableService
         });
 
         // Sort
-        $query->orderBy($sortField, $sortOrder);
+        $query->when($sortField, function (Builder $q) use ($sortField, $sortOrder) {
+            if ($sortField === 'branch') {
+                $q->join('branches', 'stock_adjustments.branch_id', '=', 'branches.id')
+                  ->orderBy('branches.name', $sortOrder)
+                  ->select('stock_adjustments.*');
+            } else if ($sortField === 'user') {
+                $q->join('users', 'stock_adjustments.user_id', '=', 'users.id')
+                  ->orderBy('users.name', $sortOrder)
+                  ->select('stock_adjustments.*');
+            } else {
+                $q->orderBy($sortField, $sortOrder);
+            }
+        });
 
         return $query;
     }

@@ -1,10 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { Head, useForm, router, usePage } from '@inertiajs/react';
-import { Plus, Edit2, Trash2, FileSpreadsheet, FileText, Truck } from 'lucide-react';
+import { Plus, Edit2, Trash2, Truck } from 'lucide-react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
+import ContentHeader from '../../components/layouts/ContentHeader';
 import CheckPermission from '../../components/commons/CheckPermission';
 import Modal from '../../components/commons/Modal';
 import Datatable, { ColumnDefinition, DatatableRef } from '../../components/commons/Datatable';
+import Tooltip from '../../components/commons/Tooltip';
 import { UserPermission } from '../../types';
 import FormInput from '../../components/forms/FormInput';
 import FormSelect from '../../components/forms/FormSelect';
@@ -80,33 +82,25 @@ function RowActions({ supplier, onEdit, onDelete }: {
     return (
         <div className="flex items-center justify-end gap-1.5">
             <CheckPermission permissions={[UserPermission.EDIT_ANY_SUPPLIER, UserPermission.EDIT_ASSOCIATED_SUPPLIER, UserPermission.EDIT_OWN_SUPPLIER]}>
-                <div className="relative group/edit">
+                <Tooltip content="Edit Supplier">
                     <button
                         onClick={() => onEdit(supplier)}
-                        className="rounded-lg p-1.5 text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors"
+                        className="rounded-lg p-1.5 text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
                     >
                         <Edit2 className="h-4 w-4" />
                     </button>
-                    <div className="hidden group-hover/edit:block pointer-events-none absolute bottom-full right-0 z-30 mb-2 whitespace-nowrap rounded-lg bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-slate-800">
-                        Edit Supplier
-                        <div className="absolute top-full right-3.5 h-1.5 w-1.5 -translate-y-0.5 rotate-45 bg-slate-950 dark:bg-slate-800" />
-                    </div>
-                </div>
+                </Tooltip>
             </CheckPermission>
 
             <CheckPermission permissions={[UserPermission.DELETE_ANY_SUPPLIER, UserPermission.DELETE_ASSOCIATED_SUPPLIER, UserPermission.DELETE_OWN_SUPPLIER]}>
-                <div className="relative group/delete">
+                <Tooltip content="Hapus Supplier">
                     <button
                         onClick={() => onDelete(supplier)}
-                        className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                        className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
                     >
                         <Trash2 className="h-4 w-4" />
                     </button>
-                    <div className="hidden group-hover/delete:block pointer-events-none absolute bottom-full right-0 z-30 mb-2 whitespace-nowrap rounded-lg bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-slate-800">
-                        Hapus Supplier
-                        <div className="absolute top-full right-3.5 h-1.5 w-1.5 -translate-y-0.5 rotate-45 bg-slate-950 dark:bg-slate-800" />
-                    </div>
-                </div>
+                </Tooltip>
             </CheckPermission>
         </div>
     );
@@ -277,60 +271,6 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
 
         return (
             <div className="space-y-4 pt-2">
-                <FormInput
-                    name="name"
-                    label="Nama Supplier"
-                    value={formData.name}
-                    onChange={(e) => setFormData('name', e.target.value)}
-                    error={formErrors.name}
-                />
-
-                <FormInput
-                    name="contact_name"
-                    label="Nama Kontak"
-                    value={formData.contact_name}
-                    onChange={(e) => setFormData('contact_name', e.target.value)}
-                    error={formErrors.contact_name}
-                />
-
-                <FormInput
-                    name="contact_phone"
-                    label="Telepon Kontak"
-                    value={formData.contact_phone}
-                    onChange={(e) => setFormData('contact_phone', e.target.value)}
-                    error={formErrors.contact_phone}
-                />
-
-                <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
-                        Alamat
-                    </label>
-                    <textarea
-                        name="address"
-                        value={formData.address}
-                        onChange={(e) => setFormData('address', e.target.value)}
-                        className="w-full min-h-[80px] rounded-xl border border-slate-200 p-3 text-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                    />
-                    {formErrors.address && (
-                        <p className="mt-1 text-xs text-rose-500 font-medium">{formErrors.address}</p>
-                    )}
-                </div>
-
-                <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
-                        Deskripsi
-                    </label>
-                    <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={(e) => setFormData('description', e.target.value)}
-                        className="w-full min-h-[80px] rounded-xl border border-slate-200 p-3 text-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                    />
-                    {formErrors.description && (
-                        <p className="mt-1 text-xs text-rose-500 font-medium">{formErrors.description}</p>
-                    )}
-                </div>
-
                 {showOwnerSelector && (
                     <FormSelect
                         name="owner_id"
@@ -392,6 +332,65 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                         )}
                     </div>
                 )}
+
+                <FormInput
+                    name="name"
+                    label="Nama Supplier"
+                    value={formData.name}
+                    onChange={(e) => setFormData('name', e.target.value)}
+                    placeholder="Masukkan nama supplier..."
+                    error={formErrors.name}
+                />
+
+                <FormInput
+                    name="contact_name"
+                    label="Nama Kontak"
+                    value={formData.contact_name}
+                    onChange={(e) => setFormData('contact_name', e.target.value)}
+                    placeholder="Masukkan nama kontak..."
+                    error={formErrors.contact_name}
+                />
+
+                <FormInput
+                    name="contact_phone"
+                    label="Telepon Kontak"
+                    value={formData.contact_phone}
+                    onChange={(e) => setFormData('contact_phone', e.target.value)}
+                    placeholder="Masukkan nomor telepon kontak..."
+                    error={formErrors.contact_phone}
+                />
+
+                <div className="space-y-1">
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        Alamat
+                    </label>
+                    <textarea
+                        name="address"
+                        value={formData.address}
+                        onChange={(e) => setFormData('address', e.target.value)}
+                        placeholder="Masukkan alamat lengkap supplier..."
+                        className="w-full min-h-[80px] rounded-xl border border-slate-200 p-3 text-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    />
+                    {formErrors.address && (
+                        <p className="mt-1 text-xs text-rose-500 font-medium">{formErrors.address}</p>
+                    )}
+                </div>
+
+                <div className="space-y-1">
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        Deskripsi
+                    </label>
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={(e) => setFormData('description', e.target.value)}
+                        placeholder="Masukkan deskripsi singkat tentang supplier..."
+                        className="w-full min-h-[80px] rounded-xl border border-slate-200 p-3 text-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    />
+                    {formErrors.description && (
+                        <p className="mt-1 text-xs text-rose-500 font-medium">{formErrors.description}</p>
+                    )}
+                </div>
             </div>
         );
     };
@@ -427,6 +426,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         {
             key: 'business',
             label: 'Bisnis Terkait',
+            sortable: true,
             searchable: true,
             searchPlaceholder: 'Cari bisnis...',
             className: 'text-slate-500 dark:text-slate-400',
@@ -447,50 +447,27 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         <DashboardLayout title="Data Supplier">
             <Head title="Data Supplier" />
 
-            <div className="mx-auto max-w-7xl px-0 pt-2 pb-6 md:py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 md:pt-6 md:pb-8 sm:px-6 lg:px-8">
                 {/* ─── Header ─── */}
-                <div className="hidden md:flex mb-6 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div className="hidden md:block">
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/10">
-                                <Truck className="h-4.5 w-4.5 text-sky-600 dark:text-sky-400" />
-                            </div>
-                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Data Supplier</h1>
-                        </div>
-                        <p className="ml-12 text-sm text-slate-500 dark:text-slate-400">
-                            Kelola data supplier penjualan sesuai hak akses Anda.
-                        </p>
-                    </div>
-
-                    <div className="hidden md:flex flex-wrap items-center gap-2">
-                        <a
-                            href="/suppliers/print/excel"
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
-                        >
-                            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />
-                            Excel
-                        </a>
-                        <a
-                            href="/suppliers/print/pdf"
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
-                        >
-                            <FileText className="h-3.5 w-3.5 text-rose-500" />
-                            PDF
-                        </a>
-
+                <ContentHeader
+                    title="Data Supplier"
+                    icon={Truck}
+                    badge="Master"
+                    description="Kelola data supplier penjualan sesuai hak akses Anda."
+                    excelUrl="/suppliers/print/excel"
+                    pdfUrl="/suppliers/print/pdf"
+                    actions={
                         <CheckPermission permissions={[UserPermission.CREATE_ANY_SUPPLIER, UserPermission.CREATE_ASSOCIATED_SUPPLIER, UserPermission.CREATE_OWN_SUPPLIER]}>
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-sky-500 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-slate-100 px-3.5 py-1.5 text-xs font-semibold text-white dark:text-slate-900 hover:bg-slate-700 dark:hover:bg-white transition-colors focus:outline-none"
                             >
                                 <Plus className="h-3.5 w-3.5" />
-                                Tambah
+                                Tambah Supplier
                             </button>
                         </CheckPermission>
-                    </div>
-                </div>
+                    }
+                />
 
                 <Datatable
                     ref={datatableRef}

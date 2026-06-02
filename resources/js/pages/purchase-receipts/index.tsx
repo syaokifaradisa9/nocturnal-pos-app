@@ -1,9 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Plus, Trash2, FileSpreadsheet, FileText, ClipboardCheck, Pencil, Eye, CheckCircle } from 'lucide-react';
+import { Plus, Trash2, ClipboardCheck, Pencil, Eye, CheckCircle } from 'lucide-react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
+import ContentHeader from '../../components/layouts/ContentHeader';
 import Modal from '../../components/commons/Modal';
 import Datatable, { ColumnDefinition, DatatableRef } from '../../components/commons/Datatable';
+import Tooltip from '../../components/commons/Tooltip';
 
 interface Supplier {
     id: number;
@@ -22,7 +24,7 @@ interface PurchaseReceipt {
     id: number;
     receipt_number: string | null;
     receipt_date: string;
-    status: 'Draft' | 'Review';
+    status: 'Draft' | 'Review' | 'Confirmed';
     notes: string | null;
     supplier?: Supplier;
     branch?: Branch;
@@ -304,6 +306,21 @@ function DetailModal({ open, onClose, receipt }: {
     );
 }
 
+const formatDateIndonesian = (dateStr: string) => {
+    if (!dateStr) return '—';
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    const year = parts[0];
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    const monthName = months[monthIndex] || parts[1];
+    return `${day} ${monthName} ${year}`;
+};
+
 export default function Index() {
     const datatableRef = useRef<DatatableRef>(null);
     const { props: pageProps } = usePage();
@@ -352,20 +369,28 @@ export default function Index() {
             label: 'Nomor Pengiriman',
             sortable: true,
             searchable: true,
-            className: 'font-semibold text-slate-800 dark:text-slate-100',
-            render: (row) => row.receipt_number || '—'
+            render: (row) => (
+                <span className={`font-semibold ${
+                    row.status === 'Confirmed'
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-sky-600 dark:text-sky-450'
+                }`}>
+                    {row.receipt_number || '—'}
+                </span>
+            )
         },
         {
             key: 'receipt_date',
-            label: 'Tanggal Penerimaan',
+            label: 'Tanggal Pengiriman',
             sortable: true,
             searchable: true,
             className: 'text-slate-600 dark:text-slate-300',
-            render: (row) => row.receipt_date
+            render: (row) => formatDateIndonesian(row.receipt_date)
         },
         {
             key: 'supplier',
             label: 'Supplier',
+            sortable: true,
             searchable: true,
             className: 'text-slate-600 dark:text-slate-300',
             render: (row) => row.supplier?.name || '—'
@@ -373,33 +398,10 @@ export default function Index() {
         {
             key: 'branch',
             label: 'Cabang',
+            sortable: true,
             searchable: true,
             className: 'text-slate-500 dark:text-slate-400',
             render: (row) => row.branch ? `${row.branch.name} (${row.branch.business?.name || ''})` : '—'
-        },
-        {
-            key: 'status',
-            label: 'Status',
-            sortable: true,
-            searchable: true,
-            render: (row) => (
-                <span className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold ${
-                    row.status === 'Draft'
-                        ? 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-                        : row.status === 'Confirmed'
-                            ? 'bg-emerald-55 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
-                            : 'bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400'
-                }`}>
-                    {row.status}
-                </span>
-            )
-        },
-        {
-            key: 'notes',
-            label: 'Catatan',
-            searchable: true,
-            className: 'text-slate-500 dark:text-slate-450 max-w-xs truncate',
-            render: (row) => row.notes || '—'
         },
         {
             key: 'actions',
@@ -408,36 +410,43 @@ export default function Index() {
             className: 'whitespace-nowrap text-right',
             render: (row) => (
                 <div className="flex items-center justify-end gap-1">
-                    <button
-                        onClick={() => viewDetail(row)}
-                        className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/10 transition-colors"
-                    >
-                        <Eye className="h-4 w-4" />
-                    </button>
-                    {row.status !== 'Confirmed' && hasConfirmPermission && (
-                        <Link
-                            href={`/purchase-receipts/${row.id}/confirm`}
-                            className="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10 transition-colors"
-                            title="Konfirmasi"
+                    <Tooltip content="Detail">
+                        <button
+                            onClick={() => viewDetail(row)}
+                            className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/10 transition-colors cursor-pointer"
                         >
-                            <CheckCircle className="h-4 w-4" />
-                        </Link>
+                            <Eye className="h-4 w-4" />
+                        </button>
+                    </Tooltip>
+                    {row.status !== 'Confirmed' && hasConfirmPermission && (
+                        <Tooltip content="Konfirmasi">
+                            <Link
+                                href={`/purchase-receipts/${row.id}/confirm`}
+                                className="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                            >
+                                <CheckCircle className="h-4 w-4" />
+                            </Link>
+                        </Tooltip>
                     )}
                     {row.status === 'Draft' && (
-                        <Link
-                            href={`/purchase-receipts/${row.id}/edit`}
-                            className="rounded-lg p-1.5 text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-colors"
-                        >
-                            <Pencil className="h-4 w-4" />
-                        </Link>
+                        <Tooltip content="Ubah">
+                            <Link
+                                href={`/purchase-receipts/${row.id}/edit`}
+                                className="rounded-lg p-1.5 text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-colors cursor-pointer"
+                            >
+                                <Pencil className="h-4 w-4" />
+                            </Link>
+                        </Tooltip>
                     )}
                     {row.status !== 'Confirmed' && (
-                        <button
-                            onClick={() => setDeleteTarget(row)}
-                            className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </button>
+                        <Tooltip content="Hapus">
+                            <button
+                                onClick={() => setDeleteTarget(row)}
+                                className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </button>
+                        </Tooltip>
                     )}
                 </div>
             )
@@ -448,48 +457,25 @@ export default function Index() {
         <DashboardLayout title="Penerimaan Barang">
             <Head title="Penerimaan Barang" />
 
-            <div className="mx-auto max-w-7xl px-0 pt-2 pb-6 md:py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 md:pt-6 md:pb-8 sm:px-6 lg:px-8">
                 {/* ─── Header ─── */}
-                <div className="hidden md:flex mb-6 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div className="hidden md:block">
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/10">
-                                <ClipboardCheck className="h-4.5 w-4.5 text-sky-600 dark:text-sky-400" />
-                            </div>
-                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Penerimaan Barang</h1>
-                        </div>
-                        <p className="ml-12 text-sm text-slate-500 dark:text-slate-400">
-                            Kelola data penerimaan barang dan status operasional logistik Anda.
-                        </p>
-                    </div>
-
-                    <div className="hidden md:flex flex-wrap items-center gap-2">
-                        <a
-                            href="/purchase-receipts/print/excel"
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
-                        >
-                            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />
-                            Excel
-                        </a>
-                        <a
-                            href="/purchase-receipts/print/pdf"
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
-                        >
-                            <FileText className="h-3.5 w-3.5 text-rose-500" />
-                            PDF
-                        </a>
-
+                <ContentHeader
+                    title="Penerimaan Barang"
+                    icon={ClipboardCheck}
+                    badge="Transaksi"
+                    description="Kelola data penerimaan barang dan status operasional logistik Anda."
+                    excelUrl="/purchase-receipts/print/excel"
+                    pdfUrl="/purchase-receipts/print/pdf"
+                    actions={
                         <Link
                             href="/purchase-receipts/create"
-                            className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-sky-500 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-slate-100 px-3.5 py-1.5 text-xs font-semibold text-white dark:text-slate-900 hover:bg-slate-700 dark:hover:bg-white transition-colors focus:outline-none"
                         >
                             <Plus className="h-3.5 w-3.5" />
-                            Tambah
+                            Tambah Penerimaan
                         </Link>
-                    </div>
-                </div>
+                    }
+                />
 
                 <Datatable
                     ref={datatableRef}
@@ -523,8 +509,8 @@ export default function Index() {
                             </div>
 
                             <div className="grid grid-cols-2 gap-y-2 text-xs">
-                                <div className="text-slate-400">Tanggal</div>
-                                <div className="text-slate-700 dark:text-slate-300 text-right font-medium">{row.receipt_date}</div>
+                                <div className="text-slate-400">Tanggal Pengiriman</div>
+                                <div className="text-slate-700 dark:text-slate-300 text-right font-medium">{formatDateIndonesian(row.receipt_date)}</div>
 
                                 <div className="text-slate-400">Supplier</div>
                                 <div className="text-slate-700 dark:text-slate-300 text-right font-medium truncate">{row.supplier?.name || '—'}</div>

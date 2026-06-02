@@ -13,7 +13,7 @@ class RoleDatatableService
      */
     private function getStartedQuery(DatatableRequest $request): Builder
     {
-        $query = Role::query()->with('permissions');
+        $query = Role::query()->with('permissions')->withCount('permissions');
 
         $search = $request->validated('search');
         $sortField = $request->validated('sort_by') ?? 'id';
@@ -36,7 +36,11 @@ class RoleDatatableService
 
         // Apply sorting via when()
         $query->when($sortField, function (Builder $q) use ($sortField, $sortOrder) {
-            $q->orderBy($sortField, $sortOrder);
+            if ($sortField === 'permissions_count') {
+                $q->orderBy('permissions_count', $sortOrder);
+            } else {
+                $q->orderBy($sortField, $sortOrder);
+            }
         });
 
         return $query;

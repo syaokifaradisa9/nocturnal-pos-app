@@ -38,7 +38,7 @@ export default function Topbar({ isCollapsed, setIsCollapsed, isMobileOpen, setI
     };
 
     return (
-        <header className="sticky top-0 z-40 flex h-14 md:h-16 shrink-0 items-center justify-between border-b border-transparent md:border-slate-200/80 bg-white/80 px-4 md:px-6 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
+        <header className="sticky top-0 z-40 flex h-12 md:h-13 shrink-0 items-center justify-between border-b border-transparent md:border-slate-200/80 bg-white/80 px-4 md:px-6 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
             <div className="flex flex-1 items-center gap-4">
                 {/* Mobile hamburger menu button */}
                 <button
@@ -55,15 +55,6 @@ export default function Topbar({ isCollapsed, setIsCollapsed, isMobileOpen, setI
                     </span>
                 )}
 
-                {/* Desktop Collapse / Expand Button */}
-                {isCollapsed && (
-                    <button
-                        onClick={() => setIsCollapsed(false)}
-                        className="hidden md:block rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-300"
-                    >
-                        <Menu className="h-5 w-5" />
-                    </button>
-                )}
             </div>
 
             <div className="flex items-center gap-4">
@@ -76,22 +67,13 @@ export default function Topbar({ isCollapsed, setIsCollapsed, isMobileOpen, setI
                 <div className="relative">
                     <button 
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                        className="flex items-center gap-3 rounded-xl p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
+                        className="flex items-center gap-1.5 rounded-lg py-1 px-2 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors focus:outline-none"
                     >
-                        {/* Avatar */}
-                        <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 font-bold text-primary dark:bg-primary/20">
-                            {getInitials(user.name)}
-                        </div>
-                        {/* Name & Email */}
-                        <div className="hidden text-left sm:block">
-                            <h4 className="text-sm font-bold text-slate-950 dark:text-white leading-tight">
-                                {user.name}
-                            </h4>
-                            <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-none mt-0.5">
-                                {user.email}
-                            </p>
-                        </div>
-                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                        {/* Name Only */}
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            {user.name}
+                        </span>
+                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                     </button>
 
                     {/* Dropdown Menu */}
@@ -101,26 +83,35 @@ export default function Topbar({ isCollapsed, setIsCollapsed, isMobileOpen, setI
                                 className="fixed inset-0 z-30" 
                                 onClick={() => setIsUserMenuOpen(false)}
                             />
-                            <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-800 dark:bg-slate-950 z-40">
+                            <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl dark:border-slate-800/80 dark:bg-slate-950 z-40 transition-all">
+                                {/* User Info Header inside Dropdown */}
+                                <div className="px-3 py-2.5">
+                                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Akun Masuk</p>
+                                    <p className="text-xs font-bold text-slate-850 dark:text-slate-200 truncate mt-0.5">{user.name}</p>
+                                    <p className="text-[11px] text-slate-450 dark:text-slate-400 truncate">{user.email}</p>
+                                </div>
+                                
+                                <div className="h-px bg-slate-100 dark:bg-slate-850 my-1" />
+
                                 {/* Mobile Only: Theme Toggle inside Profile Dropdown */}
-                                <div className="md:hidden flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-55 dark:hover:bg-slate-900 transition-colors">
+                                <div className="md:hidden flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/60 transition-colors">
                                     <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold">Ubah Tema</span>
                                     <ThemeToggle className="relative inset-0" />
                                 </div>
-                                <div className="md:hidden my-1.5 border-t border-slate-200 dark:border-slate-800" />
+                                <div className="md:hidden h-px bg-slate-100 dark:bg-slate-850 my-1" />
 
                                 <Link 
                                     href="/pengaturan" 
-                                    className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900"
+                                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900/60 dark:hover:text-slate-200 transition-colors"
                                     onClick={() => setIsUserMenuOpen(false)}
                                 >
-                                    <Settings className="h-4 w-4 text-slate-400" />
+                                    <Settings className="h-4 w-4 text-slate-450 dark:text-slate-550" />
                                     Pengaturan Akun
                                 </Link>
-                                <hr className="my-1.5 border-slate-200 dark:border-slate-850" />
+                                <div className="h-px bg-slate-100 dark:bg-slate-850 my-1" />
                                 <button
                                     onClick={handleLogout}
-                                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50/50 dark:text-rose-400 dark:hover:bg-rose-950/20"
+                                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-semibold text-rose-600 hover:bg-rose-50/60 dark:text-rose-450 dark:hover:bg-rose-950/20 transition-colors"
                                 >
                                     <LogOut className="h-4 w-4" />
                                     Keluar

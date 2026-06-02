@@ -1,10 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { Head, useForm, router, usePage } from '@inertiajs/react';
-import { Plus, Edit2, Trash2, FileSpreadsheet, FileText, Building, MapPin, Clock } from 'lucide-react';
+import { Plus, Edit2, Trash2, Building, MapPin, Clock } from 'lucide-react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
+import ContentHeader from '../../components/layouts/ContentHeader';
 import CheckPermission from '../../components/commons/CheckPermission';
 import Modal from '../../components/commons/Modal';
 import Datatable, { ColumnDefinition, DatatableRef } from '../../components/commons/Datatable';
+import Tooltip from '../../components/commons/Tooltip';
 import { UserPermission } from '../../types';
 import FormInput from '../../components/forms/FormInput';
 import FormTextArea from '../../components/forms/FormTextArea';
@@ -81,33 +83,25 @@ function RowActions({ branch, onEdit, onDelete }: {
     return (
         <div className="flex items-center justify-end gap-1.5">
             <CheckPermission permissions={[UserPermission.EDIT_ANY_BRANCH, UserPermission.EDIT_ASSOCIATED_BRANCH, UserPermission.EDIT_OWN_BRANCH]}>
-                <div className="relative group/edit">
+                <Tooltip content="Edit Cabang">
                     <button
                         onClick={() => onEdit(branch)}
-                        className="rounded-lg p-1.5 text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors"
+                        className="rounded-lg p-1.5 text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
                     >
                         <Edit2 className="h-4 w-4" />
                     </button>
-                    <div className="hidden group-hover/edit:block pointer-events-none absolute bottom-full right-0 z-30 mb-2 whitespace-nowrap rounded-lg bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-slate-800">
-                        Edit Cabang
-                        <div className="absolute top-full right-3.5 h-1.5 w-1.5 -translate-y-0.5 rotate-45 bg-slate-950 dark:bg-slate-800" />
-                    </div>
-                </div>
+                </Tooltip>
             </CheckPermission>
 
             <CheckPermission permissions={[UserPermission.DELETE_ANY_BRANCH, UserPermission.DELETE_ASSOCIATED_BRANCH, UserPermission.DELETE_OWN_BRANCH]}>
-                <div className="relative group/delete">
+                <Tooltip content="Hapus Cabang">
                     <button
                         onClick={() => onDelete(branch)}
-                        className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                        className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
                     >
                         <Trash2 className="h-4 w-4" />
                     </button>
-                    <div className="hidden group-hover/delete:block pointer-events-none absolute bottom-full right-0 z-30 mb-2 whitespace-nowrap rounded-lg bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-slate-800">
-                        Hapus Cabang
-                        <div className="absolute top-full right-3.5 h-1.5 w-1.5 -translate-y-0.5 rotate-45 bg-slate-950 dark:bg-slate-800" />
-                    </div>
-                </div>
+                </Tooltip>
             </CheckPermission>
         </div>
     );
@@ -232,7 +226,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         
         let showBusinessSelect = false;
         if (hasCreateAnyBranch) {
-            showBusinessSelect = true;
+            showBusinessSelect = !!selectedOwnerId;
         } else if (hasCreateAssociatedBranch) {
             showBusinessSelect = businesses.length > 1;
         } else if (hasCreateOwnBranch) {
@@ -241,6 +235,41 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
 
         return (
             <div className="space-y-4">
+                {/* Owner Select (Only for Create/Edit Any Branch) */}
+                {showOwnerSelect && (
+                    <FormSelect
+                        name="owner_id"
+                        label="Owner Bisnis"
+                        value={selectedOwnerId}
+                        onChange={(e) => {
+                            setSelectedOwnerId(e.target.value);
+                            setData('business_id', ''); // Reset selected business when owner changes
+                        }}
+                        error={errors.business_id}
+                    >
+                        <option value="">Pilih Owner...</option>
+                        {users.map((u) => (
+                            <option key={u.id} value={u.id}>{u.name}</option>
+                        ))}
+                    </FormSelect>
+                )}
+
+                {/* Business Select */}
+                {showBusinessSelect && (
+                    <FormSelect
+                        name="business_id"
+                        label="Pilih Bisnis"
+                        value={data.business_id}
+                        onChange={(e) => setData('business_id', e.target.value)}
+                        error={errors.business_id}
+                    >
+                        <option value="">Pilih Bisnis...</option>
+                        {filteredBusinesses.map((b) => (
+                            <option key={b.id} value={b.id}>{b.name}</option>
+                        ))}
+                    </FormSelect>
+                )}
+
                 <FormInput
                     name="name"
                     label="Nama Cabang"
@@ -280,55 +309,12 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                         error={errors.end_time}
                     />
                 </div>
-
-                {/* Owner Select (Only for Create/Edit Any Branch) */}
-                {showOwnerSelect && (
-                    <FormSelect
-                        name="owner_id"
-                        label="Owner Bisnis"
-                        value={selectedOwnerId}
-                        onChange={(e) => {
-                            setSelectedOwnerId(e.target.value);
-                            setData('business_id', ''); // Reset selected business when owner changes
-                        }}
-                        error={errors.business_id}
-                    >
-                        <option value="">Pilih Owner...</option>
-                        {users.map((u) => (
-                            <option key={u.id} value={u.id}>{u.name}</option>
-                        ))}
-                    </FormSelect>
-                )}
-
-                {/* Business Select */}
-                {showBusinessSelect && (
-                    <FormSelect
-                        name="business_id"
-                        label="Pilih Bisnis"
-                        value={data.business_id}
-                        onChange={(e) => setData('business_id', e.target.value)}
-                        error={errors.business_id}
-                    >
-                        <option value="">Pilih Bisnis...</option>
-                        {filteredBusinesses.map((b) => (
-                            <option key={b.id} value={b.id}>{b.name}</option>
-                        ))}
-                    </FormSelect>
-                )}
             </div>
         );
     };
 
     // Columns Definition for Datatable
     const columns: ColumnDefinition<Branch>[] = [
-        {
-            key: 'no',
-            label: 'No',
-            sortable: true,
-            sortKey: 'id',
-            className: 'whitespace-nowrap text-slate-400 tabular-nums',
-            render: (_, i, metaFrom) => (metaFrom || 1) + i
-        },
         {
             key: 'name',
             label: 'Nama Cabang',
@@ -367,12 +353,18 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         {
             key: 'hours',
             label: 'Jam Operasional',
-            render: (b) => (
-                <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                    <Clock className="h-3.5 w-3.5 text-slate-400" />
-                    <span>{b.opening_time ? `${b.opening_time} - ${b.end_time || ''}` : '24 Jam'}</span>
-                </div>
-            )
+            render: (b) => {
+                const formatTime = (timeStr: string | null) => {
+                    if (!timeStr) return '';
+                    return timeStr.substring(0, 5);
+                };
+                return (
+                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                        <Clock className="h-3.5 w-3.5 text-slate-400" />
+                        <span>{b.opening_time ? `${formatTime(b.opening_time)} - ${formatTime(b.end_time)}` : '24 Jam'}</span>
+                    </div>
+                );
+            }
         },
         {
             key: 'actions',
@@ -387,50 +379,27 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         <DashboardLayout title="Data Cabang">
             <Head title="Data Cabang" />
 
-            <div className="mx-auto max-w-7xl px-0 pt-2 pb-6 md:py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 md:pt-6 md:pb-8 sm:px-6 lg:px-8">
                 {/* ─── Header ─── */}
-                <div className="hidden md:flex mb-6 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div className="hidden md:block">
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/10">
-                                <Building className="h-4.5 w-4.5 text-sky-600 dark:text-sky-400" />
-                            </div>
-                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Data Cabang</h1>
-                        </div>
-                        <p className="ml-12 text-sm text-slate-500 dark:text-slate-400">
-                            Kelola data cabang sesuai hak akses Anda.
-                        </p>
-                    </div>
-
-                    <div className="hidden md:flex flex-wrap items-center gap-2">
-                        <a
-                            href="/branches/print/excel"
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
-                        >
-                            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />
-                            Excel
-                        </a>
-                        <a
-                            href="/branches/print/pdf"
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
-                        >
-                            <FileText className="h-3.5 w-3.5 text-rose-500" />
-                            PDF
-                        </a>
-
+                <ContentHeader
+                    title="Data Cabang"
+                    icon={Building}
+                    badge="Master"
+                    description="Kelola data cabang sesuai hak akses Anda."
+                    excelUrl="/branches/print/excel"
+                    pdfUrl="/branches/print/pdf"
+                    actions={
                         <CheckPermission permissions={[UserPermission.CREATE_ANY_BRANCH, UserPermission.CREATE_ASSOCIATED_BRANCH, UserPermission.CREATE_OWN_BRANCH]}>
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-sky-500 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-slate-100 px-3.5 py-1.5 text-xs font-semibold text-white dark:text-slate-900 hover:bg-slate-700 dark:hover:bg-white transition-colors focus:outline-none"
                             >
                                 <Plus className="h-3.5 w-3.5" />
-                                Tambah
+                                Tambah Cabang
                             </button>
                         </CheckPermission>
-                    </div>
-                </div>
+                    }
+                />
 
                 <Datatable
                     ref={datatableRef}
@@ -476,7 +445,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <Clock className="h-3.5 w-3.5 text-slate-400" />
-                                            <span>{branch.opening_time ? `${branch.opening_time} - ${branch.end_time || ''}` : '24 Jam'}</span>
+                                            <span>{branch.opening_time ? `${branch.opening_time.substring(0, 5)} - ${(branch.end_time || '').substring(0, 5)}` : '24 Jam'}</span>
                                         </div>
                                     </div>
 

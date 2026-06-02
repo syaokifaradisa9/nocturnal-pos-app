@@ -73,7 +73,19 @@ class PurchaseReceiptDatatableService
         });
 
         // Sort
-        $query->orderBy($sortField, $sortOrder);
+        $query->when($sortField, function (Builder $q) use ($sortField, $sortOrder) {
+            if ($sortField === 'supplier') {
+                $q->join('suppliers', 'purchase_receipts.supplier_id', '=', 'suppliers.id')
+                  ->orderBy('suppliers.name', $sortOrder)
+                  ->select('purchase_receipts.*');
+            } else if ($sortField === 'branch') {
+                $q->join('branches', 'purchase_receipts.branch_id', '=', 'branches.id')
+                  ->orderBy('branches.name', $sortOrder)
+                  ->select('purchase_receipts.*');
+            } else {
+                $q->orderBy('purchase_receipts.' . $sortField, $sortOrder);
+            }
+        });
 
         return $query;
     }

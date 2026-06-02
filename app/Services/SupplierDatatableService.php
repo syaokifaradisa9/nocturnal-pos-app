@@ -72,7 +72,15 @@ class SupplierDatatableService
 
         // Apply sorting via when()
         $query->when($sortField, function (Builder $q) use ($sortField, $sortOrder) {
-            $q->orderBy($sortField, $sortOrder);
+            if ($sortField === 'business') {
+                $q->leftJoin('business_suppliers', 'suppliers.id', '=', 'business_suppliers.supplier_id')
+                  ->leftJoin('businesses', 'business_suppliers.business_id', '=', 'businesses.id')
+                  ->select('suppliers.*')
+                  ->groupBy('suppliers.id', 'suppliers.name', 'suppliers.contact_name', 'suppliers.contact_phone', 'suppliers.address', 'suppliers.description', 'suppliers.created_at', 'suppliers.updated_at', 'suppliers.deleted_at')
+                  ->orderBy('businesses.name', $sortOrder);
+            } else {
+                $q->orderBy($sortField, $sortOrder);
+            }
         });
 
         return $query;

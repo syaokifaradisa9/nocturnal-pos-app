@@ -1,10 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Plus, Edit2, Trash2, FileSpreadsheet, FileText, ShoppingBag, Package, Eye } from 'lucide-react';
+import { Plus, Edit2, Trash2, ShoppingBag, Package, Eye } from 'lucide-react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
+import ContentHeader from '../../components/layouts/ContentHeader';
 import CheckPermission from '../../components/commons/CheckPermission';
 import Modal from '../../components/commons/Modal';
 import Datatable, { ColumnDefinition, DatatableRef } from '../../components/commons/Datatable';
+import Tooltip from '../../components/commons/Tooltip';
 import { UserPermission } from '../../types';
 
 interface Business {
@@ -182,47 +184,35 @@ function RowActions({ product, onView, onDelete }: {
 }) {
     return (
         <div className="flex items-center justify-end gap-1.5">
-            <div className="relative group/view">
+            <Tooltip content="Lihat Detail">
                 <button
                     onClick={() => onView(product)}
-                    className="inline-flex rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10 transition-colors"
+                    className="inline-flex rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
                 >
                     <Eye className="h-4 w-4" />
                 </button>
-                <div className="hidden group-hover/view:block pointer-events-none absolute bottom-full right-0 z-30 mb-2 whitespace-nowrap rounded-lg bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-slate-800">
-                    Lihat Detail
-                    <div className="absolute top-full right-3.5 h-1.5 w-1.5 -translate-y-0.5 rotate-45 bg-slate-950 dark:bg-slate-800" />
-                </div>
-            </div>
+            </Tooltip>
 
             <CheckPermission permissions={[UserPermission.EDIT_ANY_PRODUCT_ITEM, UserPermission.EDIT_ASSOCIATED_PRODUCT_ITEM, UserPermission.EDIT_OWN_PRODUCT_ITEM]}>
-                <div className="relative group/edit">
+                <Tooltip content="Edit Item Produk">
                     <Link
                         href={`/product-items/${product.id}/edit`}
-                        className="inline-flex rounded-lg p-1.5 text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors"
+                        className="inline-flex rounded-lg p-1.5 text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
                     >
                         <Edit2 className="h-4 w-4" />
                     </Link>
-                    <div className="hidden group-hover/edit:block pointer-events-none absolute bottom-full right-0 z-30 mb-2 whitespace-nowrap rounded-lg bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-slate-800">
-                        Edit Item Produk
-                        <div className="absolute top-full right-3.5 h-1.5 w-1.5 -translate-y-0.5 rotate-45 bg-slate-950 dark:bg-slate-800" />
-                    </div>
-                </div>
+                </Tooltip>
             </CheckPermission>
 
             <CheckPermission permissions={[UserPermission.DELETE_ANY_PRODUCT_ITEM, UserPermission.DELETE_ASSOCIATED_PRODUCT_ITEM, UserPermission.DELETE_OWN_PRODUCT_ITEM]}>
-                <div className="relative group/delete">
+                <Tooltip content="Hapus Item Produk">
                     <button
                         onClick={() => onDelete(product)}
-                        className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                        className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
                     >
                         <Trash2 className="h-4 w-4" />
                     </button>
-                    <div className="hidden group-hover/delete:block pointer-events-none absolute bottom-full right-0 z-30 mb-2 whitespace-nowrap rounded-lg bg-slate-950 px-2 py-1 text-xs font-medium text-white shadow-md dark:bg-slate-800">
-                        Hapus Item Produk
-                        <div className="absolute top-full right-3.5 h-1.5 w-1.5 -translate-y-0.5 rotate-45 bg-slate-950 dark:bg-slate-800" />
-                    </div>
-                </div>
+                </Tooltip>
             </CheckPermission>
         </div>
     );
@@ -275,6 +265,7 @@ export default function Index() {
         {
             key: 'product',
             label: 'Produk Induk',
+            sortable: true,
             searchable: true,
             searchPlaceholder: 'Cari produk induk...',
             className: 'text-slate-600 dark:text-slate-300 font-medium',
@@ -283,6 +274,7 @@ export default function Index() {
         {
             key: 'items',
             label: 'Daftar Unit Kemasan',
+            sortable: true,
             searchable: false,
             className: 'text-xs text-slate-500 dark:text-slate-400',
             render: (p) => {
@@ -309,6 +301,7 @@ export default function Index() {
         {
             key: 'business',
             label: 'Bisnis Terkait',
+            sortable: true,
             searchable: true,
             searchPlaceholder: 'Cari bisnis...',
             className: 'text-slate-500 dark:text-slate-400',
@@ -329,50 +322,27 @@ export default function Index() {
         <DashboardLayout title="Produk Penjualan">
             <Head title="Produk Penjualan" />
 
-            <div className="mx-auto max-w-7xl px-0 pt-2 pb-6 md:py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 md:pt-6 md:pb-8 sm:px-6 lg:px-8">
                 {/* ─── Header ─── */}
-                <div className="hidden md:flex mb-6 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div className="hidden md:block">
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/10">
-                                <ShoppingBag className="h-4.5 w-4.5 text-sky-600 dark:text-sky-400" />
-                            </div>
-                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Produk Penjualan</h1>
-                        </div>
-                        <p className="ml-12 text-sm text-slate-500 dark:text-slate-400">
-                            Kelola varian item produk penjualan, satuan kemasan, konversi unit, beserta tiering harga grosir.
-                        </p>
-                    </div>
-
-                    <div className="hidden md:flex flex-wrap items-center gap-2">
-                        <a
-                            href="/product-items/print/excel"
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
-                        >
-                            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />
-                            Excel
-                        </a>
-                        <a
-                            href="/product-items/print/pdf"
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
-                        >
-                            <FileText className="h-3.5 w-3.5 text-rose-500" />
-                            PDF
-                        </a>
-
+                <ContentHeader
+                    title="Produk Penjualan"
+                    icon={ShoppingBag}
+                    badge="Master"
+                    description="Kelola varian item produk penjualan, satuan kemasan, konversi unit, beserta tiering harga grosir."
+                    excelUrl="/product-items/print/excel"
+                    pdfUrl="/product-items/print/pdf"
+                    actions={
                         <CheckPermission permissions={[UserPermission.CREATE_ANY_PRODUCT_ITEM, UserPermission.CREATE_ASSOCIATED_PRODUCT_ITEM, UserPermission.CREATE_OWN_PRODUCT_ITEM]}>
                             <Link
                                 href="/product-items/create"
-                                className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-sky-500 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-slate-100 px-3.5 py-1.5 text-xs font-semibold text-white dark:text-slate-900 hover:bg-slate-700 dark:hover:bg-white transition-colors focus:outline-none"
                             >
                                 <Plus className="h-3.5 w-3.5" />
-                                Tambah
+                                Tambah Produk Penjualan
                             </Link>
                         </CheckPermission>
-                    </div>
-                </div>
+                    }
+                />
 
                 <Datatable
                     ref={datatableRef}

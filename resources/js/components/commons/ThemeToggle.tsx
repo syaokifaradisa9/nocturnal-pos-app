@@ -11,11 +11,11 @@ export default function ThemeToggle({ className = 'absolute right-4 top-4' }: Th
     return (
         <button
             onClick={() => updateAppearance(appearance === 'dark' ? 'light' : 'dark')}
-            className={`${className} rounded-xl p-2.5 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800`}
+            className={`${className} rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors`}
             aria-label="Toggle theme"
             type="button"
         >
-            {appearance === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {appearance === 'dark' ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
         </button>
     );
 }

@@ -60,7 +60,15 @@ class ProductDatatableService
 
         // Apply sorting via when()
         $query->when($sortField, function (Builder $q) use ($sortField, $sortOrder) {
-            $q->orderBy($sortField, $sortOrder);
+            if ($sortField === 'business') {
+                $q->leftJoin('business_products', 'products.id', '=', 'business_products.product_id')
+                  ->leftJoin('businesses', 'business_products.business_id', '=', 'businesses.id')
+                  ->select('products.*')
+                  ->groupBy('products.id', 'products.name', 'products.created_at', 'products.updated_at', 'products.deleted_at')
+                  ->orderBy('businesses.name', $sortOrder);
+            } else {
+                $q->orderBy($sortField, $sortOrder);
+            }
         });
 
         return $query;

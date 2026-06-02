@@ -141,3 +141,23 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Custom Scrollbar Utility */
+.clean-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+.clean-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.clean-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.25);
+    border-radius: 9999px;
+}
+.clean-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.45);
+}
+.clean-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.25) transparent;
+}

@@ -22,11 +22,15 @@ class BusinessRequest extends FormRequest
     {
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'description' => ['required', 'string'],
         ];
 
         $user = $this->user();
-        if ($user && $user->hasPermission(UserPermission::VIEW_ANY_BUSINESS)) {
+        if ($user && (
+            $user->hasPermission(UserPermission::CREATE_ANY_BUSINESS) ||
+            $user->hasPermission(UserPermission::EDIT_ANY_BUSINESS) ||
+            $user->hasPermission(UserPermission::VIEW_ANY_BUSINESS)
+        )) {
             $rules['user_id'] = ['required', 'exists:users,id'];
         }
 
@@ -42,6 +46,7 @@ class BusinessRequest extends FormRequest
             'name.required' => 'Nama bisnis wajib diisi.',
             'name.string' => 'Nama bisnis harus berupa string.',
             'name.max' => 'Nama bisnis maksimal 255 karakter.',
+            'description.required' => 'Deskripsi wajib diisi.',
             'description.string' => 'Deskripsi harus berupa string.',
             'user_id.required' => 'Owner wajib diisi.',
             'user_id.exists' => 'Owner yang dipilih tidak valid.',

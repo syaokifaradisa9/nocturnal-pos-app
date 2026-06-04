@@ -48,7 +48,7 @@ class BusinessService
 
         $data = $dto->toArray();
 
-        if (!$user->hasPermission(UserPermission::VIEW_ANY_BUSINESS)) {
+        if (!$user->hasPermission(UserPermission::CREATE_ANY_BUSINESS)) {
             $data['user_id'] = $user->id;
         }
 
@@ -76,9 +76,6 @@ class BusinessService
 
         if ($user->hasPermission(UserPermission::EDIT_ANY_BUSINESS)) {
             $data = $dto->toArray();
-            if (!$user->hasPermission(UserPermission::VIEW_ANY_BUSINESS)) {
-                $data['user_id'] = $user->id;
-            }
             $updated = $this->repository->update($id, $data);
             $this->syncOwnerRole($updated);
             return $updated;

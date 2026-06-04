@@ -68,7 +68,29 @@ class BusinessDatatableService
     public function getDatatable(DatatableRequest $request)
     {
         $perPage = $request->validated('limit') ?? 10;
-        return $this->getStartedQuery($request->user(), $request)->paginate($perPage);
+        $paginator = $this->getStartedQuery($request->user(), $request)->paginate($perPage);
+
+        $user = $request->user();
+        $hasOverall = $user->hasPermission(UserPermission::VIEW_ANY_BUSINESS);
+
+        return $paginator->through(function ($row) use ($hasOverall) {
+            if ($hasOverall) {
+                return [
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'description' => $row->description,
+                    'owner_name' => $row->owner ? $row->owner->name : 'Global',
+                    'owner_id' => $row->user_id,
+                ];
+            } else {
+                return [
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'description' => $row->description,
+                    'owner_id' => $row->user_id,
+                ];
+            }
+        });
     }
 
     /**
@@ -89,7 +111,7 @@ class BusinessDatatableService
                 $item['Owner'] = $row->owner ? $row->owner->name : 'Global';
             }
 
-            $item['Nama Bisnis'] = $row->name;
+            $item['Bisnis'] = $row->name;
             $item['Deskripsi'] = $row->description ?? '-';
             $item['Tanggal Dibuat'] = $row->created_at ? $row->created_at->format('Y-m-d H:i:s') : '-';
 
@@ -101,7 +123,7 @@ class BusinessDatatableService
     }
 
     /**
-     * Export the query data to PDF format.
+     * Export/Print to PDF.
      */
     public function printPdf(DatatableRequest $request)
     {

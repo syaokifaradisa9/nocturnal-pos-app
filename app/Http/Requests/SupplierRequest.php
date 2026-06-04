@@ -22,18 +22,23 @@ class SupplierRequest extends FormRequest
     {
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'contact_name' => ['nullable', 'string', 'max:255'],
-            'contact_phone' => ['nullable', 'string', 'max:50'],
-            'address' => ['nullable', 'string'],
-            'description' => ['nullable', 'string'],
+            'contact_name' => ['required', 'string', 'max:255'],
+            'contact_phone' => ['required', 'string', 'max:50'],
+            'address' => ['required', 'string'],
+            'description' => ['required', 'string'],
         ];
 
         $user = $this->user();
         if ($user) {
-            if ($user->hasPermission(UserPermission::VIEW_ANY_SUPPLIER)) {
+            if ($user->hasPermission(UserPermission::CREATE_ANY_SUPPLIER)) {
                 $rules['business_ids'] = ['required', 'array', 'min:1'];
                 $rules['business_ids.*'] = ['exists:businesses,id'];
-            } else if ($user->hasPermission(UserPermission::VIEW_ASSOCIATED_SUPPLIER)) {
+            } else if (
+                $user->hasPermission(UserPermission::CREATE_OWN_SUPPLIER)
+            ) {
+                $rules['business_ids'] = ['required', 'array', 'min:1'];
+                $rules['business_ids.*'] = ['exists:businesses,id'];
+            } else if ($user->hasPermission(UserPermission::CREATE_ASSOCIATED_SUPPLIER)) {
                 $businessCount = $user->businesses()->count();
                 if ($businessCount > 1) {
                     $rules['business_ids'] = ['required', 'array', 'min:1'];
@@ -42,9 +47,6 @@ class SupplierRequest extends FormRequest
                     $rules['business_ids'] = ['nullable', 'array'];
                     $rules['business_ids.*'] = ['exists:businesses,id'];
                 }
-            } else {
-                $rules['business_ids'] = ['nullable', 'array'];
-                $rules['business_ids.*'] = ['exists:businesses,id'];
             }
         }
 
@@ -60,6 +62,10 @@ class SupplierRequest extends FormRequest
             'name.required' => 'Nama supplier wajib diisi.',
             'name.string' => 'Nama supplier harus berupa string.',
             'name.max' => 'Nama supplier maksimal 255 karakter.',
+            'contact_name.required' => 'Nama kontak wajib diisi.',
+            'contact_phone.required' => 'Telepon kontak wajib diisi.',
+            'address.required' => 'Alamat wajib diisi.',
+            'description.required' => 'Deskripsi wajib diisi.',
             'business_ids.required' => 'Bisnis wajib dipilih minimal satu.',
             'business_ids.array' => 'Format bisnis tidak valid.',
             'business_ids.min' => 'Bisnis wajib dipilih minimal satu.',

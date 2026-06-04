@@ -84,7 +84,15 @@ class SupplierService
             if (empty($ownedBusinesses)) {
                 throw new AuthorizationException('Anda belum memiliki bisnis pribadi.');
             }
-            $businessIds = $ownedBusinesses;
+            if (empty($businessIds)) {
+                $businessIds = $ownedBusinesses;
+            } else {
+                foreach ($businessIds as $bId) {
+                    if (!in_array($bId, $ownedBusinesses)) {
+                        throw new AuthorizationException('Bisnis yang dipilih bukan milik Anda.');
+                    }
+                }
+            }
         } else {
             throw new AuthorizationException('Anda tidak memiliki izin untuk menambah supplier.');
         }
@@ -141,6 +149,16 @@ class SupplierService
                 foreach ($dto->businessIds as $bId) {
                     if (!in_array($bId, $associatedBusinessIds)) {
                         throw new AuthorizationException('Bisnis yang dipilih tidak valid untuk akun Anda.');
+                    }
+                }
+                $supplier->businesses()->sync($dto->businessIds);
+            }
+        } else if ($user->hasPermission(UserPermission::EDIT_OWN_SUPPLIER)) {
+            if ($dto->businessIds !== null) {
+                $ownedBusinessIds = $this->businessRepository->query()->where('user_id', $user->id)->pluck('id')->toArray();
+                foreach ($dto->businessIds as $bId) {
+                    if (!in_array($bId, $ownedBusinessIds)) {
+                        throw new AuthorizationException('Bisnis yang dipilih bukan milik Anda.');
                     }
                 }
                 $supplier->businesses()->sync($dto->businessIds);

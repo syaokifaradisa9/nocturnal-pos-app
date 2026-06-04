@@ -98,11 +98,19 @@ class BranchService
             }
         } else {
             // CREATE_OWN_BRANCH (Pribadi)
-            $ownedBusiness = $this->businessRepository->query()->where('user_id', $user->id)->first();
-            if (!$ownedBusiness) {
-                throw new AuthorizationException('Anda belum memiliki bisnis pribadi.');
+            $reqBusinessId = $data['business_id'] ?? null;
+            if (!$reqBusinessId) {
+                $ownedBusiness = $this->businessRepository->query()->where('user_id', $user->id)->first();
+                if (!$ownedBusiness) {
+                    throw new AuthorizationException('Anda belum memiliki bisnis pribadi.');
+                }
+                $data['business_id'] = $ownedBusiness->id;
+            } else {
+                $isOwned = $this->businessRepository->query()->where('id', $reqBusinessId)->where('user_id', $user->id)->exists();
+                if (!$isOwned) {
+                    throw new AuthorizationException('Bisnis yang dipilih bukan milik Anda.');
+                }
             }
-            $data['business_id'] = $ownedBusiness->id;
         }
 
         if (empty($data['business_id'])) {
@@ -142,8 +150,16 @@ class BranchService
 
         // Enforce the same scoping for the business ID during update if not ANY
         if (!$user->hasPermission(UserPermission::EDIT_ANY_BRANCH)) {
-            // Keep existing business_id or force check
-            $data['business_id'] = $branch->business_id;
+            if ($user->hasPermission(UserPermission::EDIT_OWN_BRANCH)) {
+                $reqBusinessId = $data['business_id'] ?? $branch->business_id;
+                $isOwned = $this->businessRepository->query()->where('id', $reqBusinessId)->where('user_id', $user->id)->exists();
+                if (!$isOwned) {
+                    throw new AuthorizationException('Bisnis yang dipilih bukan milik Anda.');
+                }
+                $data['business_id'] = $reqBusinessId;
+            } else {
+                $data['business_id'] = $branch->business_id;
+            }
         }
 
         return $this->repository->update($id, $data);

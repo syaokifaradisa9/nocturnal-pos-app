@@ -17,7 +17,7 @@ class BranchDatatableService
      */
     private function getStartedQuery(User $user, DatatableRequest $request): Builder
     {
-        $query = Branch::query()->with('business');
+        $query = Branch::whereHas('business')->with(['business.owner', 'business.users']);
 
         // Scope by permission
         $query->when($user->hasPermission(UserPermission::VIEW_ANY_BRANCH), function (Builder $q) {
@@ -37,14 +37,31 @@ class BranchDatatableService
         $sortField = $request->validated('sort_by') ?? 'id';
         $sortOrder = $request->validated('sort_type') ?? 'desc';
 
-        // Apply global search via when()
-        $query->when($search, function (Builder $q) use ($search) {
-            $q->where(function (Builder $sub) use ($search) {
-                $sub->where('name', 'like', "%{$search}%")
-                    ->orWhere('address', 'like', "%{$search}%")
-                    ->orWhereHas('business', function (Builder $businessQ) use ($search) {
-                        $businessQ->where('name', 'like', "%{$search}%");
-                    });
+        // Apply global search via when() based on permission
+        $query->when($search, function (Builder $q) use ($search, $user) {
+            $q->where(function (Builder $sub) use ($search, $user) {
+                if ($user->hasPermission(UserPermission::VIEW_ANY_BRANCH)) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('address', 'like', "%{$search}%")
+                        ->orWhere('opening_time', 'like', "%{$search}%")
+                        ->orWhere('end_time', 'like', "%{$search}%")
+                        ->orWhereHas('business', function (Builder $businessQ) use ($search) {
+                            $businessQ->where('name', 'like', "%{$search}%");
+                        });
+                } elseif ($user->hasPermission(UserPermission::VIEW_OWN_BRANCH)) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('address', 'like', "%{$search}%")
+                        ->orWhere('opening_time', 'like', "%{$search}%")
+                        ->orWhere('end_time', 'like', "%{$search}%")
+                        ->orWhereHas('business', function (Builder $businessQ) use ($search) {
+                            $businessQ->where('name', 'like', "%{$search}%");
+                        });
+                } elseif ($user->hasPermission(UserPermission::VIEW_ASSOCIATED_BRANCH)) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('address', 'like', "%{$search}%")
+                        ->orWhere('opening_time', 'like', "%{$search}%")
+                        ->orWhere('end_time', 'like', "%{$search}%");
+                }
             });
         });
 
@@ -53,7 +70,7 @@ class BranchDatatableService
             $q->where('name', 'like', "%{$name}%");
         })->when($request->input('address'), function (Builder $q, $address) {
             $q->where('address', 'like', "%{$address}%");
-        })->when($request->input('business'), function (Builder $q, $businessName) {
+        })->when($request->input('business') ?? $request->input('business_name'), function (Builder $q, $businessName) {
             $q->whereHas('business', function (Builder $businessQ) use ($businessName) {
                 $businessQ->where('name', 'like', "%{$businessName}%");
             });
@@ -73,7 +90,49 @@ class BranchDatatableService
     public function getDatatable(DatatableRequest $request)
     {
         $perPage = $request->validated('limit') ?? 10;
-        return $this->getStartedQuery($request->user(), $request)->paginate($perPage);
+        $paginator = $this->getStartedQuery($request->user(), $request)->paginate($perPage);
+
+        $user = $request->user();
+        $hasOverall = $user->hasPermission(UserPermission::VIEW_ANY_BRANCH);
+        $hasAssoc = !$hasOverall && $user->hasPermission(UserPermission::VIEW_ASSOCIATED_BRANCH);
+
+        return $paginator->through(function ($row) use ($user, $hasOverall, $hasAssoc) {
+            if ($hasOverall) {
+                return [
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'address' => $row->address,
+                    'opening_time' => $row->opening_time,
+                    'end_time' => $row->end_time,
+                    'business_name' => $row->business ? $row->business->name : null,
+                    'business_id' => $row->business_id,
+                    'owner_id' => $row->business ? $row->business->user_id : null,
+                    'owner_name' => ($row->business && $row->business->owner) ? $row->business->owner->name : 'Global',
+                ];
+            } elseif ($hasAssoc) {
+                $responsibleUser = $row->business ? $row->business->users->firstWhere('id', $user->id) : null;
+                $responsibleUserId = $responsibleUser ? $responsibleUser->id : null;
+                return [
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'address' => $row->address,
+                    'opening_time' => $row->opening_time,
+                    'end_time' => $row->end_time,
+                    'responsible_user_id' => $responsibleUserId,
+                ];
+            } else {
+                return [
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'address' => $row->address,
+                    'opening_time' => $row->opening_time,
+                    'end_time' => $row->end_time,
+                    'business_id' => $row->business_id,
+                    'business_name' => $row->business ? $row->business->name : null,
+                    'owner_id' => $row->business ? $row->business->user_id : null,
+                ];
+            }
+        });
     }
 
     /**
@@ -88,10 +147,10 @@ class BranchDatatableService
             $item = [
                 'No' => $index + 1,
                 'Nama Cabang' => $row->name,
-                'Bisnis' => $row->business ? $row->business->name : '-',
                 'Alamat' => $row->address,
                 'Jam Buka' => $row->opening_time ?? '-',
                 'Jam Tutup' => $row->end_time ?? '-',
+                'Bisnis' => $row->business ? $row->business->name : '-',
                 'Tanggal Dibuat' => $row->created_at ? $row->created_at->format('Y-m-d H:i:s') : '-',
             ];
 

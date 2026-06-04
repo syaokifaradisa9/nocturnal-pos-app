@@ -29,17 +29,23 @@ class BranchRequest extends FormRequest
 
         $user = $this->user();
         if ($user) {
-            if ($user->hasPermission(UserPermission::VIEW_ANY_BRANCH)) {
+            if (
+                $user->hasPermission(UserPermission::CREATE_ANY_BRANCH)
+            ) {
                 $rules['business_id'] = ['required', 'exists:businesses,id'];
-            } else if ($user->hasPermission(UserPermission::VIEW_ASSOCIATED_BRANCH)) {
+            } else if (
+                $user->hasPermission(UserPermission::CREATE_OWN_BRANCH)
+            ) {
+                $rules['business_id'] = ['required', 'exists:businesses,id'];
+            } else if (
+                $user->hasPermission(UserPermission::CREATE_ASSOCIATED_BRANCH)
+            ) {
                 $businessCount = $user->businesses()->count();
                 if ($businessCount > 1) {
                     $rules['business_id'] = ['required', 'exists:businesses,id'];
                 } else {
                     $rules['business_id'] = ['nullable', 'exists:businesses,id'];
                 }
-            } else {
-                $rules['business_id'] = ['nullable', 'exists:businesses,id'];
             }
         }
 

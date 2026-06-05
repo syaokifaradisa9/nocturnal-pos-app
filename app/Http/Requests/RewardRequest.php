@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\UserPermission;
+use App\Models\Business;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RewardRequest extends FormRequest
@@ -32,6 +33,17 @@ class RewardRequest extends FormRequest
                 $rules['business_id'] = ['required', 'exists:businesses,id'];
             } else if ($user->hasPermission(UserPermission::VIEW_ASSOCIATED_REWARD)) {
                 $businessCount = $user->businesses()->count();
+                if ($businessCount > 1) {
+                    $rules['business_id'] = ['required', 'exists:businesses,id'];
+                } else {
+                    $rules['business_id'] = ['nullable', 'exists:businesses,id'];
+                }
+            } else if (
+                $user->hasPermission(UserPermission::VIEW_OWN_REWARD) ||
+                $user->hasPermission(UserPermission::CREATE_OWN_REWARD) ||
+                $user->hasPermission(UserPermission::EDIT_OWN_REWARD)
+            ) {
+                $businessCount = Business::where('user_id', $user->id)->count();
                 if ($businessCount > 1) {
                     $rules['business_id'] = ['required', 'exists:businesses,id'];
                 } else {

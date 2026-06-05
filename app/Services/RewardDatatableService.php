@@ -17,7 +17,7 @@ class RewardDatatableService
      */
     private function getStartedQuery(User $user, DatatableRequest $request): Builder
     {
-        $query = Reward::query()->with('business');
+        $query = Reward::whereHas('business')->with('business');
 
         // Scope by permission
         $query->when($user->hasPermission(UserPermission::VIEW_ANY_REWARD), function (Builder $q) {

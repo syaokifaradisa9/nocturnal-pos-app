@@ -37,6 +37,17 @@ class CustomerRequest extends FormRequest
                 } else {
                     $rules['business_id'] = ['nullable', 'exists:businesses,id'];
                 }
+            } else if (
+                $user->hasPermission(UserPermission::VIEW_OWN_CUSTOMER) ||
+                $user->hasPermission(UserPermission::CREATE_OWN_CUSTOMER) ||
+                $user->hasPermission(UserPermission::EDIT_OWN_CUSTOMER)
+            ) {
+                $businessCount = \App\Models\Business::where('user_id', $user->id)->count();
+                if ($businessCount > 1) {
+                    $rules['business_id'] = ['required', 'exists:businesses,id'];
+                } else {
+                    $rules['business_id'] = ['nullable', 'exists:businesses,id'];
+                }
             } else {
                 $rules['business_id'] = ['nullable', 'exists:businesses,id'];
             }

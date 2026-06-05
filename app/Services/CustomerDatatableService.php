@@ -17,7 +17,7 @@ class CustomerDatatableService
      */
     private function getStartedQuery(User $user, DatatableRequest $request): Builder
     {
-        $query = Customer::query()->with('business');
+        $query = Customer::whereHas('business')->with('business');
 
         // Scope by permission
         $query->when($user->hasPermission(UserPermission::VIEW_ANY_CUSTOMER), function (Builder $q) {

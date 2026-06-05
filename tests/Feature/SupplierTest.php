@@ -785,3 +785,30 @@ test('suppliers from deleted businesses do not show up in the datatable if all t
     expect($data)->toHaveCount(1);
     expect($data[0]['name'])->toBe('Active Supplier');
 });
+
+test('supplier with multiple businesses remains visible if only one business is deleted, but the deleted business is excluded from the response', function () {
+    $user = User::factory()->create();
+    $user->assignPermissions(['Lihat Data Supplier Keseluruhan']);
+
+    $activeBiz = Business::create(['name' => 'Active Business', 'description' => 'Desc', 'user_id' => null]);
+    $deletedBiz = Business::create(['name' => 'Deleted Business', 'description' => 'Desc', 'user_id' => null]);
+
+    $supplier = Supplier::create(['name' => 'Shared Supplier', 'contact_name' => 'C', 'contact_phone' => 'P', 'address' => 'A', 'description' => 'D']);
+    $supplier->businesses()->attach([$activeBiz->id, $deletedBiz->id]);
+
+    // Soft delete one of the businesses
+    $deletedBiz->delete();
+
+    $response = $this->actingAs($user)->getJson(route('suppliers.datatable'));
+    $response->assertOk();
+
+    $data = $response->json('data');
+    
+    // The supplier should still be present
+    expect($data)->toHaveCount(1);
+    expect($data[0]['name'])->toBe('Shared Supplier');
+
+    // The business_names and business_ids in the response should only list the active business
+    expect($data[0]['business_names'])->toBe('Active Business');
+    expect($data[0]['business_ids'])->toBe([$activeBiz->id]);
+});

@@ -23,7 +23,7 @@ class ProductUnitDTO
             name: $request->input('name'),
             shortName: $request->input('short_name'),
             description: $request->input('description'),
-            allowDecimal: (bool) $request->input('allow_decimal', true),
+            allowDecimal: filter_var($request->input('allow_decimal'), FILTER_VALIDATE_BOOLEAN),
             businessId: (int) $request->input('business_id')
         );
     }

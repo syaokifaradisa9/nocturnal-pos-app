@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { Search, Loader2, Briefcase, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Printer } from 'lucide-react';
+import { Search, Loader2, Briefcase, ChevronLeft, ChevronRight, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown, Printer } from 'lucide-react';
 
 export interface ColumnDefinition<T = any> {
     key: string;
@@ -26,6 +26,7 @@ interface DatatableProps<T = any> {
     renderMobileCard?: (row: T, index: number, metaFrom: number) => React.ReactNode;
     printPdfUrl?: string;
     printExcelUrl?: string;
+    renderRowDetails?: (row: T) => React.ReactNode;
 }
 
 export interface DatatableRef {
@@ -43,7 +44,8 @@ const Datatable = forwardRef<DatatableRef, DatatableProps>(({
     defaultSortType = 'desc',
     renderMobileCard,
     printPdfUrl,
-    printExcelUrl
+    printExcelUrl,
+    renderRowDetails
 }, ref) => {
     const [data, setData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -53,6 +55,15 @@ const Datatable = forwardRef<DatatableRef, DatatableProps>(({
     const [page, setPage] = useState(1);
     const [isPrintDropdownOpen, setIsPrintDropdownOpen] = useState(false);
     const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0, from: 0, to: 0 });
+
+    const [expandedRows, setExpandedRows] = useState<Record<string | number, boolean>>({});
+
+    const toggleRow = (id: string | number) => {
+        setExpandedRows(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
 
     // Sorting states
     const [sortBy, setSortBy] = useState(defaultSortBy);
@@ -259,6 +270,7 @@ const Datatable = forwardRef<DatatableRef, DatatableProps>(({
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="border-b border-slate-100 dark:border-slate-800">
+                                        {renderRowDetails && <th className="w-10 py-3 px-5"></th>}
                                         {activeColumns.map((col) => {
                                             const isCurrentSort = sortBy === (col.sortKey || col.key);
                                             return (
@@ -290,6 +302,7 @@ const Datatable = forwardRef<DatatableRef, DatatableProps>(({
                                     {isLoading ? (
                                         data.map((row, i) => (
                                             <tr key={`skel-${row.id || i}`}>
+                                                {renderRowDetails && <td className="w-10 py-3.5 px-5"></td>}
                                                 {activeColumns.map((col) => (
                                                     <td
                                                         key={`skel-td-${col.key}-${i}`}
@@ -309,22 +322,47 @@ const Datatable = forwardRef<DatatableRef, DatatableProps>(({
                                         ))
                                     ) : (
                                         data.map((row, i) => (
-                                            <tr key={row.id || i} className="group hover:bg-sky-50/40 dark:hover:bg-sky-500/5 transition-colors">
-                                                {activeColumns.map((col) => (
-                                                    <td
-                                                        key={col.key}
-                                                        className={`whitespace-nowrap py-3.5 px-5 text-sm ${col.className || ''}`}
-                                                    >
-                                                        {col.render ? col.render(row, i, meta.from) : (row[col.key] || '—')}
-                                                    </td>
-                                                ))}
-                                            </tr>
+                                            <React.Fragment key={row.id || i}>
+                                                <tr className="group hover:bg-sky-50/40 dark:hover:bg-sky-500/5 transition-colors">
+                                                    {renderRowDetails && (
+                                                        <td className="w-10 py-3.5 px-5 text-center whitespace-nowrap">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => toggleRow(row.id)}
+                                                                className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                                            >
+                                                                {expandedRows[row.id] ? (
+                                                                    <ChevronDown className="h-4 w-4" />
+                                                                ) : (
+                                                                    <ChevronRight className="h-4 w-4" />
+                                                                )}
+                                                            </button>
+                                                        </td>
+                                                    )}
+                                                    {activeColumns.map((col) => (
+                                                        <td
+                                                            key={col.key}
+                                                            className={`whitespace-nowrap py-3.5 px-5 text-sm ${col.className || ''}`}
+                                                        >
+                                                            {col.render ? col.render(row, i, meta.from) : (row[col.key] || '—')}
+                                                        </td>
+                                                    ))}
+                                                </tr>
+                                                {renderRowDetails && expandedRows[row.id] && (
+                                                    <tr className="bg-slate-55/30 dark:bg-slate-800/10">
+                                                        <td colSpan={activeColumns.length + 1} className="px-5 py-4 text-xs text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                                                            {renderRowDetails(row)}
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </React.Fragment>
                                         ))
                                     )}
                                 </tbody>
                                 {searchableColumns.length > 0 && (
                                     <tfoot>
                                         <tr className="border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/50">
+                                            {renderRowDetails && <td className="py-2 px-5"></td>}
                                             {activeColumns.map((col) => (
                                                 <td key={`foot-${col.key}`} className="py-2 px-5">
                                                     {col.searchable ? (

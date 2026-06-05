@@ -371,7 +371,21 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         );
     };
 
+    const hasOverall = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT_UNIT);
+    const hasAssoc = !hasOverall && userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT_UNIT);
+
     const columns: ColumnDefinition<ProductUnit>[] = [
+        ...(hasAssoc ? [] : [
+            {
+                key: 'business',
+                label: 'Bisnis Terkait',
+                sortable: true,
+                searchable: true,
+                searchPlaceholder: 'Cari bisnis...',
+                className: 'text-slate-500 dark:text-slate-400',
+                render: (u: any) => u.business_name || (u.business ? u.business.name : '—')
+            }
+        ]),
         {
             key: 'name',
             label: 'Nama Satuan',
@@ -405,15 +419,17 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                 </span>
             )
         },
-        {
-            key: 'business',
-            label: 'Bisnis Terkait',
-            sortable: true,
-            searchable: true,
-            searchPlaceholder: 'Cari bisnis...',
-            className: 'text-slate-500 dark:text-slate-400',
-            render: (u) => u.business ? u.business.name : '—'
-        },
+        ...(hasAssoc ? [
+            {
+                key: 'description',
+                label: 'Deskripsi',
+                sortable: true,
+                searchable: true,
+                searchPlaceholder: 'Cari deskripsi...',
+                className: 'text-slate-550 dark:text-slate-400',
+                render: (u) => u.description || '—'
+            }
+        ] : []),
         {
             key: 'actions',
             label: 'Aksi',
@@ -458,6 +474,12 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                     emptySubMessage="Mulai dengan menambahkan satuan produk baru."
                     printPdfUrl="/product-units/print/pdf"
                     printExcelUrl="/product-units/print/excel"
+                    renderRowDetails={hasAssoc ? undefined : (row) => (
+                        <div className="space-y-1">
+                            <span className="font-bold text-slate-500 dark:text-slate-400">Deskripsi:</span>
+                            <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300">{row.description || '—'}</p>
+                        </div>
+                    )}
                     renderMobileCard={(unit: ProductUnit) => {
                         const user = props.auth?.user as any;
                         const canEdit = userPermissions.includes(UserPermission.EDIT_ANY_PRODUCT_UNIT) || 

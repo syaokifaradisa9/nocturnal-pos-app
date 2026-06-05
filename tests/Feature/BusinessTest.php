@@ -567,3 +567,34 @@ test('print excel produces a .xlsx file and has correct columns', function () {
     ];
     expect(array_keys($itemOwn))->toBe(['No', 'Bisnis', 'Deskripsi']);
 });
+
+test('storing a business with a name that was previously soft deleted under the same user restores the record and updates the description', function () {
+    $user = User::factory()->create();
+    $user->assignPermissions(['Tambah Data Bisnis Pribadi', 'Lihat Data Bisnis Pribadi', 'Hapus Data Bisnis Pribadi']);
+
+    // Create a business and then delete it
+    $business = Business::create(['name' => 'Restorable Business', 'description' => 'Old description', 'user_id' => $user->id]);
+    $this->actingAs($user)->delete(route('businesses.destroy', $business->id));
+
+    $this->assertSoftDeleted('businesses', ['id' => $business->id]);
+
+    // Now try to store it again with same name but new description
+    $response = $this->actingAs($user)->post(route('businesses.store'), [
+        'name' => 'Restorable Business',
+        'description' => 'New restored description'
+    ]);
+
+    $response->assertRedirect(route('businesses.index'));
+    
+    // Check that it was restored (not soft deleted anymore)
+    $this->assertDatabaseHas('businesses', [
+        'id' => $business->id,
+        'name' => 'Restorable Business',
+        'description' => 'New restored description',
+        'deleted_at' => null
+    ]);
+
+    // Check count is still 1 (no duplicate row was created)
+    expect(Business::onlyTrashed()->count())->toBe(0);
+    expect(Business::count())->toBe(1);
+});

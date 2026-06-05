@@ -17,7 +17,7 @@ class ProductUnitDatatableService
      */
     private function getStartedQuery(User $user, DatatableRequest $request): Builder
     {
-        $query = ProductUnit::query()->with('business');
+        $query = ProductUnit::query()->whereHas('business')->with(['business.owner', 'business.users']);
 
         // Scope by permission
         $query->when($user->hasPermission(UserPermission::VIEW_ANY_PRODUCT_UNIT), function (Builder $q) {
@@ -82,7 +82,46 @@ class ProductUnitDatatableService
     public function getDatatable(DatatableRequest $request)
     {
         $perPage = $request->validated('limit') ?? 10;
-        return $this->getStartedQuery($request->user(), $request)->paginate($perPage);
+        $paginator = $this->getStartedQuery($request->user(), $request)->paginate($perPage);
+
+        $user = $request->user();
+        $hasOverall = $user->hasPermission(UserPermission::VIEW_ANY_PRODUCT_UNIT);
+        $hasAssoc = !$hasOverall && $user->hasPermission(UserPermission::VIEW_ASSOCIATED_PRODUCT_UNIT);
+
+        return $paginator->through(function ($row) use ($user, $hasOverall, $hasAssoc) {
+            if ($hasOverall) {
+                return [
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'short_name' => $row->short_name,
+                    'allow_decimal' => $row->allow_decimal,
+                    'business_name' => $row->business ? $row->business->name : null,
+                    'owner_id' => $row->business ? $row->business->user_id : null,
+                    'description' => $row->description,
+                ];
+            } elseif ($hasAssoc) {
+                $responsibleUser = $row->business ? $row->business->users->firstWhere('id', $user->id) : null;
+                $responsibleUserId = $responsibleUser ? $responsibleUser->id : null;
+                return [
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'short_name' => $row->short_name,
+                    'allow_decimal' => $row->allow_decimal,
+                    'description' => $row->description,
+                    'responsible_user_id' => $responsibleUserId,
+                ];
+            } else {
+                return [
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'short_name' => $row->short_name,
+                    'allow_decimal' => $row->allow_decimal,
+                    'business_name' => $row->business ? $row->business->name : null,
+                    'owner_id' => $row->business ? $row->business->user_id : null,
+                    'description' => $row->description,
+                ];
+            }
+        });
     }
 
     /**

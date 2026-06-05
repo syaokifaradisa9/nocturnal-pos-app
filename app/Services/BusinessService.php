@@ -52,7 +52,20 @@ class BusinessService
             $data['user_id'] = $user->id;
         }
 
-        $business = $this->repository->create($data);
+        $userId = $data['user_id'] ?? null;
+        $existingTrashed = $this->repository->query()
+            ->onlyTrashed()
+            ->where('name', $data['name'])
+            ->where('user_id', $userId)
+            ->first();
+
+        if ($existingTrashed) {
+            $existingTrashed->restore();
+            $existingTrashed->update($data);
+            $business = $existingTrashed;
+        } else {
+            $business = $this->repository->create($data);
+        }
 
         // Associate owner (or creator if global) to the new business with role that has VIEW_OWN_BUSINESS permission
         $role = $this->roleRepository->findByPermission(UserPermission::VIEW_OWN_BUSINESS->value);
@@ -60,7 +73,7 @@ class BusinessService
             $ownerId = $business->user_id ?? $user->id;
             $owner = User::find($ownerId);
             if ($owner) {
-                $owner->businesses()->attach($business->id, ['role_id' => $role->id]);
+                $owner->businesses()->syncWithoutDetaching([$business->id => ['role_id' => $role->id]]);
             }
         }
 

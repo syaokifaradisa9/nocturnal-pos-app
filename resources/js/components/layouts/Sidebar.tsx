@@ -53,6 +53,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const hasProductItemPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT_ITEM) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT_ITEM) || userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT_ITEM);
     const hasPurchaseReceiptPermission = userPermissions.includes(UserPermission.VIEW_ANY_PURCHASE_RECEIPT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PURCHASE_RECEIPT) || userPermissions.includes(UserPermission.VIEW_OWN_PURCHASE_RECEIPT);
     const hasStockAdjustmentPermission = userPermissions.includes(UserPermission.VIEW_ANY_STOCK_ADJUSTMENT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_STOCK_ADJUSTMENT) || userPermissions.includes(UserPermission.VIEW_OWN_STOCK_ADJUSTMENT);
+    const hasUserPermission = userPermissions.includes(UserPermission.VIEW_USER);
 
     const menuGroups = [
         {
@@ -75,11 +76,12 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 ]
             }
         ] : []),
-        ...(hasRolePermission ? [
+        ...((hasRolePermission || hasUserPermission) ? [
             {
                 groupName: 'Data Master',
                 items: [
-                    { name: 'Role & Izin', icon: ShieldCheck, href: '/roles' }
+                    ...(hasRolePermission ? [{ name: 'Role & Izin', icon: ShieldCheck, href: '/roles' }] : []),
+                    ...(hasUserPermission ? [{ name: 'User & Bisnis', icon: Users, href: '/users' }] : [])
                 ]
             }
         ] : []),

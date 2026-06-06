@@ -176,38 +176,38 @@ export default function Index({ permissions = [] }: IndexProps) {
 
     // Helper to group permissions by module
     const getGroupedPermissions = () => {
-        const groups: { [key: string]: Permission[] } = {
-            'Bisnis': [],
-            'Cabang': [],
-            'Produk': [],
-            'Supplier': [],
-            'Role & Izin': [],
-            'Lainnya': []
-        };
+        const groups: { [key: string]: Permission[] } = {};
 
         permissions.forEach(p => {
-            if (p.name.includes('Bisnis')) {
-                groups['Bisnis'].push(p);
-            } else if (p.name.includes('Cabang')) {
-                groups['Cabang'].push(p);
-            } else if (p.name.includes('Produk')) {
-                groups['Produk'].push(p);
-            } else if (p.name.includes('Supplier')) {
-                groups['Supplier'].push(p);
-            } else if (p.name.includes('Role')) {
-                groups['Role & Izin'].push(p);
-            } else {
-                groups['Lainnya'].push(p);
+            const match = p.name.match(/Data\s+(\w+)/i);
+            let groupName = 'Lainnya';
+
+            if (match && match[1]) {
+                const word = match[1].toLowerCase();
+                if (word === 'bisnis') groupName = 'Bisnis';
+                else if (word === 'cabang') groupName = 'Cabang';
+                else if (word === 'produk') groupName = 'Produk';
+                else if (word === 'supplier') groupName = 'Supplier';
+                else if (word === 'role') groupName = 'Role';
+                else if (word === 'customer') groupName = 'Customer';
+                else if (word === 'satuan') groupName = 'Satuan Produk';
+                else if (word === 'reward') groupName = 'Reward';
+                else if (word === 'item') groupName = 'Item Produk';
+                else if (word === 'penerimaan') groupName = 'Penerimaan Barang';
+                else if (word === 'stock') groupName = 'Stock Opname';
+                else if (word === 'user') groupName = 'User';
+                else {
+                    groupName = match[1].charAt(0).toUpperCase() + match[1].slice(1);
+                }
             }
+
+            if (!groups[groupName]) {
+                groups[groupName] = [];
+            }
+            groups[groupName].push(p);
         });
 
-        // Filter out empty groups
-        return Object.keys(groups).reduce((acc, key) => {
-            if (groups[key].length > 0) {
-                acc[key] = groups[key];
-            }
-            return acc;
-        }, {} as { [key: string]: Permission[] });
+        return groups;
     };
 
     const renderFormFields = (
@@ -412,7 +412,7 @@ export default function Index({ permissions = [] }: IndexProps) {
             </div>
 
             {/* ─── Create Modal ─── */}
-            <Modal open={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); resetCreate(); clearCreateErrors(); }} title="Tambah Role Baru">
+            <Modal open={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); resetCreate(); clearCreateErrors(); }} title="Tambah Role Baru" maxWidth="max-w-4xl">
                 <form onSubmit={handleCreateSubmit}>
                     {renderFormFields(createData, setCreateData, createErrors)}
                     <div className="mt-6 flex justify-end gap-3">
@@ -439,6 +439,7 @@ export default function Index({ permissions = [] }: IndexProps) {
                 open={isEditModalOpen}
                 onClose={() => { setIsEditModalOpen(false); resetEdit(); setSelectedRole(null); clearEditErrors(); }}
                 title="Edit Role & Izin"
+                maxWidth="max-w-4xl"
             >
                 <form onSubmit={handleEditSubmit}>
                     {renderFormFields(editData, setEditData, editErrors)}

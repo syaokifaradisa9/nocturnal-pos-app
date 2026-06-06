@@ -32,4 +32,55 @@ class EloquentUserRepository implements UserRepository
             });
         })->select('id', 'name')->get();
     }
+
+    /**
+     * Get query builder for users.
+     */
+    public function query(): \Illuminate\Database\Eloquent\Builder
+    {
+        return User::query();
+    }
+
+    /**
+     * Find user by ID.
+     */
+    public function find(int $id): ?User
+    {
+        return User::find($id);
+    }
+
+    /**
+     * Find user by ID or fail.
+     */
+    public function findOrFail(int $id): User
+    {
+        return User::findOrFail($id);
+    }
+
+    /**
+     * Create a new user.
+     */
+    public function create(array $data): User
+    {
+        return User::create($data);
+    }
+
+    /**
+     * Update an existing user.
+     */
+    public function update(int $id, array $data): User
+    {
+        $user = $this->findOrFail($id);
+        $user->update($data);
+        return $user;
+    }
+
+    /**
+     * Delete a user (soft delete).
+     */
+    public function delete(int $id): bool
+    {
+        $user = $this->findOrFail($id);
+        return $user->delete();
+    }
 }

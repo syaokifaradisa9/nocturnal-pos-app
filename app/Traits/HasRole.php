@@ -257,15 +257,17 @@ trait HasRole
         $roleBased = Permission::select('permissions.name', 'permissions.description')
             ->join('role_permission', 'permissions.id', '=', 'role_permission.permission_id')
             ->join('roles', 'role_permission.role_id', '=', 'roles.id')
-            ->whereIn('roles.id', function ($query) {
-                $query->select('role_id')
-                    ->from('business_users')
-                    ->where('user_id', $this->id)
-                    ->union(
-                        DB::table('user_branches')
-                            ->select('role_id')
-                            ->where('user_id', $this->id)
-                    );
+            ->where(function ($query) {
+                $query->whereIn('roles.id', function ($q) {
+                    $q->select('role_id')
+                        ->from('business_users')
+                        ->where('user_id', $this->id);
+                })
+                ->orWhereIn('roles.id', function ($q) {
+                    $q->select('role_id')
+                        ->from('user_branches')
+                        ->where('user_id', $this->id);
+                });
             });
 
         return $direct->union($roleBased)->get();

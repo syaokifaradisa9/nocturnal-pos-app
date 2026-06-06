@@ -132,6 +132,11 @@ class DatabaseSeeder extends Seeder
             'Lihat Data Stock Opname Keseluruhan',
             'Lihat Data Stock Opname Pribadi',
             'Lihat Data Stock Opname Penempatan Bisnis',
+
+            'Lihat Data User',
+            'Tambah Data User',
+            'Edit Data User',
+            'Hapus Data User',
         ];
 
         foreach ($permissions as $permissionName) {

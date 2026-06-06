@@ -117,4 +117,9 @@ enum UserPermission: string
     case VIEW_ANY_STOCK_ADJUSTMENT = 'Lihat Data Stock Opname Keseluruhan';
     case VIEW_OWN_STOCK_ADJUSTMENT = 'Lihat Data Stock Opname Pribadi';
     case VIEW_ASSOCIATED_STOCK_ADJUSTMENT = 'Lihat Data Stock Opname Penempatan Bisnis';
+
+    case VIEW_USER = 'Lihat Data User';
+    case CREATE_USER = 'Tambah Data User';
+    case EDIT_USER = 'Edit Data User';
+    case DELETE_USER = 'Hapus Data User';
 }

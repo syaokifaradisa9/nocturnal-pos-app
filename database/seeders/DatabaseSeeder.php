@@ -141,6 +141,9 @@ class DatabaseSeeder extends Seeder
             'Lihat Data Transaksi Keseluruhan',
             'Lihat Data Transaksi Pribadi',
             'Lihat Data Transaksi Penempatan Bisnis',
+            'Lihat Data Transaksi Produk Keseluruhan',
+            'Lihat Data Transaksi Produk Pribadi',
+            'Lihat Data Transaksi Produk Penempatan Bisnis',
         ];
 
         foreach ($permissions as $permissionName) {

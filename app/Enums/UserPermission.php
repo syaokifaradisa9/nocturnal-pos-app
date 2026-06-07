@@ -126,4 +126,7 @@ enum UserPermission: string
     case VIEW_ANY_TRANSACTION = 'Lihat Data Transaksi Keseluruhan';
     case VIEW_OWN_TRANSACTION = 'Lihat Data Transaksi Pribadi';
     case VIEW_ASSOCIATED_TRANSACTION = 'Lihat Data Transaksi Penempatan Bisnis';
+    case VIEW_ANY_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Keseluruhan';
+    case VIEW_OWN_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Pribadi';
+    case VIEW_ASSOCIATED_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Penempatan Bisnis';
 }

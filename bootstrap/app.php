@@ -43,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'user.permission' => \App\Http\Middleware\CheckUserManagementPermission::class,
             'cashier.permission' => \App\Http\Middleware\CheckCashierPermission::class,
             'transaction.permission' => \App\Http\Middleware\CheckTransactionPermission::class,
+            'product_transaction.permission' => \App\Http\Middleware\CheckProductTransactionPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

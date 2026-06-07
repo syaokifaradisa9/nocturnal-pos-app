@@ -118,5 +118,8 @@ export enum UserPermission {
     CASHIER = 'Manajemen Kasir',
     VIEW_ANY_TRANSACTION = 'Lihat Data Transaksi Keseluruhan',
     VIEW_OWN_TRANSACTION = 'Lihat Data Transaksi Pribadi',
-    VIEW_ASSOCIATED_TRANSACTION = 'Lihat Data Transaksi Penempatan Bisnis'
+    VIEW_ASSOCIATED_TRANSACTION = 'Lihat Data Transaksi Penempatan Bisnis',
+    VIEW_ANY_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Keseluruhan',
+    VIEW_OWN_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Pribadi',
+    VIEW_ASSOCIATED_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Penempatan Bisnis'
 }

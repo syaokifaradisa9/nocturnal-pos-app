@@ -190,4 +190,41 @@ class TransactionController extends Controller
     {
         return $datatableService->printPdf($request);
     }
+
+    /**
+     * Fetch a single transaction details.
+     */
+    public function show(int $id): JsonResponse
+    {
+        $transaction = \App\Models\Transaction::with(['customer', 'branch.business', 'items'])->findOrFail($id);
+
+        $subtotal = 0;
+        foreach ($transaction->items as $item) {
+            $subtotal += ($item->quantity * $item->price);
+        }
+        $total = $subtotal - (float) $transaction->discount_price;
+
+        return response()->json([
+            'id' => $transaction->id,
+            'customer_name' => $transaction->customer ? $transaction->customer->name : 'Walk-in Customer',
+            'branch_name' => $transaction->branch ? $transaction->branch->name : null,
+            'business_name' => ($transaction->branch && $transaction->branch->business) ? $transaction->branch->business->name : null,
+            'discount_price' => (float) $transaction->discount_price,
+            'status' => $transaction->status,
+            'payment_method' => $transaction->payment_method ?: '-',
+            'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
+            'subtotal' => $subtotal,
+            'total' => $total,
+            'items' => $transaction->items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product_name' => $item->product_name,
+                    'measurement_name' => $item->measurement_name,
+                    'quantity' => (float) $item->quantity,
+                    'price' => (float) $item->price,
+                    'total' => $item->quantity * $item->price,
+                ];
+            }),
+        ]);
+    }
 }

@@ -94,7 +94,24 @@ class TransactionDatatableService
         // Apply sorting
         $sortField = $request->input('sort_by') ?? 'id';
         $sortOrder = $request->input('sort_type') ?? 'desc';
-        $query->orderBy($sortField, $sortOrder);
+        
+        if ($sortField === 'branch_name') {
+            $query->select('transactions.*')
+                ->join('branches', 'transactions.branch_id', '=', 'branches.id')
+                ->orderBy('branches.name', $sortOrder);
+        } elseif ($sortField === 'customer_name') {
+            $query->select('transactions.*')
+                ->leftJoin('customers', 'transactions.customer_id', '=', 'customers.id')
+                ->orderBy('customers.name', $sortOrder);
+        } elseif ($sortField === 'total') {
+            $query->select('transactions.*')
+                ->leftJoin('transaction_item', 'transactions.id', '=', 'transaction_item.transaction_id')
+                ->selectRaw('COALESCE(SUM(transaction_item.quantity * transaction_item.price), 0) - transactions.discount_price as total_pay')
+                ->groupBy('transactions.id', 'transactions.customer_id', 'transactions.branch_id', 'transactions.discount_price', 'transactions.status', 'transactions.payment_method', 'transactions.created_at', 'transactions.updated_at', 'transactions.deleted_at')
+                ->orderBy('total_pay', $sortOrder);
+        } else {
+            $query->orderBy('transactions.' . $sortField, $sortOrder);
+        }
 
         return $query;
     }
@@ -122,7 +139,7 @@ class TransactionDatatableService
                 'discount_price' => (float) $row->discount_price,
                 'status' => $row->status,
                 'payment_method' => $row->payment_method ?: '-',
-                'created_at' => $row->created_at->format('Y-m-d H:i:s'),
+                'created_at' => $row->created_at ? $row->created_at->translatedFormat('d F Y H:i') : '-',
                 'subtotal' => $subtotal,
                 'total' => $total,
                 'items' => $row->items->map(function ($item) {

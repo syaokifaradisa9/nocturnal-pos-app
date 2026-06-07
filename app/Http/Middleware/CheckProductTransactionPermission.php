@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckTransactionPermission
+class CheckProductTransactionPermission
 {
     /**
      * Handle an incoming request.
@@ -23,9 +23,6 @@ class CheckTransactionPermission
         }
 
         if (
-            $user->hasPermission(UserPermission::VIEW_ANY_TRANSACTION) ||
-            $user->hasPermission(UserPermission::VIEW_OWN_TRANSACTION) ||
-            $user->hasPermission(UserPermission::VIEW_ASSOCIATED_TRANSACTION) ||
             $user->hasPermission(UserPermission::VIEW_ANY_PRODUCT_TRANSACTION) ||
             $user->hasPermission(UserPermission::VIEW_OWN_PRODUCT_TRANSACTION) ||
             $user->hasPermission(UserPermission::VIEW_ASSOCIATED_PRODUCT_TRANSACTION)

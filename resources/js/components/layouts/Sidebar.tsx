@@ -58,6 +58,9 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const hasTransactionPermission = userPermissions.includes(UserPermission.VIEW_ANY_TRANSACTION) ||
                                      userPermissions.includes(UserPermission.VIEW_OWN_TRANSACTION) ||
                                      userPermissions.includes(UserPermission.VIEW_ASSOCIATED_TRANSACTION);
+    const hasProductTransactionPermission = userPermissions.includes(UserPermission.VIEW_ANY_PRODUCT_TRANSACTION) ||
+                                            userPermissions.includes(UserPermission.VIEW_OWN_PRODUCT_TRANSACTION) ||
+                                            userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PRODUCT_TRANSACTION);
 
     const menuGroups = [
         {
@@ -66,12 +69,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' }
             ]
         },
-        ...((hasCashierPermission || hasTransactionPermission) ? [
+        ...((hasCashierPermission || hasTransactionPermission || hasProductTransactionPermission) ? [
             {
                 groupName: 'Kasir',
                 items: [
                     ...(hasCashierPermission ? [{ name: 'Kasir POS', icon: Store, href: '/cashier' }] : []),
-                    ...(hasTransactionPermission ? [{ name: 'Transaksi Penjualan', icon: ClipboardList, href: '/transactions' }] : [])
+                    ...(hasTransactionPermission ? [{ name: 'Transaksi Penjualan', icon: ClipboardList, href: '/transactions' }] : []),
+                    ...(hasProductTransactionPermission ? [{ name: 'Transaksi Produk', icon: Package, href: '/product-transactions' }] : [])
                 ]
             }
         ] : []),

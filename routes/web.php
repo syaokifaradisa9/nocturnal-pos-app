@@ -280,6 +280,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/', 'list')->name('list');
             Route::get('/data', 'datatable')->name('datatable');
+            Route::get('/{id}', 'show')->name('show');
+            Route::prefix('print')->name('print.')->group(function () {
+                Route::get('/pdf', 'printPdf')->name('pdf');
+                Route::get('/excel', 'printExcel')->name('excel');
+            });
+        });
+
+    Route::controller(\App\Http\Controllers\ProductTransactionController::class)
+        ->prefix('product-transactions')
+        ->name('product-transactions.')
+        ->middleware('product_transaction.permission')
+        ->group(function () {
+            Route::get('/', 'list')->name('list');
+            Route::get('/data', 'datatable')->name('datatable');
             Route::prefix('print')->name('print.')->group(function () {
                 Route::get('/pdf', 'printPdf')->name('pdf');
                 Route::get('/excel', 'printExcel')->name('excel');

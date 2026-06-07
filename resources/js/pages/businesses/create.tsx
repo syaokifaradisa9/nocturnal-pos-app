@@ -20,12 +20,14 @@ export default function Create({ business, users = [] }: CreateProps) {
     const isEdit = !!business;
     const { props } = usePage();
     const userPermissions = (props.auth?.user as any)?.permissions || [];
-    const hasViewAnyBusiness = userPermissions.includes(UserPermission.VIEW_ANY_BUSINESS);
+    const hasViewAnyBusiness = userPermissions.includes(
+        UserPermission.VIEW_ANY_BUSINESS,
+    );
 
     const { data, setData, post, put, processing, errors } = useForm({
         name: business?.name || '',
         description: business?.description || '',
-        user_id: business?.user_id ? String(business.user_id) : ''
+        user_id: business?.user_id ? String(business.user_id) : '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -39,12 +41,15 @@ export default function Create({ business, users = [] }: CreateProps) {
 
     return (
         <DashboardLayout>
-            <Head title={isEdit ? "Edit Bisnis" : "Tambah Bisnis"} />
+            <Head title={isEdit ? 'Edit Bisnis' : 'Tambah Bisnis'} />
             <div className="mx-auto max-w-2xl px-4 py-8">
-                <h1 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">
-                    {isEdit ? "Edit Bisnis" : "Tambah Bisnis Baru"}
+                <h1 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
+                    {isEdit ? 'Edit Bisnis' : 'Tambah Bisnis Baru'}
                 </h1>
-                <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <form
+                    onSubmit={handleSubmit}
+                    className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                >
                     <FormInput
                         name="name"
                         label="Nama Bisnis"
@@ -73,14 +78,25 @@ export default function Create({ business, users = [] }: CreateProps) {
                         >
                             <option value="">Pilih Owner...</option>
                             {users.map((user) => (
-                                <option key={user.id} value={user.id}>{user.name}</option>
+                                <option key={user.id} value={user.id}>
+                                    {user.name}
+                                </option>
                             ))}
                         </FormSelect>
                     )}
 
                     <div className="flex justify-end gap-3">
-                        <a href="/businesses" className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800">Kembali</a>
-                        <button type="submit" disabled={processing} className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:opacity-50">
+                        <a
+                            href="/businesses"
+                            className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        >
+                            Kembali
+                        </a>
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:opacity-50"
+                        >
                             {isEdit ? 'Perbarui' : 'Simpan'}
                         </button>
                     </div>

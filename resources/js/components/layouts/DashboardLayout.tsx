@@ -20,7 +20,10 @@ interface DashboardLayoutProps {
     title?: string;
 }
 
-export default function DashboardLayout({ children, title }: DashboardLayoutProps) {
+export default function DashboardLayout({
+    children,
+    title,
+}: DashboardLayoutProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const { url, props } = usePage();
@@ -43,13 +46,13 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
     }, [flash]);
 
     return (
-        <div className="relative min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+        <div className="relative min-h-screen bg-slate-50 transition-colors duration-300 dark:bg-slate-950">
             <Toaster position="bottom-right" />
             {/* Sidebar Component - hidden on cashier page */}
             {!isCashierPage && (
-                <Sidebar 
-                    isCollapsed={isCollapsed} 
-                    setIsCollapsed={setIsCollapsed} 
+                <Sidebar
+                    isCollapsed={isCollapsed}
+                    setIsCollapsed={setIsCollapsed}
                     isMobileOpen={isMobileOpen}
                     setIsMobileOpen={setIsMobileOpen}
                 />
@@ -57,9 +60,9 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
 
             {/* Mobile Sidebar Overlay */}
             {!isCashierPage && isMobileOpen && (
-                <div 
+                <div
                     onClick={() => setIsMobileOpen(false)}
-                    className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-sm md:hidden transition-opacity"
+                    className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-sm transition-opacity md:hidden"
                 />
             )}
 
@@ -67,9 +70,9 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
             {!isCashierPage && (
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className={`hidden md:flex fixed top-[14px] z-50 h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:bg-slate-50 hover:text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-all duration-300 -translate-x-1/2`}
+                    className={`fixed top-[14px] z-50 hidden h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-all duration-300 hover:bg-slate-50 hover:text-slate-700 md:flex dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200`}
                     style={{
-                        left: isCollapsed ? '80px' : '240px'
+                        left: isCollapsed ? '80px' : '240px',
                     }}
                 >
                     {isCollapsed ? (
@@ -81,16 +84,18 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
             )}
 
             {/* Main Content Area */}
-            <div 
-                className={`flex flex-col min-h-screen transition-all duration-300 ${
-                    isCashierPage ? 'pl-0' : `pl-0 ${isCollapsed ? 'md:pl-20' : 'md:pl-60'}`
+            <div
+                className={`flex min-h-screen flex-col transition-all duration-300 ${
+                    isCashierPage
+                        ? 'pl-0'
+                        : `pl-0 ${isCollapsed ? 'md:pl-20' : 'md:pl-60'}`
                 }`}
             >
                 {/* Topbar Component - hidden on cashier page */}
                 {!isCashierPage && (
-                    <Topbar 
-                        isCollapsed={isCollapsed} 
-                        setIsCollapsed={setIsCollapsed} 
+                    <Topbar
+                        isCollapsed={isCollapsed}
+                        setIsCollapsed={setIsCollapsed}
                         isMobileOpen={isMobileOpen}
                         setIsMobileOpen={setIsMobileOpen}
                         title={title}
@@ -98,7 +103,11 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
                 )}
 
                 {/* Content Body */}
-                <main className={isCashierPage ? 'flex-1 h-screen w-full' : 'flex-1'}>
+                <main
+                    className={
+                        isCashierPage ? 'h-screen w-full flex-1' : 'flex-1'
+                    }
+                >
                     {children}
                 </main>
             </div>

@@ -4,7 +4,10 @@ import { ClipboardList, Eye } from 'lucide-react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import ContentHeader from '../../components/layouts/ContentHeader';
 import Modal from '../../components/commons/Modal';
-import Datatable, { ColumnDefinition, DatatableRef } from '../../components/commons/Datatable';
+import Datatable, {
+    ColumnDefinition,
+    DatatableRef,
+} from '../../components/commons/Datatable';
 
 interface Branch {
     id: number;
@@ -44,14 +47,15 @@ export default function Index({ branches = [] }: IndexProps) {
     const datatableRef = useRef<DatatableRef>(null);
 
     // Detail Modal state
-    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+    const [selectedTransaction, setSelectedTransaction] =
+        useState<Transaction | null>(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
-            minimumFractionDigits: 0
+            minimumFractionDigits: 0,
         }).format(value);
     };
 
@@ -71,11 +75,11 @@ export default function Index({ branches = [] }: IndexProps) {
             render: (tx) => (
                 <button
                     onClick={() => openDetailModal(tx)}
-                    className="text-primary hover:underline font-bold text-left cursor-pointer"
+                    className="cursor-pointer text-left font-bold text-primary hover:underline"
                 >
                     #{tx.id}
                 </button>
-            )
+            ),
         },
         {
             key: 'created_at',
@@ -84,7 +88,16 @@ export default function Index({ branches = [] }: IndexProps) {
             searchable: true,
             searchPlaceholder: 'Cari tanggal...',
             className: 'text-slate-600 dark:text-slate-355',
-            render: (tx) => tx.created_at
+            render: (tx) => tx.created_at,
+        },
+        {
+            key: 'business_name',
+            label: 'Bisnis',
+            sortable: true,
+            searchable: true,
+            searchPlaceholder: 'Cari bisnis...',
+            className: 'text-slate-600 dark:text-slate-355',
+            render: (tx) => tx.business_name || '—',
         },
         {
             key: 'branch_name',
@@ -93,7 +106,7 @@ export default function Index({ branches = [] }: IndexProps) {
             searchable: true,
             searchPlaceholder: 'Cari cabang...',
             className: 'text-slate-600 dark:text-slate-355',
-            render: (tx) => tx.branch_name ? `${tx.business_name} - ${tx.branch_name}` : '—'
+            render: (tx) => tx.branch_name || '—',
         },
         {
             key: 'customer_name',
@@ -102,7 +115,7 @@ export default function Index({ branches = [] }: IndexProps) {
             searchable: true,
             searchPlaceholder: 'Cari customer...',
             className: 'text-slate-700 dark:text-slate-300 font-medium',
-            render: (tx) => tx.customer_name
+            render: (tx) => tx.customer_name,
         },
         {
             key: 'payment_method',
@@ -112,18 +125,19 @@ export default function Index({ branches = [] }: IndexProps) {
             searchPlaceholder: 'Cari metode...',
             className: 'text-slate-600 dark:text-slate-355',
             render: (tx) => (
-                <span className="inline-flex items-center rounded-lg bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-300">
+                <span className="inline-flex items-center rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-300">
                     {tx.payment_method}
                 </span>
-            )
+            ),
         },
         {
             key: 'total',
             label: 'Total Bayar',
             sortable: true,
-            className: 'font-semibold text-slate-900 dark:text-white text-right',
+            className:
+                'font-semibold text-slate-900 dark:text-white text-right',
             headerClassName: 'text-right',
-            render: (tx) => formatCurrency(tx.total)
+            render: (tx) => formatCurrency(tx.total),
         },
         {
             key: 'actions',
@@ -133,20 +147,20 @@ export default function Index({ branches = [] }: IndexProps) {
             render: (tx) => (
                 <button
                     onClick={() => openDetailModal(tx)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                     <Eye className="h-3.5 w-3.5" />
                     Detail
                 </button>
-            )
-        }
+            ),
+        },
     ];
 
     return (
         <DashboardLayout title="Transaksi Penjualan">
             <Head title="Transaksi Penjualan" />
 
-            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 md:pt-6 md:pb-8 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 sm:px-6 md:pt-6 md:pb-8 lg:px-8">
                 {/* Header */}
                 <ContentHeader
                     title="Transaksi Penjualan"
@@ -168,29 +182,51 @@ export default function Index({ branches = [] }: IndexProps) {
                     printPdfUrl="/transactions/print/pdf"
                     printExcelUrl="/transactions/print/excel"
                     renderMobileCard={(tx: Transaction) => (
-                        <div key={tx.id} className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col gap-3">
+                        <div
+                            key={tx.id}
+                            className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4.5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                        >
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-bold text-slate-900 dark:text-white">#{tx.id}</span>
+                                <span className="text-sm font-bold text-slate-900 dark:text-white">
+                                    #{tx.id}
+                                </span>
                             </div>
                             <div className="grid grid-cols-2 gap-y-1.5 text-xs">
                                 <div className="text-slate-400">Tanggal</div>
-                                <div className="text-slate-700 dark:text-slate-300 text-right">{tx.created_at}</div>
+                                <div className="text-right text-slate-700 dark:text-slate-300">
+                                    {tx.created_at}
+                                </div>
+
+                                <div className="text-slate-400">Bisnis</div>
+                                <div className="truncate text-right text-slate-700 dark:text-slate-300">
+                                    {tx.business_name || '—'}
+                                </div>
 
                                 <div className="text-slate-400">Cabang</div>
-                                <div className="text-slate-700 dark:text-slate-300 text-right truncate">{tx.branch_name || '—'}</div>
+                                <div className="truncate text-right text-slate-700 dark:text-slate-300">
+                                    {tx.branch_name || '—'}
+                                </div>
 
                                 <div className="text-slate-400">Customer</div>
-                                <div className="text-slate-700 dark:text-slate-300 text-right font-medium">{tx.customer_name}</div>
+                                <div className="text-right font-medium text-slate-700 dark:text-slate-300">
+                                    {tx.customer_name}
+                                </div>
 
                                 <div className="text-slate-400">Metode</div>
-                                <div className="text-slate-700 dark:text-slate-300 text-right">{tx.payment_method}</div>
+                                <div className="text-right text-slate-700 dark:text-slate-300">
+                                    {tx.payment_method}
+                                </div>
 
-                                <div className="text-slate-400 font-semibold mt-1">Total Bayar</div>
-                                <div className="text-slate-900 dark:text-white text-right font-bold mt-1">{formatCurrency(tx.total)}</div>
+                                <div className="mt-1 font-semibold text-slate-400">
+                                    Total Bayar
+                                </div>
+                                <div className="mt-1 text-right font-bold text-slate-900 dark:text-white">
+                                    {formatCurrency(tx.total)}
+                                </div>
                             </div>
                             <button
                                 onClick={() => openDetailModal(tx)}
-                                className="w-full mt-2 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                                className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                             >
                                 <Eye className="h-3.5 w-3.5" />
                                 Lihat Detail
@@ -209,73 +245,141 @@ export default function Index({ branches = [] }: IndexProps) {
                 {selectedTransaction && (
                     <div className="space-y-6">
                         {/* Transaction Metadata */}
-                        <div className="grid grid-cols-2 gap-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 p-4 text-xs">
+                        <div className="grid grid-cols-2 gap-4 rounded-xl bg-slate-50 p-4 text-xs dark:bg-slate-900/50">
                             <div>
-                                <span className="block text-slate-400 font-medium">Invoice</span>
-                                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">#{selectedTransaction.id}</span>
-                            </div>
-                            <div>
-                                <span className="block text-slate-400 font-medium">Tanggal Transaksi</span>
-                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{selectedTransaction.created_at}</span>
-                            </div>
-                            <div>
-                                <span className="block text-slate-400 font-medium">Customer</span>
-                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{selectedTransaction.customer_name}</span>
-                            </div>
-                            <div>
-                                <span className="block text-slate-400 font-medium">Cabang</span>
-                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                    {selectedTransaction.branch_name ? `${selectedTransaction.business_name} - ${selectedTransaction.branch_name}` : '—'}
+                                <span className="block font-medium text-slate-400">
+                                    Invoice
+                                </span>
+                                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                                    #{selectedTransaction.id}
                                 </span>
                             </div>
                             <div>
-                                <span className="block text-slate-400 font-medium">Metode Pembayaran</span>
-                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{selectedTransaction.payment_method}</span>
+                                <span className="block font-medium text-slate-400">
+                                    Tanggal Transaksi
+                                </span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                    {selectedTransaction.created_at}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="block font-medium text-slate-400">
+                                    Customer
+                                </span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                    {selectedTransaction.customer_name}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="block font-medium text-slate-400">
+                                    Metode Pembayaran
+                                </span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                    {selectedTransaction.payment_method}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="block font-medium text-slate-400">
+                                    Bisnis
+                                </span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                    {selectedTransaction.business_name || '—'}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="block font-medium text-slate-400">
+                                    Cabang
+                                </span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                    {selectedTransaction.branch_name || '—'}
+                                </span>
                             </div>
                         </div>
 
                         {/* Items Table */}
                         <div className="space-y-2">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Item Belanja</h4>
+                            <h4 className="text-xs font-bold tracking-wider text-slate-400 uppercase dark:text-slate-500">
+                                Item Belanja
+                            </h4>
                             <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
-                                <table className="w-full text-left border-collapse text-xs">
+                                <table className="w-full border-collapse text-left text-xs">
                                     <thead>
-                                        <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-                                            <th className="py-2.5 px-4 font-semibold text-slate-500 dark:text-slate-400">Nama Produk</th>
-                                            <th className="py-2.5 px-4 font-semibold text-slate-500 dark:text-slate-400 text-center">Satuan</th>
-                                            <th className="py-2.5 px-4 font-semibold text-slate-500 dark:text-slate-400 text-center font-semibold">Qty</th>
-                                            <th className="py-2.5 px-4 font-semibold text-slate-500 dark:text-slate-400 text-right">Harga Satuan</th>
-                                            <th className="py-2.5 px-4 font-semibold text-slate-500 dark:text-slate-400 text-right">Total</th>
+                                        <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
+                                            <th className="px-4 py-2.5 font-semibold text-slate-500 dark:text-slate-400">
+                                                Nama Produk
+                                            </th>
+                                            <th className="px-4 py-2.5 text-center font-semibold text-slate-500 dark:text-slate-400">
+                                                Satuan
+                                            </th>
+                                            <th className="px-4 py-2.5 text-center font-semibold text-slate-500 dark:text-slate-400">
+                                                Qty
+                                            </th>
+                                            <th className="px-4 py-2.5 text-right font-semibold text-slate-500 dark:text-slate-400">
+                                                Harga Satuan
+                                            </th>
+                                            <th className="px-4 py-2.5 text-right font-semibold text-slate-500 dark:text-slate-400">
+                                                Total
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                                        {selectedTransaction.items.map((item, idx) => (
-                                            <tr key={item.id || idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/10">
-                                                <td className="py-3 px-4 font-medium text-slate-900 dark:text-white">{item.product_name}</td>
-                                                <td className="py-3 px-4 text-center text-slate-600 dark:text-slate-400">{item.measurement_name}</td>
-                                                <td className="py-3 px-4 text-center text-slate-800 dark:text-slate-200 font-semibold">{item.quantity}</td>
-                                                <td className="py-3 px-4 text-right text-slate-700 dark:text-slate-300">{formatCurrency(item.price)}</td>
-                                                <td className="py-3 px-4 text-right font-bold text-slate-900 dark:text-white">{formatCurrency(item.total)}</td>
-                                            </tr>
-                                        ))}
+                                        {selectedTransaction.items.map(
+                                            (item, idx) => (
+                                                <tr
+                                                    key={item.id || idx}
+                                                    className="hover:bg-slate-50/50 dark:hover:bg-slate-900/10"
+                                                >
+                                                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
+                                                        {item.product_name}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center text-slate-600 dark:text-slate-400">
+                                                        {item.measurement_name}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center font-semibold text-slate-800 dark:text-slate-200">
+                                                        {item.quantity}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right text-slate-700 dark:text-slate-300">
+                                                        {formatCurrency(
+                                                            item.price,
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white">
+                                                        {formatCurrency(
+                                                            item.total,
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ),
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
                         {/* Price breakdown */}
-                        <div className="flex flex-col gap-2.5 border-t border-slate-200 dark:border-slate-800 pt-4 text-sm">
-                            <div className="flex justify-between text-slate-550 dark:text-slate-400">
+                        <div className="flex flex-col gap-2.5 border-t border-slate-200 pt-4 text-sm dark:border-slate-800">
+                            <div className="text-slate-550 flex justify-between dark:text-slate-400">
                                 <span>Subtotal</span>
-                                <span>{formatCurrency(selectedTransaction.subtotal)}</span>
+                                <span>
+                                    {formatCurrency(
+                                        selectedTransaction.subtotal,
+                                    )}
+                                </span>
                             </div>
                             <div className="flex justify-between text-rose-600">
                                 <span>Diskon</span>
-                                <span>-{formatCurrency(selectedTransaction.discount_price)}</span>
+                                <span>
+                                    -
+                                    {formatCurrency(
+                                        selectedTransaction.discount_price,
+                                    )}
+                                </span>
                             </div>
-                            <div className="flex justify-between font-bold text-slate-900 dark:text-white border-t border-slate-100 dark:border-slate-800/80 pt-2.5">
+                            <div className="flex justify-between border-t border-slate-100 pt-2.5 font-bold text-slate-900 dark:border-slate-800/80 dark:text-white">
                                 <span>Total Bayar</span>
-                                <span className="text-base text-primary">{formatCurrency(selectedTransaction.total)}</span>
+                                <span className="text-base text-primary">
+                                    {formatCurrency(selectedTransaction.total)}
+                                </span>
                             </div>
                         </div>
 
@@ -283,7 +387,7 @@ export default function Index({ branches = [] }: IndexProps) {
                         <div className="flex justify-end pt-2">
                             <button
                                 onClick={() => setIsDetailModalOpen(false)}
-                                className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                                className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                             >
                                 Tutup
                             </button>

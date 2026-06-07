@@ -5,7 +5,10 @@ import DashboardLayout from '../../components/layouts/DashboardLayout';
 import ContentHeader from '../../components/layouts/ContentHeader';
 import CheckPermission from '../../components/commons/CheckPermission';
 import Modal from '../../components/commons/Modal';
-import Datatable, { ColumnDefinition, DatatableRef } from '../../components/commons/Datatable';
+import Datatable, {
+    ColumnDefinition,
+    DatatableRef,
+} from '../../components/commons/Datatable';
 import Tooltip from '../../components/commons/Tooltip';
 import { UserPermission } from '../../types';
 import FormInput from '../../components/forms/FormInput';
@@ -28,7 +31,13 @@ interface User {
 }
 
 /* ──────────────────────── Delete Confirmation Modal ──────────────────────── */
-function DeleteConfirmModal({ open, onClose, onConfirm, userName, isProcessing }: {
+function DeleteConfirmModal({
+    open,
+    onClose,
+    onConfirm,
+    userName,
+    isProcessing,
+}: {
     open: boolean;
     onClose: () => void;
     onConfirm: () => void;
@@ -41,20 +50,24 @@ function DeleteConfirmModal({ open, onClose, onConfirm, userName, isProcessing }
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-50 dark:bg-rose-500/10">
                 <Trash2 className="h-5 w-5 text-rose-500" />
             </div>
-            <p className="text-center text-sm text-slate-500 dark:text-slate-400 mb-6">
-                Apakah Anda yakin ingin menghapus <span className="font-semibold text-slate-700 dark:text-slate-300">"{userName}"</span> beserta bisnisnya? Tindakan ini tidak dapat dibatalkan.
+            <p className="mb-6 text-center text-sm text-slate-500 dark:text-slate-400">
+                Apakah Anda yakin ingin menghapus{' '}
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                    "{userName}"
+                </span>{' '}
+                beserta bisnisnya? Tindakan ini tidak dapat dibatalkan.
             </p>
             <div className="flex gap-3">
                 <button
                     onClick={onClose}
-                    className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                    className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                     Batal
                 </button>
                 <button
                     onClick={onConfirm}
                     disabled={isProcessing}
-                    className="flex-1 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-500 disabled:opacity-50 transition-colors"
+                    className="flex-1 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-500 disabled:opacity-50"
                 >
                     {isProcessing ? 'Menghapus...' : 'Hapus'}
                 </button>
@@ -64,7 +77,11 @@ function DeleteConfirmModal({ open, onClose, onConfirm, userName, isProcessing }
 }
 
 /* ──────────────────────── Row Action Menu ──────────────────────── */
-function RowActions({ userItem, onEdit, onDelete }: {
+function RowActions({
+    userItem,
+    onEdit,
+    onDelete,
+}: {
     userItem: User;
     onEdit: (u: User) => void;
     onDelete: (u: User) => void;
@@ -75,7 +92,7 @@ function RowActions({ userItem, onEdit, onDelete }: {
                 <Tooltip content="Edit User & Bisnis">
                     <button
                         onClick={() => onEdit(userItem)}
-                        className="rounded-lg p-1.5 text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
+                        className="cursor-pointer rounded-lg p-1.5 text-sky-600 transition-colors hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10"
                     >
                         <Edit2 className="h-4 w-4" />
                     </button>
@@ -86,7 +103,7 @@ function RowActions({ userItem, onEdit, onDelete }: {
                 <Tooltip content="Hapus User & Bisnis">
                     <button
                         onClick={() => onDelete(userItem)}
-                        className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
+                        className="cursor-pointer rounded-lg p-1.5 text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-sky-500/10"
                     >
                         <Trash2 className="h-4 w-4" />
                     </button>
@@ -111,37 +128,53 @@ export default function Index() {
     const [isDeleting, setIsDeleting] = useState(false);
 
     /* Create Form */
-    const { data: createData, setData: setCreateData, post: postCreate, reset: resetCreate, errors: createErrors, processing: createProcessing, clearErrors: clearCreateErrors } = useForm({
-        name: '', 
-        email: '', 
-        username: '', 
-        password: '', 
-        address: '', 
-        phone: '', 
-        business_name: '', 
+    const {
+        data: createData,
+        setData: setCreateData,
+        post: postCreate,
+        reset: resetCreate,
+        errors: createErrors,
+        processing: createProcessing,
+        clearErrors: clearCreateErrors,
+    } = useForm({
+        name: '',
+        email: '',
+        username: '',
+        password: '',
+        address: '',
+        phone: '',
+        business_name: '',
         business_description: '',
         branch_name: '',
         branch_address: '',
         branch_opening_time: '',
         branch_end_time: '',
-        account_type: 'pebisnis'
+        account_type: 'pebisnis',
     });
 
     /* Edit Form */
-    const { data: editData, setData: setEditData, put: putEdit, reset: resetEdit, errors: editErrors, processing: editProcessing, clearErrors: clearEditErrors } = useForm({
-        name: '', 
-        email: '', 
-        username: '', 
-        password: '', 
-        address: '', 
-        phone: '', 
-        business_name: '', 
+    const {
+        data: editData,
+        setData: setEditData,
+        put: putEdit,
+        reset: resetEdit,
+        errors: editErrors,
+        processing: editProcessing,
+        clearErrors: clearEditErrors,
+    } = useForm({
+        name: '',
+        email: '',
+        username: '',
+        password: '',
+        address: '',
+        phone: '',
+        business_name: '',
         business_description: '',
         branch_name: '',
         branch_address: '',
         branch_opening_time: '',
         branch_end_time: '',
-        account_type: 'pebisnis'
+        account_type: 'pebisnis',
     });
 
     const handleCreateSubmit = (e: React.FormEvent) => {
@@ -151,7 +184,7 @@ export default function Index() {
                 setIsCreateModalOpen(false);
                 resetCreate();
                 datatableRef.current?.fetchData();
-            }
+            },
         });
     };
 
@@ -170,7 +203,7 @@ export default function Index() {
             branch_address: userItem.branch_address || '',
             branch_opening_time: userItem.branch_opening_time || '',
             branch_end_time: userItem.branch_end_time || '',
-            account_type: userItem.account_type || 'pebisnis'
+            account_type: userItem.account_type || 'pebisnis',
         });
         setIsEditModalOpen(true);
     };
@@ -184,7 +217,7 @@ export default function Index() {
                 resetEdit();
                 setSelectedUser(null);
                 datatableRef.current?.fetchData();
-            }
+            },
         });
     };
 
@@ -197,7 +230,7 @@ export default function Index() {
                 setIsDeleting(false);
                 datatableRef.current?.fetchData();
             },
-            onError: () => setIsDeleting(false)
+            onError: () => setIsDeleting(false),
         });
     };
 
@@ -206,14 +239,14 @@ export default function Index() {
         data: typeof createData,
         setData: typeof setCreateData,
         errors: typeof createErrors,
-        isEdit: boolean = false
+        isEdit: boolean = false,
     ) => (
         <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
+            <h3 className="mb-1 text-xs font-bold tracking-wider text-slate-400 uppercase dark:text-slate-500">
                 Informasi User
             </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormInput
                     name="name"
                     label="Nama Lengkap"
@@ -244,7 +277,11 @@ export default function Index() {
 
                 <FormInput
                     name="password"
-                    label={isEdit ? "Password (kosongkan jika tidak diubah)" : "Password"}
+                    label={
+                        isEdit
+                            ? 'Password (kosongkan jika tidak diubah)'
+                            : 'Password'
+                    }
                     type="password"
                     value={data.password}
                     onChange={(e) => setData('password', e.target.value)}
@@ -275,9 +312,9 @@ export default function Index() {
                 </div>
             </div>
 
-            <hr className="border-slate-100 dark:border-slate-800 my-4" />
+            <hr className="my-4 border-slate-100 dark:border-slate-800" />
 
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
+            <h3 className="mb-1 text-xs font-bold tracking-wider text-slate-400 uppercase dark:text-slate-500">
                 Informasi Bisnis
             </h3>
 
@@ -295,7 +332,9 @@ export default function Index() {
                     name="business_description"
                     label="Deskripsi Bisnis"
                     value={data.business_description}
-                    onChange={(e) => setData('business_description', e.target.value)}
+                    onChange={(e) =>
+                        setData('business_description', e.target.value)
+                    }
                     placeholder="Deskripsi singkat tentang bisnis ini..."
                     rows={2}
                     className="resize-none"
@@ -303,13 +342,13 @@ export default function Index() {
                 />
             </div>
 
-            <hr className="border-slate-100 dark:border-slate-800 my-4" />
+            <hr className="my-4 border-slate-100 dark:border-slate-800" />
 
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
+            <h3 className="mb-1 text-xs font-bold tracking-wider text-slate-400 uppercase dark:text-slate-500">
                 Cabang Pertama
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormInput
                     name="branch_name"
                     label="Nama Cabang"
@@ -333,7 +372,9 @@ export default function Index() {
                     label="Jam Buka"
                     type="time"
                     value={data.branch_opening_time || ''}
-                    onChange={(e) => setData('branch_opening_time', e.target.value)}
+                    onChange={(e) =>
+                        setData('branch_opening_time', e.target.value)
+                    }
                     error={errors.branch_opening_time}
                 />
 
@@ -347,18 +388,20 @@ export default function Index() {
                 />
             </div>
 
-            <hr className="border-slate-100 dark:border-slate-800 my-4" />
+            <hr className="my-4 border-slate-100 dark:border-slate-800" />
 
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
+            <h3 className="mb-2 text-xs font-bold tracking-wider text-slate-400 uppercase dark:text-slate-500">
                 Jenis Akun
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <label className={`relative flex flex-col p-4 rounded-xl border cursor-pointer transition-all ${
-                    data.account_type === 'pebisnis'
-                        ? 'border-sky-500 bg-sky-50/50 dark:bg-sky-500/5 ring-1 ring-sky-500'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
-                }`}>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <label
+                    className={`relative flex cursor-pointer flex-col rounded-xl border p-4 transition-all ${
+                        data.account_type === 'pebisnis'
+                            ? 'border-sky-500 bg-sky-50/50 ring-1 ring-sky-500 dark:bg-sky-500/5'
+                            : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700'
+                    }`}
+                >
                     <input
                         type="radio"
                         name="account_type"
@@ -367,17 +410,21 @@ export default function Index() {
                         onChange={() => setData('account_type', 'pebisnis')}
                         className="sr-only"
                     />
-                    <span className="font-semibold text-sm text-slate-950 dark:text-white">Pebisnis</span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    <span className="text-sm font-semibold text-slate-950 dark:text-white">
+                        Pebisnis
+                    </span>
+                    <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                         Memiliki akses Lihat Data Bisnis Pribadi.
                     </span>
                 </label>
 
-                <label className={`relative flex flex-col p-4 rounded-xl border cursor-pointer transition-all ${
-                    data.account_type === 'owner_bisnis'
-                        ? 'border-sky-500 bg-sky-50/50 dark:bg-sky-500/5 ring-1 ring-sky-500'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
-                }`}>
+                <label
+                    className={`relative flex cursor-pointer flex-col rounded-xl border p-4 transition-all ${
+                        data.account_type === 'owner_bisnis'
+                            ? 'border-sky-500 bg-sky-50/50 ring-1 ring-sky-500 dark:bg-sky-500/5'
+                            : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700'
+                    }`}
+                >
                     <input
                         type="radio"
                         name="account_type"
@@ -386,17 +433,22 @@ export default function Index() {
                         onChange={() => setData('account_type', 'owner_bisnis')}
                         className="sr-only"
                     />
-                    <span className="font-semibold text-sm text-slate-950 dark:text-white">Owner Bisnis</span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        Memiliki akses Lihat Data Cabang Pribadi (tanpa data bisnis utama).
+                    <span className="text-sm font-semibold text-slate-950 dark:text-white">
+                        Owner Bisnis
+                    </span>
+                    <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        Memiliki akses Lihat Data Cabang Pribadi (tanpa data
+                        bisnis utama).
                     </span>
                 </label>
 
-                <label className={`relative flex flex-col p-4 rounded-xl border cursor-pointer transition-all ${
-                    data.account_type === 'owner_cabang'
-                        ? 'border-sky-500 bg-sky-50/50 dark:bg-sky-500/5 ring-1 ring-sky-500'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
-                }`}>
+                <label
+                    className={`relative flex cursor-pointer flex-col rounded-xl border p-4 transition-all ${
+                        data.account_type === 'owner_cabang'
+                            ? 'border-sky-500 bg-sky-50/50 ring-1 ring-sky-500 dark:bg-sky-500/5'
+                            : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700'
+                    }`}
+                >
                     <input
                         type="radio"
                         name="account_type"
@@ -405,14 +457,19 @@ export default function Index() {
                         onChange={() => setData('account_type', 'owner_cabang')}
                         className="sr-only"
                     />
-                    <span className="font-semibold text-sm text-slate-950 dark:text-white">Owner Cabang</span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        Memiliki akses Lihat Data Produk Pribadi (tanpa data bisnis & cabang).
+                    <span className="text-sm font-semibold text-slate-950 dark:text-white">
+                        Owner Cabang
+                    </span>
+                    <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        Memiliki akses Lihat Data Produk Pribadi (tanpa data
+                        bisnis & cabang).
                     </span>
                 </label>
             </div>
             {errors.account_type && (
-                <p className="text-xs text-rose-500 mt-1">{errors.account_type}</p>
+                <p className="mt-1 text-xs text-rose-500">
+                    {errors.account_type}
+                </p>
             )}
         </div>
     );
@@ -425,7 +482,8 @@ export default function Index() {
             searchable: true,
             searchPlaceholder: 'Cari nama...',
             sortable: true,
-            className: 'whitespace-nowrap font-semibold text-slate-900 dark:text-white'
+            className:
+                'whitespace-nowrap font-semibold text-slate-900 dark:text-white',
         },
         {
             key: 'email',
@@ -440,7 +498,7 @@ export default function Index() {
             searchable: true,
             searchPlaceholder: 'Cari username...',
             sortable: true,
-            render: (u) => u.username || '—'
+            render: (u) => u.username || '—',
         },
         {
             key: 'phone',
@@ -448,7 +506,7 @@ export default function Index() {
             searchable: true,
             searchPlaceholder: 'Cari telepon...',
             sortable: true,
-            render: (u) => u.phone || '—'
+            render: (u) => u.phone || '—',
         },
         {
             key: 'business_name',
@@ -460,22 +518,28 @@ export default function Index() {
                 <span className="inline-flex items-center gap-1.5 rounded-lg bg-sky-50 px-2 py-0.5 text-xs font-medium text-sky-700 dark:bg-sky-500/10 dark:text-sky-400">
                     {u.business_name}
                 </span>
-            )
+            ),
         },
         {
             key: 'actions',
             label: 'Aksi',
             headerClassName: 'text-right',
             className: 'whitespace-nowrap text-right',
-            render: (u) => <RowActions userItem={u} onEdit={openEditModal} onDelete={setDeleteTarget} />
-        }
+            render: (u) => (
+                <RowActions
+                    userItem={u}
+                    onEdit={openEditModal}
+                    onDelete={setDeleteTarget}
+                />
+            ),
+        },
     ];
 
     return (
         <DashboardLayout title="Data User & Bisnis">
             <Head title="Data User & Bisnis" />
 
-            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 md:pt-6 md:pb-8 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 sm:px-6 md:pt-6 md:pb-8 lg:px-8">
                 {/* ─── Header ─── */}
                 <ContentHeader
                     title="Data User & Bisnis"
@@ -485,10 +549,12 @@ export default function Index() {
                     excelUrl="/users/print/excel"
                     pdfUrl="/users/print/pdf"
                     actions={
-                        <CheckPermission permissions={[UserPermission.CREATE_USER]}>
+                        <CheckPermission
+                            permissions={[UserPermission.CREATE_USER]}
+                        >
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-slate-100 px-3.5 py-1.5 text-xs font-semibold text-white dark:text-slate-900 hover:bg-slate-700 dark:hover:bg-white transition-colors focus:outline-none"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-slate-700 focus:outline-none dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
                             >
                                 <Plus className="h-3.5 w-3.5" />
                                 Tambah User
@@ -508,18 +574,24 @@ export default function Index() {
                     printPdfUrl="/users/print/pdf"
                     printExcelUrl="/users/print/excel"
                     renderMobileCard={(userItem: User) => {
-                        const canEdit = userPermissions.includes(UserPermission.EDIT_USER);
-                        const canDelete = userPermissions.includes(UserPermission.DELETE_USER);
+                        const canEdit = userPermissions.includes(
+                            UserPermission.EDIT_USER,
+                        );
+                        const canDelete = userPermissions.includes(
+                            UserPermission.DELETE_USER,
+                        );
 
                         return (
-                            <div className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col gap-3.5">
+                            <div className="flex flex-col gap-3.5 rounded-2xl border border-slate-200 bg-white p-4.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                                 {/* Top Line: Title & Business badge */}
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                        <h3 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                                        <h3 className="text-base leading-snug font-bold text-slate-900 dark:text-white">
                                             {userItem.name}
                                         </h3>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{userItem.email}</p>
+                                        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                            {userItem.email}
+                                        </p>
                                     </div>
                                     <div className="shrink-0">
                                         <span className="inline-flex items-center rounded-lg bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 dark:bg-sky-500/10 dark:text-sky-400">
@@ -529,22 +601,30 @@ export default function Index() {
                                 </div>
 
                                 {/* Details */}
-                                <div className="grid grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-50 dark:border-slate-800/40 pt-2.5">
+                                <div className="grid grid-cols-2 gap-2 border-t border-slate-50 pt-2.5 text-xs text-slate-500 dark:border-slate-800/40 dark:text-slate-400">
                                     <div>
-                                        <span className="font-medium text-slate-400 dark:text-slate-500">Username:</span> {userItem.username || '—'}
+                                        <span className="font-medium text-slate-400 dark:text-slate-500">
+                                            Username:
+                                        </span>{' '}
+                                        {userItem.username || '—'}
                                     </div>
                                     <div>
-                                        <span className="font-medium text-slate-400 dark:text-slate-500">Telepon:</span> {userItem.phone || '—'}
+                                        <span className="font-medium text-slate-400 dark:text-slate-500">
+                                            Telepon:
+                                        </span>{' '}
+                                        {userItem.phone || '—'}
                                     </div>
                                 </div>
 
                                 {/* Bottom Line: Actions */}
                                 {(canEdit || canDelete) && (
-                                    <div className="flex gap-3 mt-1.5 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                                    <div className="mt-1.5 flex gap-3 border-t border-slate-100 pt-3 dark:border-slate-800/60">
                                         {canEdit && (
                                             <button
-                                                onClick={() => openEditModal(userItem)}
-                                                className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-sky-200 bg-white py-2 text-xs font-semibold text-sky-600 hover:bg-sky-50 dark:border-slate-800 dark:bg-slate-900 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors"
+                                                onClick={() =>
+                                                    openEditModal(userItem)
+                                                }
+                                                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-sky-200 bg-white py-2 text-xs font-semibold text-sky-600 transition-colors hover:bg-sky-50 dark:border-slate-800 dark:bg-slate-900 dark:text-sky-400 dark:hover:bg-sky-500/10"
                                             >
                                                 <Edit2 className="h-3.5 w-3.5" />
                                                 Edit
@@ -552,8 +632,10 @@ export default function Index() {
                                         )}
                                         {canDelete && (
                                             <button
-                                                onClick={() => setDeleteTarget(userItem)}
-                                                className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:border-slate-800 dark:bg-slate-900 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                                                onClick={() =>
+                                                    setDeleteTarget(userItem)
+                                                }
+                                                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 dark:border-slate-800 dark:bg-slate-900 dark:text-rose-400 dark:hover:bg-rose-500/10"
                                             >
                                                 <Trash2 className="h-3.5 w-3.5" />
                                                 Hapus
@@ -568,21 +650,34 @@ export default function Index() {
             </div>
 
             {/* ─── Create Modal ─── */}
-            <Modal open={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); resetCreate(); clearCreateErrors(); }} title="Tambah User & Bisnis Baru" maxWidth="max-w-2xl">
+            <Modal
+                open={isCreateModalOpen}
+                onClose={() => {
+                    setIsCreateModalOpen(false);
+                    resetCreate();
+                    clearCreateErrors();
+                }}
+                title="Tambah User & Bisnis Baru"
+                maxWidth="max-w-2xl"
+            >
                 <form onSubmit={handleCreateSubmit}>
                     {renderFormFields(createData, setCreateData, createErrors)}
-                    <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800/60 pt-4">
+                    <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4 dark:border-slate-800/60">
                         <button
                             type="button"
-                            onClick={() => { setIsCreateModalOpen(false); resetCreate(); clearCreateErrors(); }}
-                            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                            onClick={() => {
+                                setIsCreateModalOpen(false);
+                                resetCreate();
+                                clearCreateErrors();
+                            }}
+                            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                         >
                             Batal
                         </button>
                         <button
                             type="submit"
                             disabled={createProcessing}
-                            className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-sky-500 disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                            className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-500 focus:ring-2 focus:ring-sky-500/30 focus:outline-none disabled:opacity-50"
                         >
                             {createProcessing ? 'Menyimpan...' : 'Simpan'}
                         </button>
@@ -593,24 +688,34 @@ export default function Index() {
             {/* ─── Edit Modal ─── */}
             <Modal
                 open={isEditModalOpen}
-                onClose={() => { setIsEditModalOpen(false); resetEdit(); setSelectedUser(null); clearEditErrors(); }}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    resetEdit();
+                    setSelectedUser(null);
+                    clearEditErrors();
+                }}
                 title="Edit User & Bisnis"
                 maxWidth="max-w-2xl"
             >
                 <form onSubmit={handleEditSubmit}>
                     {renderFormFields(editData, setEditData, editErrors, true)}
-                    <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800/60 pt-4">
+                    <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4 dark:border-slate-800/60">
                         <button
                             type="button"
-                            onClick={() => { setIsEditModalOpen(false); resetEdit(); setSelectedUser(null); clearEditErrors(); }}
-                            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                            onClick={() => {
+                                setIsEditModalOpen(false);
+                                resetEdit();
+                                setSelectedUser(null);
+                                clearEditErrors();
+                            }}
+                            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                         >
                             Batal
                         </button>
                         <button
                             type="submit"
                             disabled={editProcessing}
-                            className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-sky-500 disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                            className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-500 focus:ring-2 focus:ring-sky-500/30 focus:outline-none disabled:opacity-50"
                         >
                             {editProcessing ? 'Menyimpan...' : 'Perbarui'}
                         </button>
@@ -631,7 +736,7 @@ export default function Index() {
             <CheckPermission permissions={[UserPermission.CREATE_USER]}>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="md:hidden fixed bottom-20 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg shadow-sky-500/35 hover:bg-sky-600 hover:scale-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                    className="fixed right-6 bottom-20 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg shadow-sky-500/35 transition-all hover:scale-105 hover:bg-sky-600 focus:ring-2 focus:ring-sky-500/30 focus:outline-none active:scale-95 md:hidden"
                 >
                     <Plus className="h-6 w-6" />
                 </button>

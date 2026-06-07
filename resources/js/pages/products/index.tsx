@@ -5,7 +5,10 @@ import DashboardLayout from '../../components/layouts/DashboardLayout';
 import ContentHeader from '../../components/layouts/ContentHeader';
 import CheckPermission from '../../components/commons/CheckPermission';
 import Modal from '../../components/commons/Modal';
-import Datatable, { ColumnDefinition, DatatableRef } from '../../components/commons/Datatable';
+import Datatable, {
+    ColumnDefinition,
+    DatatableRef,
+} from '../../components/commons/Datatable';
 import Tooltip from '../../components/commons/Tooltip';
 import { UserPermission } from '../../types';
 import FormInput from '../../components/forms/FormInput';
@@ -36,7 +39,13 @@ interface IndexProps {
 }
 
 /* ──────────────────────── Delete Confirmation Modal ──────────────────────── */
-function DeleteConfirmModal({ open, onClose, onConfirm, productName, isProcessing }: {
+function DeleteConfirmModal({
+    open,
+    onClose,
+    onConfirm,
+    productName,
+    isProcessing,
+}: {
     open: boolean;
     onClose: () => void;
     onConfirm: () => void;
@@ -47,20 +56,24 @@ function DeleteConfirmModal({ open, onClose, onConfirm, productName, isProcessin
         <Modal open={open} onClose={onClose} title="Hapus Produk">
             <div className="space-y-4">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Apakah Anda yakin ingin menghapus produk <strong className="text-slate-900 dark:text-white">{productName}</strong>? Tindakan ini tidak dapat dibatalkan.
+                    Apakah Anda yakin ingin menghapus produk{' '}
+                    <strong className="text-slate-900 dark:text-white">
+                        {productName}
+                    </strong>
+                    ? Tindakan ini tidak dapat dibatalkan.
                 </p>
             </div>
             <div className="mt-6 flex gap-3">
                 <button
                     onClick={onClose}
-                    className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                    className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                     Batal
                 </button>
                 <button
                     onClick={onConfirm}
                     disabled={isProcessing}
-                    className="flex-1 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-500 disabled:opacity-50 transition-colors"
+                    className="flex-1 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-500 disabled:opacity-50"
                 >
                     {isProcessing ? 'Menghapus...' : 'Hapus'}
                 </button>
@@ -70,29 +83,45 @@ function DeleteConfirmModal({ open, onClose, onConfirm, productName, isProcessin
 }
 
 /* ──────────────────────── Row Action Menu ──────────────────────── */
-function RowActions({ product, onEdit, onDelete }: {
+function RowActions({
+    product,
+    onEdit,
+    onDelete,
+}: {
     product: Product;
     onEdit: (p: Product) => void;
     onDelete: (p: Product) => void;
 }) {
     return (
         <div className="flex items-center justify-end gap-1.5">
-            <CheckPermission permissions={[UserPermission.EDIT_ANY_PRODUCT, UserPermission.EDIT_ASSOCIATED_PRODUCT, UserPermission.EDIT_OWN_PRODUCT]}>
+            <CheckPermission
+                permissions={[
+                    UserPermission.EDIT_ANY_PRODUCT,
+                    UserPermission.EDIT_ASSOCIATED_PRODUCT,
+                    UserPermission.EDIT_OWN_PRODUCT,
+                ]}
+            >
                 <Tooltip content="Edit Produk">
                     <button
                         onClick={() => onEdit(product)}
-                        className="rounded-lg p-1.5 text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
+                        className="cursor-pointer rounded-lg p-1.5 text-sky-600 transition-colors hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-500/10"
                     >
                         <Edit2 className="h-4 w-4" />
                     </button>
                 </Tooltip>
             </CheckPermission>
 
-            <CheckPermission permissions={[UserPermission.DELETE_ANY_PRODUCT, UserPermission.DELETE_ASSOCIATED_PRODUCT, UserPermission.DELETE_OWN_PRODUCT]}>
+            <CheckPermission
+                permissions={[
+                    UserPermission.DELETE_ANY_PRODUCT,
+                    UserPermission.DELETE_ASSOCIATED_PRODUCT,
+                    UserPermission.DELETE_OWN_PRODUCT,
+                ]}
+            >
                 <Tooltip content="Hapus Produk">
                     <button
                         onClick={() => onDelete(product)}
-                        className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
+                        className="cursor-pointer rounded-lg p-1.5 text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
                     >
                         <Trash2 className="h-4 w-4" />
                     </button>
@@ -108,14 +137,20 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
     const userPermissions = (props.auth?.user as any)?.permissions || [];
 
     // Determines create forms permissions:
-    const hasCreateAnyProduct = userPermissions.includes(UserPermission.CREATE_ANY_PRODUCT);
-    const hasCreateAssociatedProduct = userPermissions.includes(UserPermission.CREATE_ASSOCIATED_PRODUCT);
+    const hasCreateAnyProduct = userPermissions.includes(
+        UserPermission.CREATE_ANY_PRODUCT,
+    );
+    const hasCreateAssociatedProduct = userPermissions.includes(
+        UserPermission.CREATE_ASSOCIATED_PRODUCT,
+    );
 
     const datatableRef = useRef<DatatableRef>(null);
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(
+        null,
+    );
 
     const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -126,13 +161,31 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
     const [isFetchingBusinesses, setIsFetchingBusinesses] = useState(false);
 
     /* Create Form */
-    const { data: createData, setData: setCreateData, post: postCreate, reset: resetCreate, errors: createErrors, processing: createProcessing, clearErrors: clearCreateErrors } = useForm({
-        name: '', business_ids: [] as number[]
+    const {
+        data: createData,
+        setData: setCreateData,
+        post: postCreate,
+        reset: resetCreate,
+        errors: createErrors,
+        processing: createProcessing,
+        clearErrors: clearCreateErrors,
+    } = useForm({
+        name: '',
+        business_ids: [] as number[],
     });
 
     /* Edit Form */
-    const { data: editData, setData: setEditData, put: putEdit, reset: resetEdit, errors: editErrors, processing: editProcessing, clearErrors: clearEditErrors } = useForm({
-        name: '', business_ids: [] as number[]
+    const {
+        data: editData,
+        setData: setEditData,
+        put: putEdit,
+        reset: resetEdit,
+        errors: editErrors,
+        processing: editProcessing,
+        clearErrors: clearEditErrors,
+    } = useForm({
+        name: '',
+        business_ids: [] as number[],
     });
 
     const handleCreateSubmit = (e: React.FormEvent) => {
@@ -144,7 +197,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                 setSelectedOwnerId('');
                 setFetchedBusinesses([]);
                 datatableRef.current?.fetchData();
-            }
+            },
         });
     };
 
@@ -157,7 +210,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                 resetEdit();
                 setSelectedProduct(null);
                 datatableRef.current?.fetchData();
-            }
+            },
         });
     };
 
@@ -172,26 +225,31 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
             },
             onError: () => {
                 setIsDeleting(false);
-            }
+            },
         });
     };
 
     const openEditModal = async (product: Product) => {
-        const associatedBusinessIds = product.businesses ? product.businesses.map(b => b.id) : [];
-        const ownerId = product.businesses && product.businesses.length > 0
-            ? String(product.businesses[0].user_id || '')
-            : '';
+        const associatedBusinessIds = product.businesses
+            ? product.businesses.map((b) => b.id)
+            : [];
+        const ownerId =
+            product.businesses && product.businesses.length > 0
+                ? String(product.businesses[0].user_id || '')
+                : '';
         setSelectedProduct(product);
         setEditData({
             name: product.name,
-            business_ids: associatedBusinessIds
+            business_ids: associatedBusinessIds,
         });
         setSelectedOwnerId(ownerId);
 
         if (ownerId) {
             setIsFetchingBusinesses(true);
             try {
-                const response = await fetch(`/products/owner-businesses?user_id=${ownerId}`);
+                const response = await fetch(
+                    `/products/owner-businesses?user_id=${ownerId}`,
+                );
                 if (response.ok) {
                     const data = await response.json();
                     setFetchedBusinesses(data);
@@ -214,14 +272,19 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         setDeleteTarget(product);
     };
 
-    const handleOwnerChange = async (ownerId: string, setFormData: (key: string, value: any) => void) => {
+    const handleOwnerChange = async (
+        ownerId: string,
+        setFormData: (key: string, value: any) => void,
+    ) => {
         setSelectedOwnerId(ownerId);
         setFormData('business_ids', []);
-        
+
         if (ownerId) {
             setIsFetchingBusinesses(true);
             try {
-                const response = await fetch(`/products/owner-businesses?user_id=${ownerId}`);
+                const response = await fetch(
+                    `/products/owner-businesses?user_id=${ownerId}`,
+                );
                 if (response.ok) {
                     const data = await response.json();
                     setFetchedBusinesses(data);
@@ -243,21 +306,28 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
         formData: any,
         setFormData: (key: string, value: any) => void,
         formErrors: any,
-        isEdit: boolean = false
+        isEdit: boolean = false,
     ) => {
         const showOwnerSelector = hasCreateAnyProduct;
-        const showBusinessSelector = hasCreateAnyProduct 
-            ? (selectedOwnerId !== '')
-            : (isEdit ? false : (hasCreateAssociatedProduct && businesses.length > 1));
+        const showBusinessSelector = hasCreateAnyProduct
+            ? selectedOwnerId !== ''
+            : isEdit
+              ? false
+              : hasCreateAssociatedProduct && businesses.length > 1;
 
-        const displayBusinesses = hasCreateAnyProduct ? fetchedBusinesses : businesses;
+        const displayBusinesses = hasCreateAnyProduct
+            ? fetchedBusinesses
+            : businesses;
 
         const handleCheckboxChange = (businessId: number, checked: boolean) => {
             const currentIds = formData.business_ids || [];
             if (checked) {
                 setFormData('business_ids', [...currentIds, businessId]);
             } else {
-                setFormData('business_ids', currentIds.filter((id: number) => id !== businessId));
+                setFormData(
+                    'business_ids',
+                    currentIds.filter((id: number) => id !== businessId),
+                );
             }
         };
 
@@ -268,7 +338,9 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                         name="owner_id"
                         label="Pilih Owner Bisnis"
                         value={selectedOwnerId}
-                        onChange={(e) => handleOwnerChange(e.target.value, setFormData)}
+                        onChange={(e) =>
+                            handleOwnerChange(e.target.value, setFormData)
+                        }
                     >
                         <option value="">Pilih Owner</option>
                         {users.map((owner) => (
@@ -280,7 +352,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                 )}
 
                 {isFetchingBusinesses && (
-                    <div className="text-xs font-medium text-slate-500 animate-pulse py-2">
+                    <div className="animate-pulse py-2 text-xs font-medium text-slate-500">
                         Memuat data bisnis...
                     </div>
                 )}
@@ -290,37 +362,48 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                         <label className="block text-xs font-medium text-slate-500 dark:text-slate-400">
                             Pilih Bisnis
                         </label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30">
+                        <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50/50 p-1 sm:grid-cols-2 dark:border-slate-700 dark:bg-slate-900/30">
                             {displayBusinesses.length === 0 ? (
                                 <div className="col-span-full py-4 text-center text-xs text-slate-400">
                                     Owner ini belum memiliki bisnis
                                 </div>
                             ) : (
                                 displayBusinesses.map((b) => {
-                                    const isChecked = (formData.business_ids || []).includes(b.id);
+                                    const isChecked = (
+                                        formData.business_ids || []
+                                    ).includes(b.id);
                                     return (
                                         <label
                                             key={b.id}
-                                            className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all ${
+                                            className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-all select-none ${
                                                 isChecked
-                                                    ? 'border-sky-500 bg-sky-500/5 text-sky-900 dark:text-sky-300 dark:border-sky-500/50'
-                                                    : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-850'
+                                                    ? 'border-sky-500 bg-sky-500/5 text-sky-900 dark:border-sky-500/50 dark:text-sky-300'
+                                                    : 'dark:hover:bg-slate-850 border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300'
                                             }`}
                                         >
                                             <input
                                                 type="checkbox"
                                                 checked={isChecked}
-                                                onChange={(e) => handleCheckboxChange(b.id, e.target.checked)}
+                                                onChange={(e) =>
+                                                    handleCheckboxChange(
+                                                        b.id,
+                                                        e.target.checked,
+                                                    )
+                                                }
                                                 className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-800"
                                             />
-                                            <span className="text-sm font-medium">{b.name}</span>
+                                            <span className="text-sm font-medium">
+                                                {b.name}
+                                            </span>
                                         </label>
                                     );
                                 })
                             )}
                         </div>
                         {formErrors.business_ids && (
-                            <p className="mt-1.5 text-xs text-rose-500 font-medium">{formErrors.business_ids}</p>
+                            <p className="mt-1.5 text-xs font-medium text-rose-500">
+                                {formErrors.business_ids}
+                            </p>
                         )}
                     </div>
                 )}
@@ -345,7 +428,7 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
             searchable: true,
             searchPlaceholder: 'Cari nama produk...',
             className: 'font-semibold text-slate-800 dark:text-slate-100',
-            render: (p) => p.name
+            render: (p) => p.name,
         },
         {
             key: 'business',
@@ -354,24 +437,31 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
             searchable: true,
             searchPlaceholder: 'Cari bisnis...',
             className: 'text-slate-500 dark:text-slate-400',
-            render: (p) => p.businesses && p.businesses.length > 0
-                ? p.businesses.map(b => b.name).join(', ')
-                : '—'
+            render: (p) =>
+                p.businesses && p.businesses.length > 0
+                    ? p.businesses.map((b) => b.name).join(', ')
+                    : '—',
         },
         {
             key: 'actions',
             label: 'Aksi',
             headerClassName: 'text-right',
             className: 'whitespace-nowrap text-right',
-            render: (p) => <RowActions product={p} onEdit={openEditModal} onDelete={openDeleteModal} />
-        }
+            render: (p) => (
+                <RowActions
+                    product={p}
+                    onEdit={openEditModal}
+                    onDelete={openDeleteModal}
+                />
+            ),
+        },
     ];
 
     return (
         <DashboardLayout title="Produk Induk">
             <Head title="Produk Induk" />
 
-            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 md:pt-6 md:pb-8 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 pt-4 pb-6 sm:px-6 md:pt-6 md:pb-8 lg:px-8">
                 {/* ─── Header ─── */}
                 <ContentHeader
                     title="Produk Induk"
@@ -381,10 +471,16 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                     excelUrl="/products/print/excel"
                     pdfUrl="/products/print/pdf"
                     actions={
-                        <CheckPermission permissions={[UserPermission.CREATE_ANY_PRODUCT, UserPermission.CREATE_ASSOCIATED_PRODUCT, UserPermission.CREATE_OWN_PRODUCT]}>
+                        <CheckPermission
+                            permissions={[
+                                UserPermission.CREATE_ANY_PRODUCT,
+                                UserPermission.CREATE_ASSOCIATED_PRODUCT,
+                                UserPermission.CREATE_OWN_PRODUCT,
+                            ]}
+                        >
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-slate-100 px-3.5 py-1.5 text-xs font-semibold text-white dark:text-slate-900 hover:bg-slate-700 dark:hover:bg-white transition-colors focus:outline-none"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-slate-700 focus:outline-none dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
                             >
                                 <Plus className="h-3.5 w-3.5" />
                                 Tambah Produk
@@ -404,15 +500,48 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                     printExcelUrl="/products/print/excel"
                     renderMobileCard={(product: Product) => {
                         const user = props.auth?.user as any;
-                        const canEdit = userPermissions.includes(UserPermission.EDIT_ANY_PRODUCT) || 
-                                        (userPermissions.includes(UserPermission.EDIT_ASSOCIATED_PRODUCT) && businesses.some(b => product.businesses?.some(pb => pb.id === b.id))) ||
-                                        (userPermissions.includes(UserPermission.EDIT_OWN_PRODUCT) && product.businesses?.some(pb => pb.user_id === user?.id));
-                        const canDelete = userPermissions.includes(UserPermission.DELETE_ANY_PRODUCT) || 
-                                          (userPermissions.includes(UserPermission.DELETE_ASSOCIATED_PRODUCT) && businesses.some(b => product.businesses?.some(pb => pb.id === b.id))) ||
-                                          (userPermissions.includes(UserPermission.DELETE_OWN_PRODUCT) && product.businesses?.some(pb => pb.user_id === user?.id));
+                        const canEdit =
+                            userPermissions.includes(
+                                UserPermission.EDIT_ANY_PRODUCT,
+                            ) ||
+                            (userPermissions.includes(
+                                UserPermission.EDIT_ASSOCIATED_PRODUCT,
+                            ) &&
+                                businesses.some((b) =>
+                                    product.businesses?.some(
+                                        (pb) => pb.id === b.id,
+                                    ),
+                                )) ||
+                            (userPermissions.includes(
+                                UserPermission.EDIT_OWN_PRODUCT,
+                            ) &&
+                                product.businesses?.some(
+                                    (pb) => pb.user_id === user?.id,
+                                ));
+                        const canDelete =
+                            userPermissions.includes(
+                                UserPermission.DELETE_ANY_PRODUCT,
+                            ) ||
+                            (userPermissions.includes(
+                                UserPermission.DELETE_ASSOCIATED_PRODUCT,
+                            ) &&
+                                businesses.some((b) =>
+                                    product.businesses?.some(
+                                        (pb) => pb.id === b.id,
+                                    ),
+                                )) ||
+                            (userPermissions.includes(
+                                UserPermission.DELETE_OWN_PRODUCT,
+                            ) &&
+                                product.businesses?.some(
+                                    (pb) => pb.user_id === user?.id,
+                                ));
 
                         return (
-                            <div key={product.id} className="rounded-2xl border border-slate-200 bg-white p-4.5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col gap-3.5">
+                            <div
+                                key={product.id}
+                                className="flex flex-col gap-3.5 rounded-2xl border border-slate-200 bg-white p-4.5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                            >
                                 {/* Header: Product Name and Icon */}
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="flex items-center gap-2.5">
@@ -427,21 +556,28 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
 
                                 {/* Body Info: Associated Businesses */}
                                 <div className="grid grid-cols-2 gap-y-2 text-xs">
-                                    <div className="text-slate-400">Bisnis Terkait</div>
-                                    <div className="text-slate-700 dark:text-slate-300 text-right font-medium">
-                                        {product.businesses && product.businesses.length > 0
-                                            ? product.businesses.map(b => b.name).join(', ')
+                                    <div className="text-slate-400">
+                                        Bisnis Terkait
+                                    </div>
+                                    <div className="text-right font-medium text-slate-700 dark:text-slate-300">
+                                        {product.businesses &&
+                                        product.businesses.length > 0
+                                            ? product.businesses
+                                                  .map((b) => b.name)
+                                                  .join(', ')
                                             : '—'}
                                     </div>
                                 </div>
 
                                 {/* Bottom Line: Actions */}
                                 {(canEdit || canDelete) && (
-                                    <div className="flex gap-3 mt-1.5 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                                    <div className="mt-1.5 flex gap-3 border-t border-slate-100 pt-3 dark:border-slate-800/60">
                                         {canEdit && (
                                             <button
-                                                onClick={() => openEditModal(product)}
-                                                className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-sky-200 bg-white py-2 text-xs font-semibold text-sky-600 hover:bg-sky-50 dark:border-slate-800 dark:bg-slate-900 dark:text-sky-400 dark:hover:bg-sky-500/10 transition-colors"
+                                                onClick={() =>
+                                                    openEditModal(product)
+                                                }
+                                                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-sky-200 bg-white py-2 text-xs font-semibold text-sky-600 transition-colors hover:bg-sky-50 dark:border-slate-800 dark:bg-slate-900 dark:text-sky-400 dark:hover:bg-sky-500/10"
                                             >
                                                 <Edit2 className="h-3.5 w-3.5" />
                                                 Edit
@@ -449,8 +585,10 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                                         )}
                                         {canDelete && (
                                             <button
-                                                onClick={() => openDeleteModal(product)}
-                                                className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:border-slate-800 dark:bg-slate-900 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                                                onClick={() =>
+                                                    openDeleteModal(product)
+                                                }
+                                                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 dark:border-slate-800 dark:bg-slate-900 dark:text-rose-400 dark:hover:bg-rose-500/10"
                                             >
                                                 <Trash2 className="h-3.5 w-3.5" />
                                                 Hapus
@@ -465,21 +603,37 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
             </div>
 
             {/* ─── Create Modal ─── */}
-            <Modal open={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); resetCreate(); setSelectedOwnerId(''); setFetchedBusinesses([]); clearCreateErrors(); }} title="Tambah Produk Baru">
+            <Modal
+                open={isCreateModalOpen}
+                onClose={() => {
+                    setIsCreateModalOpen(false);
+                    resetCreate();
+                    setSelectedOwnerId('');
+                    setFetchedBusinesses([]);
+                    clearCreateErrors();
+                }}
+                title="Tambah Produk Baru"
+            >
                 <form onSubmit={handleCreateSubmit}>
                     {renderFormFields(createData, setCreateData, createErrors)}
                     <div className="mt-6 flex justify-end gap-3">
                         <button
                             type="button"
-                            onClick={() => { setIsCreateModalOpen(false); resetCreate(); setSelectedOwnerId(''); setFetchedBusinesses([]); clearCreateErrors(); }}
-                            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                            onClick={() => {
+                                setIsCreateModalOpen(false);
+                                resetCreate();
+                                setSelectedOwnerId('');
+                                setFetchedBusinesses([]);
+                                clearCreateErrors();
+                            }}
+                            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                         >
                             Batal
                         </button>
                         <button
                             type="submit"
                             disabled={createProcessing}
-                            className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-sky-500 disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                            className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-500 focus:ring-2 focus:ring-sky-500/30 focus:outline-none disabled:opacity-50"
                         >
                             {createProcessing ? 'Menyimpan...' : 'Simpan'}
                         </button>
@@ -490,7 +644,14 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
             {/* ─── Edit Modal ─── */}
             <Modal
                 open={isEditModalOpen}
-                onClose={() => { setIsEditModalOpen(false); resetEdit(); setSelectedProduct(null); setSelectedOwnerId(''); setFetchedBusinesses([]); clearEditErrors(); }}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    resetEdit();
+                    setSelectedProduct(null);
+                    setSelectedOwnerId('');
+                    setFetchedBusinesses([]);
+                    clearEditErrors();
+                }}
                 title="Edit Produk"
             >
                 <form onSubmit={handleEditSubmit}>
@@ -498,15 +659,22 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
                     <div className="mt-6 flex justify-end gap-3">
                         <button
                             type="button"
-                            onClick={() => { setIsEditModalOpen(false); resetEdit(); setSelectedProduct(null); setSelectedOwnerId(''); setFetchedBusinesses([]); clearEditErrors(); }}
-                            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-850 transition-colors"
+                            onClick={() => {
+                                setIsEditModalOpen(false);
+                                resetEdit();
+                                setSelectedProduct(null);
+                                setSelectedOwnerId('');
+                                setFetchedBusinesses([]);
+                                clearEditErrors();
+                            }}
+                            className="dark:hover:bg-slate-850 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300"
                         >
                             Batal
                         </button>
                         <button
                             type="submit"
                             disabled={editProcessing}
-                            className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-sky-500 disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                            className="rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-500 focus:ring-2 focus:ring-sky-500/30 focus:outline-none disabled:opacity-50"
                         >
                             {editProcessing ? 'Menyimpan...' : 'Perbarui'}
                         </button>
@@ -524,10 +692,16 @@ export default function Index({ businesses = [], users = [] }: IndexProps) {
             />
 
             {/* Mobile Floating Action Button (FAB) */}
-            <CheckPermission permissions={[UserPermission.CREATE_ANY_PRODUCT, UserPermission.CREATE_ASSOCIATED_PRODUCT, UserPermission.CREATE_OWN_PRODUCT]}>
+            <CheckPermission
+                permissions={[
+                    UserPermission.CREATE_ANY_PRODUCT,
+                    UserPermission.CREATE_ASSOCIATED_PRODUCT,
+                    UserPermission.CREATE_OWN_PRODUCT,
+                ]}
+            >
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="md:hidden fixed bottom-20 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg shadow-sky-500/35 hover:bg-sky-600 hover:scale-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                    className="fixed right-6 bottom-20 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg shadow-sky-500/35 transition-all hover:scale-105 hover:bg-sky-600 focus:ring-2 focus:ring-sky-500/30 focus:outline-none active:scale-95 md:hidden"
                 >
                     <Plus className="h-6 w-6" />
                 </button>

@@ -121,5 +121,5 @@ export enum UserPermission {
     VIEW_ASSOCIATED_TRANSACTION = 'Lihat Data Transaksi Penempatan Bisnis',
     VIEW_ANY_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Keseluruhan',
     VIEW_OWN_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Pribadi',
-    VIEW_ASSOCIATED_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Penempatan Bisnis'
+    VIEW_ASSOCIATED_PRODUCT_TRANSACTION = 'Lihat Data Transaksi Produk Penempatan Bisnis',
 }

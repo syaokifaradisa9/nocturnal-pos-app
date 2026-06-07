@@ -46,10 +46,11 @@ class ProductTransactionDatatableService
             });
         })->when($request->input('branch_name'), function (Builder $q, $branchName) {
             $q->whereHas('transaction.branch', function ($sub) use ($branchName) {
-                $sub->where('name', 'like', "%{$branchName}%")
-                    ->orWhereHas('business', function ($sub2) use ($branchName) {
-                        $sub2->where('name', 'like', "%{$branchName}%");
-                    });
+                $sub->where('name', 'like', "%{$branchName}%");
+            });
+        })->when($request->input('business_name'), function (Builder $q, $businessName) {
+            $q->whereHas('transaction.branch.business', function ($sub) use ($businessName) {
+                $sub->where('name', 'like', "%{$businessName}%");
             });
         })->when($request->input('product_name'), function (Builder $q, $productName) {
             $q->where('product_name', 'like', "%{$productName}%");
@@ -72,6 +73,12 @@ class ProductTransactionDatatableService
                 ->join('transactions', 'transaction_item.transaction_id', '=', 'transactions.id')
                 ->join('branches', 'transactions.branch_id', '=', 'branches.id')
                 ->orderBy('branches.name', $sortOrder);
+        } elseif ($sortField === 'business_name') {
+            $query->select('transaction_item.*')
+                ->join('transactions', 'transaction_item.transaction_id', '=', 'transactions.id')
+                ->join('branches', 'transactions.branch_id', '=', 'branches.id')
+                ->join('businesses', 'branches.business_id', '=', 'businesses.id')
+                ->orderBy('businesses.name', $sortOrder);
         } elseif ($sortField === 'subtotal') {
             $query->select('transaction_item.*')
                 ->selectRaw('(transaction_item.quantity * transaction_item.price) as line_subtotal')
@@ -120,6 +127,7 @@ class ProductTransactionDatatableService
                 'No' => $index + 1,
                 'No Invoice' => '#' . $row->transaction_id,
                 'Tanggal' => $row->transaction && $row->transaction->created_at ? $row->transaction->created_at->format('Y-m-d H:i:s') : '-',
+                'Bisnis' => ($row->transaction && $row->transaction->branch && $row->transaction->branch->business) ? $row->transaction->branch->business->name : '-',
                 'Cabang' => ($row->transaction && $row->transaction->branch) ? $row->transaction->branch->name : '-',
                 'Produk' => $row->product_name,
                 'Satuan' => $row->measurement_name,

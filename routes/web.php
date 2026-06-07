@@ -299,6 +299,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/excel', 'printExcel')->name('excel');
             });
         });
+
+    Route::controller(\App\Http\Controllers\SalesReportController::class)
+        ->prefix('sales-reports')
+        ->name('sales-reports.')
+        ->middleware('transaction.permission')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/data', 'data')->name('data');
+        });
 });
 
 Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');

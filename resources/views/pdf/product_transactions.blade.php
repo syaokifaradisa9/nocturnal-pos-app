@@ -21,7 +21,8 @@
                 <th style="width: 5%">No</th>
                 <th style="width: 10%">Invoice</th>
                 <th style="width: 15%">Tanggal</th>
-                <th style="width: 20%">Cabang</th>
+                <th style="width: 10%">Bisnis</th>
+                <th style="width: 10%">Cabang</th>
                 <th style="width: 25%">Produk</th>
                 <th style="width: 10%">Satuan</th>
                 <th style="width: 5%" class="text-center">Qty</th>
@@ -34,6 +35,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td>#{{ $row->transaction_id }}</td>
                     <td>{{ $row->transaction && $row->transaction->created_at ? $row->transaction->created_at->format('Y-m-d H:i:s') : '-' }}</td>
+                    <td>{{ $row->transaction && $row->transaction->branch && $row->transaction->branch->business ? $row->transaction->branch->business->name : '-' }}</td>
                     <td>{{ $row->transaction && $row->transaction->branch ? $row->transaction->branch->name : '-' }}</td>
                     <td>{{ $row->product_name }}</td>
                     <td>{{ $row->measurement_name }}</td>

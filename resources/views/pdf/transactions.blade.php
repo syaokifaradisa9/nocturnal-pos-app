@@ -20,7 +20,8 @@
                 <th style="width: 5%">No</th>
                 <th style="width: 10%">Invoice</th>
                 <th style="width: 15%">Tanggal</th>
-                <th style="width: 15%">Cabang</th>
+                <th style="width: 10%">Bisnis</th>
+                <th style="width: 10%">Cabang</th>
                 <th style="width: 15%">Customer</th>
                 <th style="width: 10%">Metode</th>
                 <th style="width: 10%">Status</th>
@@ -34,6 +35,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td>#{{ $transaction->id }}</td>
                     <td>{{ $transaction->created_at ? $transaction->created_at->format('Y-m-d H:i:s') : '-' }}</td>
+                    <td>{{ $transaction->branch && $transaction->branch->business ? $transaction->branch->business->name : '-' }}</td>
                     <td>{{ $transaction->branch ? $transaction->branch->name : '-' }}</td>
                     <td>{{ $transaction->customer ? $transaction->customer->name : 'Walk-in Customer' }}</td>
                     <td>{{ $transaction->payment_method ?: '-' }}</td>

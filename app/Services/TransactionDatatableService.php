@@ -78,10 +78,11 @@ class TransactionDatatableService
             $q->where('created_at', 'like', "%{$createdAt}%");
         })->when($request->input('branch_name'), function (Builder $q, $branchName) {
             $q->whereHas('branch', function ($sub) use ($branchName) {
-                $sub->where('name', 'like', "%{$branchName}%")
-                    ->orWhereHas('business', function ($sub2) use ($branchName) {
-                        $sub2->where('name', 'like', "%{$branchName}%");
-                    });
+                $sub->where('name', 'like', "%{$branchName}%");
+            });
+        })->when($request->input('business_name'), function (Builder $q, $businessName) {
+            $q->whereHas('branch.business', function ($sub) use ($businessName) {
+                $sub->where('name', 'like', "%{$businessName}%");
             });
         })->when($request->input('customer_name'), function (Builder $q, $customerName) {
             $q->whereHas('customer', function ($sub) use ($customerName) {
@@ -99,6 +100,11 @@ class TransactionDatatableService
             $query->select('transactions.*')
                 ->join('branches', 'transactions.branch_id', '=', 'branches.id')
                 ->orderBy('branches.name', $sortOrder);
+        } elseif ($sortField === 'business_name') {
+            $query->select('transactions.*')
+                ->join('branches', 'transactions.branch_id', '=', 'branches.id')
+                ->join('businesses', 'branches.business_id', '=', 'businesses.id')
+                ->orderBy('businesses.name', $sortOrder);
         } elseif ($sortField === 'customer_name') {
             $query->select('transactions.*')
                 ->leftJoin('customers', 'transactions.customer_id', '=', 'customers.id')
@@ -175,6 +181,7 @@ class TransactionDatatableService
                 'No' => $index + 1,
                 'No Invoice' => '#' . $row->id,
                 'Tanggal' => $row->created_at ? $row->created_at->format('Y-m-d H:i:s') : '-',
+                'Bisnis' => ($row->branch && $row->branch->business) ? $row->branch->business->name : '-',
                 'Cabang' => $row->branch ? $row->branch->name : '-',
                 'Customer' => $row->customer ? $row->customer->name : 'Walk-in Customer',
                 'Metode Pembayaran' => $row->payment_method ?: '-',

@@ -71,7 +71,8 @@ class SalesReportService
             ->toArray();
 
         // 2. Fetch Active Stock Asset Value
-        $stockQuery = \App\Models\InventoryBatch::where('status', \App\Enums\InventoryBatchStatus::ACTIVE->value);
+        $stockQuery = \App\Models\InventoryBatch::where('status', \App\Enums\InventoryBatchStatus::ACTIVE->value)
+            ->with(['productItemMeasurement.productItem', 'productItemMeasurement.measurementUnit']);
 
         if ($user->hasPermission(UserPermission::VIEW_ANY_TRANSACTION)) {
             // No filter
@@ -341,6 +342,101 @@ class SalesReportService
             ];
         }
 
+        // 4. Calculate stock analysis (Fast & Slow Moving)
+        $days = 1;
+        if ($startDate && $endDate) {
+            $start = Carbon::parse($startDate);
+            $end = Carbon::parse($endDate);
+            $days = max(1, $start->diffInDays($end) + 1);
+        }
+
+        $currentStocks = [];
+        foreach ($activeBatches as $batch) {
+            $mId = $batch->product_item_measurement_id;
+            $currentStocks[$mId] = ($currentStocks[$mId] ?? 0) + (float) $batch->current_quantity;
+            
+            // If the name wasn't populated from transactions, populate it now
+            if (!isset($productNames[$mId]) && $batch->productItemMeasurement) {
+                $itemName = $batch->productItemMeasurement->productItem->name ?? 'Unknown';
+                $unitName = $batch->productItemMeasurement->measurementUnit->short_name ?? ($batch->productItemMeasurement->measurementUnit->name ?? '');
+                $productNames[$mId] = $itemName . ($unitName ? ' (' . $unitName . ')' : '');
+            }
+        }
+
+        // Fast Moving: items with quantity sold > 0, ordered by quantity sold DESC
+        $fastMovingList = [];
+        foreach ($productQuantities as $mId => $qtySold) {
+            if ($qtySold > 0) {
+                $currentStock = $currentStocks[$mId] ?? 0;
+                $velocity = round($qtySold / $days, 2);
+                $daysToRunout = $velocity > 0 ? round($currentStock / $velocity, 1) : 9999;
+                
+                // Recommendation
+                if ($currentStock == 0) {
+                    $recommendation = 'Stok Habis - Segera pesan ulang';
+                    $status = 'critical';
+                } elseif ($daysToRunout < 7) {
+                    $recommendation = 'Stok Kritis - Restock dalam ' . $daysToRunout . ' hari';
+                    $status = 'warning';
+                } else {
+                    $recommendation = 'Stok Aman';
+                    $status = 'safe';
+                }
+
+                $fastMovingList[] = [
+                    'name' => $productNames[$mId] ?? 'Unknown Item',
+                    'quantity_sold' => $qtySold,
+                    'current_stock' => $currentStock,
+                    'velocity' => $velocity,
+                    'days_to_runout' => $daysToRunout,
+                    'recommendation' => $recommendation,
+                    'status' => $status
+                ];
+            }
+        }
+        // Sort DESC by quantity sold
+        usort($fastMovingList, function ($a, $b) {
+            return $b['quantity_sold'] <=> $a['quantity_sold'];
+        });
+
+        // Slow Moving: items with current stock > 0, ordered by quantity sold ASC
+        $slowMovingList = [];
+        $allStockedMids = array_keys($currentStocks);
+        foreach ($allStockedMids as $mId) {
+            $qtySold = $productQuantities[$mId] ?? 0;
+            $currentStock = $currentStocks[$mId] ?? 0;
+            $velocity = round($qtySold / $days, 2);
+            
+            // We only classify it as slow moving if it has stock and low/no sales compared to stock
+            $recommendation = 'Perputaran Lambat - ';
+            if ($qtySold == 0) {
+                $recommendation .= 'Stop restock & adakan promo diskon';
+                $status = 'critical';
+            } elseif ($qtySold < ($currentStock * 0.1)) {
+                $recommendation .= 'Kurangi jumlah pesanan restock berikutnya';
+                $status = 'warning';
+            } else {
+                $recommendation = 'Perputaran Normal';
+                $status = 'safe';
+            }
+
+            $slowMovingList[] = [
+                'name' => $productNames[$mId] ?? 'Unknown Item',
+                'quantity_sold' => $qtySold,
+                'current_stock' => $currentStock,
+                'velocity' => $velocity,
+                'recommendation' => $recommendation,
+                'status' => $status
+            ];
+        }
+        // Sort ASC by quantity sold
+        usort($slowMovingList, function ($a, $b) {
+            if ($a['quantity_sold'] == $b['quantity_sold']) {
+                return $b['current_stock'] <=> $a['current_stock']; // higher stock first for same sales
+            }
+            return $a['quantity_sold'] <=> $b['quantity_sold'];
+        });
+
         return [
             'summary' => [
                 'total_gross_revenue' => round($totalGrossRevenue, 2),
@@ -367,7 +463,11 @@ class SalesReportService
             'monthly_trends' => $formattedMonthlyTrends,
             'payment_methods' => $formattedPayments,
             'busy_days' => $formattedDays,
-            'busy_hours' => $formattedHours
+            'busy_hours' => $formattedHours,
+            'stock_analysis' => [
+                'fast_moving' => array_slice($fastMovingList, 0, 10),
+                'slow_moving' => array_slice($slowMovingList, 0, 10)
+            ]
         ];
     }
 }

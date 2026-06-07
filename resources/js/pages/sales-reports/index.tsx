@@ -72,6 +72,16 @@ interface BusyHour {
     count: number;
 }
 
+interface StockAnalysisItem {
+    name: string;
+    quantity_sold: number;
+    current_stock: number;
+    velocity: number;
+    days_to_runout?: number;
+    recommendation: string;
+    status: 'critical' | 'warning' | 'safe';
+}
+
 interface ReportData {
     summary: SummaryData;
     top_products: ProductRank[];
@@ -84,6 +94,10 @@ interface ReportData {
     payment_methods: PaymentMethod[];
     busy_days: BusyDay[];
     busy_hours: BusyHour[];
+    stock_analysis?: {
+        fast_moving: StockAnalysisItem[];
+        slow_moving: StockAnalysisItem[];
+    };
 }
 
 interface IndexProps {
@@ -98,7 +112,7 @@ export default function Index({ branches = [] }: IndexProps) {
     const [loading, setLoading] = useState<boolean>(true);
     const [data, setData] = useState<ReportData | null>(null);
     const [activeTab, setActiveTab] = useState<
-        'produk' | 'penjualan' | 'waktu'
+        'produk' | 'penjualan' | 'waktu' | 'stok'
     >('produk');
 
     // Extract unique businesses
@@ -733,6 +747,12 @@ export default function Index({ branches = [] }: IndexProps) {
                                 Penjualan
                             </button>
                             <button
+                                onClick={() => setActiveTab('stok')}
+                                className={`border-b-2 px-4 py-2.5 text-sm font-bold transition-colors ${activeTab === 'stok' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+                            >
+                                Stok
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('waktu')}
                                 className={`border-b-2 px-4 py-2.5 text-sm font-bold transition-colors ${activeTab === 'waktu' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                             >
@@ -1332,6 +1352,125 @@ export default function Index({ branches = [] }: IndexProps) {
                                                 </tbody>
                                             </table>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Tab Content: Stok */}
+                        {activeTab === 'stok' && (
+                            <div className="space-y-6 pt-4">
+                                {/* Fast Moving Products Table */}
+                                <div className="rounded-2xl border border-slate-200 bg-white p-5.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                                    <div className="mb-1 flex items-center gap-2">
+                                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                                            Analisis Produk Cepat Terjual (Fast-Moving)
+                                        </h3>
+                                    </div>
+                                    <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+                                        Produk dengan penjualan tertinggi dan status ketersediaan stoknya.
+                                    </p>
+                                    <div className="border-slate-150 overflow-hidden rounded-xl border dark:border-slate-800">
+                                        <table className="w-full border-collapse text-left text-xs">
+                                            <thead>
+                                                <tr className="border-slate-150 dark:border-slate-850 border-b bg-slate-50 dark:bg-slate-900">
+                                                    <th className="text-slate-550 px-4 py-2.5 font-bold dark:text-slate-400">Nama Produk</th>
+                                                    <th className="text-slate-550 px-4 py-2.5 text-right font-bold dark:text-slate-400">Terjual</th>
+                                                    <th className="text-slate-550 px-4 py-2.5 text-right font-bold dark:text-slate-400">Sisa Stok</th>
+                                                    <th className="text-slate-550 px-4 py-2.5 text-right font-bold dark:text-slate-400">Laju (/hari)</th>
+                                                    <th className="text-slate-550 px-4 py-2.5 text-right font-bold dark:text-slate-400">Estimasi Habis</th>
+                                                    <th className="text-slate-550 px-4 py-2.5 font-bold dark:text-slate-400">Rekomendasi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="dark:divide-slate-850 divide-y divide-slate-100">
+                                                {data.stock_analysis?.fast_moving && data.stock_analysis.fast_moving.length > 0 ? (
+                                                    data.stock_analysis.fast_moving.map((p, idx) => (
+                                                        <tr key={idx} className="dark:hover:bg-slate-850/20 hover:bg-slate-50/50">
+                                                            <td className="dark:text-slate-250 px-4 py-2.5 font-medium text-slate-800">{p.name}</td>
+                                                            <td className="px-4 py-2.5 text-right font-bold text-slate-900 dark:text-white">{p.quantity_sold}</td>
+                                                            <td className="px-4 py-2.5 text-right font-bold text-slate-900 dark:text-white">{p.current_stock}</td>
+                                                            <td className="px-4 py-2.5 text-right text-slate-600 dark:text-slate-400">{p.velocity}</td>
+                                                            <td className="px-4 py-2.5 text-right font-semibold">
+                                                                {p.days_to_runout && p.days_to_runout < 9999 ? (
+                                                                    <span className={p.status === 'critical' ? 'text-red-650' : p.status === 'warning' ? 'text-amber-600' : 'text-emerald-600'}>
+                                                                        {p.days_to_runout} Hari
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-slate-400">-</span>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-4 py-2.5">
+                                                                <span className={`inline-flex items-center rounded-md px-2 py-1 text-[10px] font-medium ring-1 ring-inset ${
+                                                                    p.status === 'critical' ? 'bg-red-50 text-red-700 ring-red-600/10 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-500/25' :
+                                                                    p.status === 'warning' ? 'bg-amber-50 text-amber-800 ring-amber-600/10 dark:bg-amber-950/30 dark:text-amber-400 dark:ring-amber-500/25' :
+                                                                    'bg-emerald-50 text-emerald-700 ring-emerald-650/10 dark:bg-emerald-950/30 dark:text-emerald-400 dark:ring-emerald-500/25'
+                                                                }`}>
+                                                                    {p.recommendation}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={6} className="py-6 text-center text-slate-400">
+                                                            Tidak ada data analisis produk cepat terjual
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                {/* Slow Moving Products Table */}
+                                <div className="rounded-2xl border border-slate-200 bg-white p-5.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                                    <div className="mb-1 flex items-center gap-2">
+                                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                                            Analisis Produk Lambat Terjual (Slow-Moving)
+                                        </h3>
+                                    </div>
+                                    <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+                                        Produk dengan penjualan rendah/nol yang masih memiliki sisa stok.
+                                    </p>
+                                    <div className="border-slate-150 overflow-hidden rounded-xl border dark:border-slate-800">
+                                        <table className="w-full border-collapse text-left text-xs">
+                                            <thead>
+                                                <tr className="border-slate-150 dark:border-slate-850 border-b bg-slate-50 dark:bg-slate-900">
+                                                    <th className="text-slate-550 px-4 py-2.5 font-bold dark:text-slate-400">Nama Produk</th>
+                                                    <th className="text-slate-550 px-4 py-2.5 text-right font-bold dark:text-slate-400">Terjual</th>
+                                                    <th className="text-slate-550 px-4 py-2.5 text-right font-bold dark:text-slate-400">Sisa Stok</th>
+                                                    <th className="text-slate-550 px-4 py-2.5 text-right font-bold dark:text-slate-400">Laju (/hari)</th>
+                                                    <th className="text-slate-550 px-4 py-2.5 font-bold dark:text-slate-400">Rekomendasi Tindakan</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="dark:divide-slate-850 divide-y divide-slate-100">
+                                                {data.stock_analysis?.slow_moving && data.stock_analysis.slow_moving.length > 0 ? (
+                                                    data.stock_analysis.slow_moving.map((p, idx) => (
+                                                        <tr key={idx} className="dark:hover:bg-slate-850/20 hover:bg-slate-50/50">
+                                                            <td className="dark:text-slate-250 px-4 py-2.5 font-medium text-slate-800">{p.name}</td>
+                                                            <td className="px-4 py-2.5 text-right font-bold text-slate-900 dark:text-white">{p.quantity_sold}</td>
+                                                            <td className="px-4 py-2.5 text-right font-bold text-slate-900 dark:text-white">{p.current_stock}</td>
+                                                            <td className="px-4 py-2.5 text-right text-slate-600 dark:text-slate-400">{p.velocity}</td>
+                                                            <td className="px-4 py-2.5">
+                                                                <span className={`inline-flex items-center rounded-md px-2 py-1 text-[10px] font-medium ring-1 ring-inset ${
+                                                                    p.status === 'critical' ? 'bg-red-50 text-red-700 ring-red-600/10 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-500/25' :
+                                                                    p.status === 'warning' ? 'bg-amber-50 text-amber-800 ring-amber-600/10 dark:bg-amber-950/30 dark:text-amber-400 dark:ring-amber-500/25' :
+                                                                    'bg-slate-50 text-slate-700 ring-slate-650/10 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700'
+                                                                }`}>
+                                                                    {p.recommendation}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={5} className="py-6 text-center text-slate-400">
+                                                            Tidak ada data analisis produk lambat terjual
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>

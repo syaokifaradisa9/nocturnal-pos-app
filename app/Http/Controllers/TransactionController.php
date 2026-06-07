@@ -11,6 +11,9 @@ use Illuminate\Http\JsonResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\DatatableRequest;
+use App\Services\TransactionDatatableService;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class TransactionController extends Controller
 {
@@ -128,5 +131,63 @@ class TransactionController extends Controller
             'success' => true,
             'message' => 'Draft berhasil dihapus.'
         ]);
+    }
+
+    /**
+     * Display the sales transactions history page.
+     */
+    public function list(Request $request): Response
+    {
+        $user = Auth::user();
+
+        if ($user->hasPermission(UserPermission::VIEW_ANY_BRANCH->value) || $user->hasPermission(UserPermission::VIEW_ANY_BUSINESS->value)) {
+            $branches = \App\Models\Branch::with('business')->get();
+        } else {
+            $associatedBusinessIds = $user->businesses()->pluck('businesses.id')->toArray();
+            $branches = \App\Models\Branch::whereIn('business_id', $associatedBusinessIds)
+                ->orWhereHas('business', function($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
+                ->orWhereIn('id', $user->branches()->pluck('branches.id')->toArray())
+                ->with('business')
+                ->get();
+        }
+
+        $mappedBranches = $branches->map(function($b) {
+            return [
+                'id' => $b->id,
+                'name' => $b->name,
+                'business_name' => $b->business ? $b->business->name : '',
+                'label' => $b->business ? "{$b->business->name} {$b->name}" : $b->name
+            ];
+        })->values()->toArray();
+
+        return Inertia::render('transactions/index', [
+            'branches' => $mappedBranches
+        ]);
+    }
+
+    /**
+     * Return datatable JSON data for transactions.
+     */
+    public function datatable(DatatableRequest $request, TransactionDatatableService $datatableService): JsonResponse
+    {
+        return response()->json($datatableService->getDatatable($request));
+    }
+
+    /**
+     * Export to Excel.
+     */
+    public function printExcel(DatatableRequest $request, TransactionDatatableService $datatableService): SymfonyResponse
+    {
+        return $datatableService->printExcel($request);
+    }
+
+    /**
+     * Export/Print to PDF.
+     */
+    public function printPdf(DatatableRequest $request, TransactionDatatableService $datatableService): SymfonyResponse
+    {
+        return $datatableService->printPdf($request);
     }
 }

@@ -115,5 +115,8 @@ export enum UserPermission {
     CREATE_USER = 'Tambah Data User',
     EDIT_USER = 'Edit Data User',
     DELETE_USER = 'Hapus Data User',
-    CASHIER = 'Manajemen Kasir'
+    CASHIER = 'Manajemen Kasir',
+    VIEW_ANY_TRANSACTION = 'Lihat Data Transaksi Keseluruhan',
+    VIEW_OWN_TRANSACTION = 'Lihat Data Transaksi Pribadi',
+    VIEW_ASSOCIATED_TRANSACTION = 'Lihat Data Transaksi Penempatan Bisnis'
 }

@@ -123,4 +123,7 @@ enum UserPermission: string
     case EDIT_USER = 'Edit Data User';
     case DELETE_USER = 'Hapus Data User';
     case CASHIER = 'Manajemen Kasir';
+    case VIEW_ANY_TRANSACTION = 'Lihat Data Transaksi Keseluruhan';
+    case VIEW_OWN_TRANSACTION = 'Lihat Data Transaksi Pribadi';
+    case VIEW_ASSOCIATED_TRANSACTION = 'Lihat Data Transaksi Penempatan Bisnis';
 }

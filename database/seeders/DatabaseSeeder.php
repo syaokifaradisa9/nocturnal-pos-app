@@ -138,6 +138,9 @@ class DatabaseSeeder extends Seeder
             'Edit Data User',
             'Hapus Data User',
             'Manajemen Kasir',
+            'Lihat Data Transaksi Keseluruhan',
+            'Lihat Data Transaksi Pribadi',
+            'Lihat Data Transaksi Penempatan Bisnis',
         ];
 
         foreach ($permissions as $permissionName) {

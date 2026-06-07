@@ -272,6 +272,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('/drafts/{id}', 'deleteDraft')->name('delete_draft');
             Route::post('/checkout', 'checkout')->name('checkout');
         });
+
+    Route::controller(\App\Http\Controllers\TransactionController::class)
+        ->prefix('transactions')
+        ->name('transactions.')
+        ->middleware('transaction.permission')
+        ->group(function () {
+            Route::get('/', 'list')->name('list');
+            Route::get('/data', 'datatable')->name('datatable');
+            Route::prefix('print')->name('print.')->group(function () {
+                Route::get('/pdf', 'printPdf')->name('pdf');
+                Route::get('/excel', 'printExcel')->name('excel');
+            });
+        });
 });
 
 Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');

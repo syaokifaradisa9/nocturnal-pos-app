@@ -42,6 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'stock_adjustment.permission' => \App\Http\Middleware\CheckStockAdjustmentUserPermission::class,
             'user.permission' => \App\Http\Middleware\CheckUserManagementPermission::class,
             'cashier.permission' => \App\Http\Middleware\CheckCashierPermission::class,
+            'transaction.permission' => \App\Http\Middleware\CheckTransactionPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

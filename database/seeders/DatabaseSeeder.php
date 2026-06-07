@@ -137,6 +137,7 @@ class DatabaseSeeder extends Seeder
             'Tambah Data User',
             'Edit Data User',
             'Hapus Data User',
+            'Manajemen Kasir',
         ];
 
         foreach ($permissions as $permissionName) {
@@ -493,6 +494,77 @@ class DatabaseSeeder extends Seeder
         \App\Models\PurchaseReceiptItem::firstOrCreate(
             ['purchase_receipt_id' => $receipt3->id, 'product_item_measurement_id' => $measBerasMayangKg->id],
             ['quantity' => 100, 'unit_cost' => 12500.00, 'expired_date' => '2026-12-15']
+        );
+
+        // Update image URLs
+        $itemBerasMayang->update(['image_url' => 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400']);
+        $itemBerasLopoIjo->update(['image_url' => 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400']);
+        $itemTelurAyam->update(['image_url' => 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400']);
+        $itemTelurAyamKampung->update(['image_url' => 'https://images.unsplash.com/photo-1516448424440-9dbca97779c1?w=400']);
+
+        // Create Price Tierings
+        // 1. Beras Mayang Kg
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measBerasMayangKg->id, 'minimum' => 1],
+            ['price' => 13000.00]
+        );
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measBerasMayangKg->id, 'minimum' => 10],
+            ['price' => 12500.00]
+        );
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measBerasMayangKg->id, 'minimum' => 50],
+            ['price' => 12000.00]
+        );
+
+        // 2. Beras Mayang Krg
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measBerasMayangKrg->id, 'minimum' => 1],
+            ['price' => 125000.00]
+        );
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measBerasMayangKrg->id, 'minimum' => 5],
+            ['price' => 120000.00]
+        );
+
+        // 3. Telur Ayam Btr
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measTelurAyamBtr->id, 'minimum' => 1],
+            ['price' => 2000.00]
+        );
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measTelurAyamBtr->id, 'minimum' => 30],
+            ['price' => 1800.00]
+        );
+
+        // 4. Telur Ayam Rak
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measTelurAyamRak->id, 'minimum' => 1],
+            ['price' => 55000.00]
+        );
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measTelurAyamRak->id, 'minimum' => 5],
+            ['price' => 52000.00]
+        );
+
+        // 5. Beras Lopo Ijo Kg
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measBerasLopoIjoKg->id, 'minimum' => 1],
+            ['price' => 14000.00]
+        );
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measBerasLopoIjoKg->id, 'minimum' => 10],
+            ['price' => 13500.00]
+        );
+
+        // 6. Telur Ayam Kampung Btr
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measTelurAyamKampungBtr->id, 'minimum' => 1],
+            ['price' => 3000.00]
+        );
+        \App\Models\ProductPriceTiering::updateOrCreate(
+            ['product_item_measurement_id' => $measTelurAyamKampungBtr->id, 'minimum' => 10],
+            ['price' => 2800.00]
         );
     }
 }

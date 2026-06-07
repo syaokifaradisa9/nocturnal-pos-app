@@ -122,4 +122,5 @@ enum UserPermission: string
     case CREATE_USER = 'Tambah Data User';
     case EDIT_USER = 'Edit Data User';
     case DELETE_USER = 'Hapus Data User';
+    case CASHIER = 'Manajemen Kasir';
 }

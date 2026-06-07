@@ -114,5 +114,6 @@ export enum UserPermission {
     VIEW_USER = 'Lihat Data User',
     CREATE_USER = 'Tambah Data User',
     EDIT_USER = 'Edit Data User',
-    DELETE_USER = 'Hapus Data User'
+    DELETE_USER = 'Hapus Data User',
+    CASHIER = 'Manajemen Kasir'
 }

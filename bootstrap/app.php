@@ -41,6 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'purchase_receipt.permission' => \App\Http\Middleware\CheckPurchaseReceiptUserPermission::class,
             'stock_adjustment.permission' => \App\Http\Middleware\CheckStockAdjustmentUserPermission::class,
             'user.permission' => \App\Http\Middleware\CheckUserManagementPermission::class,
+            'cashier.permission' => \App\Http\Middleware\CheckCashierPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

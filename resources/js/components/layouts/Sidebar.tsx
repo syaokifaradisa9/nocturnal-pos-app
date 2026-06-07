@@ -54,6 +54,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     const hasPurchaseReceiptPermission = userPermissions.includes(UserPermission.VIEW_ANY_PURCHASE_RECEIPT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_PURCHASE_RECEIPT) || userPermissions.includes(UserPermission.VIEW_OWN_PURCHASE_RECEIPT);
     const hasStockAdjustmentPermission = userPermissions.includes(UserPermission.VIEW_ANY_STOCK_ADJUSTMENT) || userPermissions.includes(UserPermission.VIEW_ASSOCIATED_STOCK_ADJUSTMENT) || userPermissions.includes(UserPermission.VIEW_OWN_STOCK_ADJUSTMENT);
     const hasUserPermission = userPermissions.includes(UserPermission.VIEW_USER);
+    const hasCashierPermission = userPermissions.includes(UserPermission.CASHIER);
 
     const menuGroups = [
         {
@@ -62,6 +63,14 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' }
             ]
         },
+        ...(hasCashierPermission ? [
+            {
+                groupName: 'Kasir',
+                items: [
+                    { name: 'Kasir POS', icon: Store, href: '/cashier' }
+                ]
+            }
+        ] : []),
         ...((hasPurchaseReceiptPermission || hasStockAdjustmentPermission) ? [
             {
                 groupName: 'Operasional',

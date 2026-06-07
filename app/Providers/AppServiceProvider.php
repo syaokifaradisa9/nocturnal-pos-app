@@ -22,6 +22,8 @@ use App\Repositories\RewardRepository;
 use App\Repositories\EloquentRewardRepository;
 use App\Repositories\PermissionRepository;
 use App\Repositories\EloquentPermissionRepository;
+use App\Repositories\TransactionRepository;
+use App\Repositories\EloquentTransactionRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +35,11 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         \Laravel\Fortify\Fortify::ignoreRoutes();
+
+        $this->app->singleton(
+            TransactionRepository::class,
+            EloquentTransactionRepository::class
+        );
 
         $this->app->singleton(
             PermissionRepository::class,

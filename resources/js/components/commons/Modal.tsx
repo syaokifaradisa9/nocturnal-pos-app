@@ -7,14 +7,22 @@ interface ModalProps {
     title: string;
     children: React.ReactNode;
     maxWidth?: string;
+    closeOnOverlayClick?: boolean;
 }
 
-export default function Modal({ open, onClose, title, children, maxWidth = 'max-w-lg' }: ModalProps) {
+export default function Modal({ 
+    open, 
+    onClose, 
+    title, 
+    children, 
+    maxWidth = 'max-w-lg', 
+    closeOnOverlayClick = false 
+}: ModalProps) {
     if (!open) return null;
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            onClick={onClose}
+            onClick={closeOnOverlayClick ? onClose : undefined}
         >
             {/* Overlay */}
             <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm animate-in fade-in duration-200" />

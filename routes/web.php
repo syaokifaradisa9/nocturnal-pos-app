@@ -259,6 +259,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('/{id}/delete', 'destroy')->name('destroy');
             Route::get('/{id}', 'show')->name('show');
         });
+
+    Route::controller(\App\Http\Controllers\TransactionController::class)
+        ->prefix('cashier')
+        ->name('cashier.')
+        ->middleware('cashier.permission')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/products', 'products')->name('products');
+            Route::get('/customers', 'customers')->name('customers');
+            Route::get('/drafts', 'drafts')->name('drafts');
+            Route::delete('/drafts/{id}', 'deleteDraft')->name('delete_draft');
+            Route::post('/checkout', 'checkout')->name('checkout');
+        });
 });
 
 Route::get('/auth/login', [LoginController::class, 'showLoginForm'])->name('login');

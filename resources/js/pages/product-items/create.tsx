@@ -65,7 +65,10 @@ export default function Create({
                 target_measurement_unit_id: '',
                 is_base_unit: true,
                 conversion_rate: '1',
-                price_tierings: [],
+                price_tierings: [
+                    { minimum: 1, price: '' },
+                ],
+                show_wholesale: false,
             },
         ] as any[],
     });
@@ -134,7 +137,10 @@ export default function Create({
                 target_measurement_unit_id: '',
                 is_base_unit: false,
                 conversion_rate: '1',
-                price_tierings: [],
+                price_tierings: [
+                    { minimum: 1, price: '' },
+                ],
+                show_wholesale: false,
             },
         ]);
     };
@@ -143,7 +149,7 @@ export default function Create({
         if (data.items.length <= 1) return;
         setData(
             'items',
-            data.items.filter((_, i) => i !== index),
+            data.items.filter((_item: any, i: number) => i !== index),
         );
     };
 
@@ -191,7 +197,7 @@ export default function Create({
         const currentItems = [...data.items];
         currentItems[itemIdx].price_tierings = currentItems[
             itemIdx
-        ].price_tierings.filter((_, i: number) => i !== tierIdx);
+        ].price_tierings.filter((_tier: any, i: number) => i !== tierIdx);
         setData('items', currentItems);
     };
 
@@ -203,6 +209,18 @@ export default function Create({
     ) => {
         const currentItems = [...data.items];
         currentItems[itemIdx].price_tierings[tierIdx][key] = value;
+        setData('items', currentItems);
+    };
+
+    const toggleWholesale = (itemIdx: number, checked: boolean) => {
+        const currentItems = [...data.items];
+        currentItems[itemIdx].show_wholesale = checked;
+        if (!checked) {
+            const basePrice = currentItems[itemIdx].price_tierings[0]?.price || '';
+            currentItems[itemIdx].price_tierings = [
+                { minimum: 1, price: basePrice }
+            ];
+        }
         setData('items', currentItems);
     };
 
@@ -219,7 +237,7 @@ export default function Create({
         <DashboardLayout title="Tambah Produk Penjualan">
             <Head title="Tambah Produk Penjualan" />
 
-            <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
                 {/* Header back link */}
                 <div className="mb-6">
                     <Link
@@ -248,90 +266,90 @@ export default function Create({
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6 p-6">
-                        {/* Step 1: Owner selector (admin only, create mode) */}
+                        {/* Step 1 & 2: Owner & Business selectors side-by-side on desktop (admin only) */}
                         {hasCreateAnyProductItem && (
-                            <FormSelect
-                                name="owner_id"
-                                label="Pilih Owner"
-                                value={selectedOwnerId}
-                                onChange={(e) =>
-                                    handleOwnerChange(e.target.value)
-                                }
-                            >
-                                <option value="">Pilih Owner</option>
-                                {users.map((owner) => (
-                                    <option key={owner.id} value={owner.id}>
-                                        {owner.name}
-                                    </option>
-                                ))}
-                            </FormSelect>
-                        )}
-
-                        {/* Step 2: Business selector (admin only, after owner selected) */}
-                        {hasCreateAnyProductItem && isFetchingBusinesses && (
-                            <div className="animate-pulse py-2 text-xs font-medium text-slate-500">
-                                Memuat data bisnis...
-                            </div>
-                        )}
-
-                        {hasCreateAnyProductItem &&
-                            !isFetchingBusinesses &&
-                            selectedOwnerId && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormSelect
-                                    name="business_id"
-                                    label="Pilih Bisnis"
-                                    value={selectedBusinessId}
+                                    name="owner_id"
+                                    label="Pilih Owner"
+                                    value={selectedOwnerId}
                                     onChange={(e) =>
-                                        handleBusinessChange(e.target.value)
+                                        handleOwnerChange(e.target.value)
                                     }
                                 >
-                                    <option value="">Pilih Bisnis</option>
-                                    {fetchedBusinesses.map((b) => (
-                                        <option key={b.id} value={b.id}>
-                                            {b.name}
+                                    <option value="">Pilih Owner</option>
+                                    {users.map((owner) => (
+                                        <option key={owner.id} value={owner.id}>
+                                            {owner.name}
                                         </option>
                                     ))}
                                 </FormSelect>
-                            )}
 
-                        {/* Step 3: Product selector */}
-                        {isFetchingProducts && (
-                            <div className="animate-pulse py-2 text-xs font-medium text-slate-500">
-                                Memuat data produk...
+                                {isFetchingBusinesses ? (
+                                    <div className="flex items-end pb-3 animate-pulse text-xs font-medium text-slate-500">
+                                        Memuat data bisnis...
+                                    </div>
+                                ) : (
+                                    selectedOwnerId && (
+                                        <FormSelect
+                                            name="business_id"
+                                            label="Pilih Bisnis"
+                                            value={selectedBusinessId}
+                                            onChange={(e) =>
+                                                handleBusinessChange(e.target.value)
+                                            }
+                                        >
+                                            <option value="">Pilih Bisnis</option>
+                                            {fetchedBusinesses.map((b) => (
+                                                <option key={b.id} value={b.id}>
+                                                    {b.name}
+                                                </option>
+                                            ))}
+                                        </FormSelect>
+                                    )
+                                )}
                             </div>
                         )}
 
-                        {(!hasCreateAnyProductItem ||
-                            (hasCreateAnyProductItem &&
-                                selectedBusinessId &&
-                                !isFetchingProducts)) && (
-                            <FormSelect
-                                name="product_id"
-                                label="Pilih Produk Induk (Template)"
-                                value={data.product_id}
-                                onChange={(e) =>
-                                    setData('product_id', e.target.value)
-                                }
-                                error={errors.product_id}
-                            >
-                                <option value="">Pilih Produk Induk</option>
-                                {displayProducts.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                        {p.name}
-                                    </option>
-                                ))}
-                            </FormSelect>
-                        )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Step 3: Product selector */}
+                            {isFetchingProducts ? (
+                                <div className="flex items-end pb-3 animate-pulse text-xs font-medium text-slate-500">
+                                    Memuat data produk...
+                                </div>
+                            ) : (
+                                (!hasCreateAnyProductItem ||
+                                    (hasCreateAnyProductItem &&
+                                        selectedBusinessId)) && (
+                                    <FormSelect
+                                        name="product_id"
+                                        label="Pilih Produk Induk (Template)"
+                                        value={data.product_id}
+                                        onChange={(e) =>
+                                            setData('product_id', e.target.value)
+                                        }
+                                        error={errors.product_id}
+                                    >
+                                        <option value="">Pilih Produk Induk</option>
+                                        {displayProducts.map((p) => (
+                                            <option key={p.id} value={p.id}>
+                                                {p.name}
+                                            </option>
+                                        ))}
+                                    </FormSelect>
+                                )
+                            )}
 
-                        {/* Step 4: Variant Name */}
-                        <FormInput
-                            name="name"
-                            label="Nama Varian Item"
-                            placeholder="Contoh: Beras Mayang, Telur Ayam Kampung"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            error={errors.name}
-                        />
+                            {/* Step 4: Variant Name */}
+                            <FormInput
+                                name="name"
+                                label="Nama Varian Item"
+                                placeholder="Contoh: Beras Mayang, Telur Ayam Kampung"
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                                error={errors.name}
+                            />
+                        </div>
 
                         {/* Step 5: Unit & Conversion items */}
                         <div className="space-y-3 pt-2">
@@ -528,59 +546,87 @@ export default function Create({
                                             {/* Price Tiering Sub-form */}
                                             <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
                                                 <div className="mb-3 flex items-center justify-between">
-                                                    <span className="text-xs font-bold tracking-wider text-slate-400 uppercase">
-                                                        Tiering Harga Grosir
-                                                    </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            addPriceTier(idx)
-                                                        }
-                                                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 hover:underline dark:text-emerald-400"
-                                                    >
-                                                        <Plus className="h-3 w-3" />{' '}
-                                                        Tambah Tier Harga
-                                                    </button>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+                                                            Harga & Grosir
+                                                        </span>
+                                                        <label className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 select-none">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={!!item.show_wholesale}
+                                                                onChange={(e) =>
+                                                                    toggleWholesale(idx, e.target.checked)
+                                                                }
+                                                                className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-800"
+                                                            />
+                                                            <span>Sediakan harga grosir</span>
+                                                        </label>
+                                                    </div>
+
+                                                    {item.show_wholesale && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                addPriceTier(idx)
+                                                            }
+                                                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 hover:underline dark:text-emerald-400"
+                                                        >
+                                                            <Plus className="h-3 w-3" />{' '}
+                                                            Tambah Harga Grosir
+                                                        </button>
+                                                    )}
                                                 </div>
 
-                                                {(item.price_tierings || [])
-                                                    .length === 0 ? (
-                                                    <p className="text-[11px] text-slate-400 italic">
-                                                        Belum ada tiering harga
-                                                        grosir untuk satuan ini.
-                                                    </p>
-                                                ) : (
-                                                    <div className="space-y-2">
-                                                        {(
-                                                            item.price_tierings ||
-                                                            []
-                                                        ).map(
-                                                            (
-                                                                tier: any,
-                                                                tIdx: number,
-                                                            ) => (
+                                                <div className="space-y-3">
+                                                    {!item.show_wholesale ? (
+                                                        /* If wholesale not provided, show only Harga Per Unit (Min. Pembelian hidden and forced to 1) */
+                                                        item.price_tierings && item.price_tierings[0] && (
+                                                            <div className="grid grid-cols-12 items-end gap-3 rounded-xl border border-slate-200/60 bg-slate-50/50 p-3.5 dark:border-slate-800/40 dark:bg-slate-900/20">
+                                                                <div className="col-span-12">
+                                                                    <FormInput
+                                                                        name={`items.${idx}.price_tierings.0.price`}
+                                                                        label="Harga Per Unit (Rp)"
+                                                                        type="number"
+                                                                        placeholder="Masukkan harga satuan"
+                                                                        value={item.price_tierings[0].price}
+                                                                        onChange={(e) =>
+                                                                            updatePriceTier(
+                                                                                idx,
+                                                                                0,
+                                                                                'price',
+                                                                                e.target.value,
+                                                                            )
+                                                                        }
+                                                                        error={
+                                                                            errors[
+                                                                                `items.${idx}.price_tierings.0.price` as any
+                                                                            ]
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    ) : (
+                                                        /* If wholesale provided, show first tier with Min. Pembelian + Harga, plus subsequent tiers */
+                                                        <div className="space-y-2">
+                                                            {(item.price_tierings || []).map((tier: any, tIdx: number) => (
                                                                 <div
                                                                     key={tIdx}
-                                                                    className="grid grid-cols-12 items-end gap-3 rounded-xl border border-slate-200/60 bg-slate-50/50 p-2.5 dark:border-slate-800/40 dark:bg-slate-900/20"
+                                                                    className="grid grid-cols-12 items-end gap-3 rounded-xl border border-dashed border-emerald-200/60 bg-emerald-50/10 p-3.5 dark:border-emerald-800/40 dark:bg-emerald-900/5"
                                                                 >
                                                                     <div className="col-span-5">
                                                                         <FormInput
                                                                             name={`items.${idx}.price_tierings.${tIdx}.minimum`}
-                                                                            label="Min. Pembelian (Qty)"
+                                                                            label={tIdx === 0 ? "Min. Pembelian" : "Min. Pembelian (Qty)"}
                                                                             type="number"
-                                                                            value={
-                                                                                tier.minimum
-                                                                            }
-                                                                            onChange={(
-                                                                                e,
-                                                                            ) =>
+                                                                            placeholder="Misal: 1"
+                                                                            value={tier.minimum}
+                                                                            onChange={(e) =>
                                                                                 updatePriceTier(
                                                                                     idx,
                                                                                     tIdx,
                                                                                     'minimum',
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
+                                                                                    e.target.value,
                                                                                 )
                                                                             }
                                                                             error={
@@ -593,21 +639,16 @@ export default function Create({
                                                                     <div className="col-span-5">
                                                                         <FormInput
                                                                             name={`items.${idx}.price_tierings.${tIdx}.price`}
-                                                                            label="Harga per Unit (Rp)"
+                                                                            label={tIdx === 0 ? "Harga per Unit (Rp)" : "Harga Grosir per Unit (Rp)"}
                                                                             type="number"
-                                                                            value={
-                                                                                tier.price
-                                                                            }
-                                                                            onChange={(
-                                                                                e,
-                                                                            ) =>
+                                                                            placeholder="Masukkan harga"
+                                                                            value={tier.price}
+                                                                            onChange={(e) =>
                                                                                 updatePriceTier(
                                                                                     idx,
                                                                                     tIdx,
                                                                                     'price',
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
+                                                                                    e.target.value,
                                                                                 )
                                                                             }
                                                                             error={
@@ -618,24 +659,26 @@ export default function Create({
                                                                         />
                                                                     </div>
                                                                     <div className="col-span-2 flex justify-end pb-1.5">
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() =>
-                                                                                removePriceTier(
-                                                                                    idx,
-                                                                                    tIdx,
-                                                                                )
-                                                                            }
-                                                                            className="rounded-lg p-2 text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
-                                                                        >
-                                                                            <Trash2 className="h-3.5 w-3.5" />
-                                                                        </button>
+                                                                        {tIdx > 0 && (
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() =>
+                                                                                    removePriceTier(
+                                                                                        idx,
+                                                                                        tIdx,
+                                                                                    )
+                                                                                }
+                                                                                className="rounded-lg p-2 text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
+                                                                            >
+                                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                                            </button>
+                                                                        )}
                                                                     </div>
                                                                 </div>
-                                                            ),
-                                                        )}
-                                                    </div>
-                                                )}
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     );

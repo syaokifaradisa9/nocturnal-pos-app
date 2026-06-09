@@ -74,18 +74,25 @@ export default function Edit({
     );
 
     const mappedItems = product.measurements
-        ? product.measurements.map((m) => ({
-              measurement_unit_id: m.measurement_unit_id,
-              target_measurement_unit_id: m.target_measurement_unit_id || '',
-              is_base_unit: !!m.is_base_unit,
-              conversion_rate: String(Number(m.conversion_rate)),
-              price_tierings: m.price_tierings
-                  ? m.price_tierings.map((t) => ({
-                        minimum: Number(t.minimum),
-                        price: String(Number(t.price)),
-                    }))
-                  : [],
-          }))
+        ? product.measurements.map((m) => {
+              const hasWholesale = m.price_tierings && (
+                  m.price_tierings.length > 1 ||
+                  (m.price_tierings[0] && Number(m.price_tierings[0].minimum) > 1)
+              );
+              return {
+                  measurement_unit_id: m.measurement_unit_id,
+                  target_measurement_unit_id: m.target_measurement_unit_id || '',
+                  is_base_unit: !!m.is_base_unit,
+                  conversion_rate: String(Number(m.conversion_rate)),
+                  price_tierings: m.price_tierings && m.price_tierings.length > 0
+                      ? m.price_tierings.map((t) => ({
+                            minimum: Number(t.minimum),
+                            price: String(Number(t.price)),
+                        }))
+                      : [{ minimum: 1, price: '' }],
+                  show_wholesale: !!hasWholesale,
+              };
+          })
         : [];
 
     const { data, setData, put, errors, processing } = useForm({
@@ -100,7 +107,10 @@ export default function Edit({
                           target_measurement_unit_id: '',
                           is_base_unit: true,
                           conversion_rate: '1',
-                          price_tierings: [],
+                          price_tierings: [
+                              { minimum: 1, price: '' },
+                          ],
+                          show_wholesale: false,
                       },
                   ] as any[]),
     });
@@ -113,7 +123,10 @@ export default function Edit({
                 target_measurement_unit_id: '',
                 is_base_unit: false,
                 conversion_rate: '1',
-                price_tierings: [],
+                price_tierings: [
+                    { minimum: 1, price: '' },
+                ],
+                show_wholesale: false,
             },
         ]);
     };
@@ -122,7 +135,7 @@ export default function Edit({
         if (data.items.length <= 1) return;
         setData(
             'items',
-            data.items.filter((_, i) => i !== index),
+            data.items.filter((_item: any, i: number) => i !== index),
         );
     };
 
@@ -170,7 +183,7 @@ export default function Edit({
         const currentItems = [...data.items];
         currentItems[itemIdx].price_tierings = currentItems[
             itemIdx
-        ].price_tierings.filter((_, i: number) => i !== tierIdx);
+        ].price_tierings.filter((_tier: any, i: number) => i !== tierIdx);
         setData('items', currentItems);
     };
 
@@ -185,6 +198,18 @@ export default function Edit({
         setData('items', currentItems);
     };
 
+    const toggleWholesale = (itemIdx: number, checked: boolean) => {
+        const currentItems = [...data.items];
+        currentItems[itemIdx].show_wholesale = checked;
+        if (!checked) {
+            const basePrice = currentItems[itemIdx].price_tierings[0]?.price || '';
+            currentItems[itemIdx].price_tierings = [
+                { minimum: 1, price: basePrice }
+            ];
+        }
+        setData('items', currentItems);
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         put(`/product-items/${product.id}/update`);
@@ -194,7 +219,7 @@ export default function Edit({
         <DashboardLayout title="Edit Produk Penjualan">
             <Head title="Edit Produk Penjualan" />
 
-            <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
                 {/* Header back link */}
                 <div className="mb-6">
                     <Link
@@ -222,24 +247,26 @@ export default function Edit({
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6 p-6">
-                        {/* Parent Product Info (Read-only) */}
-                        <FormInput
-                            name="product_template"
-                            label="Produk Induk (Template)"
-                            value={product.product?.name || ''}
-                            disabled
-                            onChange={() => {}}
-                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Parent Product Info (Read-only) */}
+                            <FormInput
+                                name="product_template"
+                                label="Produk Induk (Template)"
+                                value={product.product?.name || ''}
+                                disabled
+                                onChange={() => {}}
+                            />
 
-                        {/* Variant Name */}
-                        <FormInput
-                            name="name"
-                            label="Nama Varian Item"
-                            placeholder="Contoh: Beras Mayang, Telur Ayam Kampung"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            error={errors.name}
-                        />
+                            {/* Variant Name */}
+                            <FormInput
+                                name="name"
+                                label="Nama Varian Item"
+                                placeholder="Contoh: Beras Mayang, Telur Ayam Kampung"
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                                error={errors.name}
+                            />
+                        </div>
 
                         {/* Unit & Conversion items */}
                         <div className="space-y-3 pt-2">
@@ -433,118 +460,143 @@ export default function Edit({
                                                 )}
                                             </div>
 
-                                            {/* Price Tiering Sub-form */}
-                                            <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
-                                                <div className="mb-3 flex items-center justify-between">
-                                                    <span className="text-xs font-bold tracking-wider text-slate-400 uppercase">
-                                                        Tiering Harga Grosir
-                                                    </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            addPriceTier(idx)
-                                                        }
-                                                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 hover:underline dark:text-emerald-400"
-                                                    >
-                                                        <Plus className="h-3 w-3" />{' '}
-                                                        Tambah Tier Harga
-                                                    </button>
-                                                </div>
+                                             {/* Price Tiering Sub-form */}
+                                             <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
+                                                 <div className="mb-3 flex items-center justify-between">
+                                                     <div className="flex items-center gap-3">
+                                                         <span className="text-xs font-bold tracking-wider text-slate-400 uppercase">
+                                                             Harga & Grosir
+                                                         </span>
+                                                         <label className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 select-none">
+                                                             <input
+                                                                 type="checkbox"
+                                                                 checked={!!item.show_wholesale}
+                                                                 onChange={(e) =>
+                                                                     toggleWholesale(idx, e.target.checked)
+                                                                 }
+                                                                 className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-800"
+                                                             />
+                                                             <span>Sediakan harga grosir</span>
+                                                         </label>
+                                                     </div>
 
-                                                {(item.price_tierings || [])
-                                                    .length === 0 ? (
-                                                    <p className="text-[11px] text-slate-400 italic">
-                                                        Belum ada tiering harga
-                                                        grosir untuk satuan ini.
-                                                    </p>
-                                                ) : (
-                                                    <div className="space-y-2">
-                                                        {(
-                                                            item.price_tierings ||
-                                                            []
-                                                        ).map(
-                                                            (
-                                                                tier: any,
-                                                                tIdx: number,
-                                                            ) => (
-                                                                <div
-                                                                    key={tIdx}
-                                                                    className="grid grid-cols-12 items-end gap-3 rounded-xl border border-slate-200/60 bg-slate-50/50 p-2.5 dark:border-slate-800/40 dark:bg-slate-900/20"
-                                                                >
-                                                                    <div className="col-span-5">
-                                                                        <FormInput
-                                                                            name={`items.${idx}.price_tierings.${tIdx}.minimum`}
-                                                                            label="Min. Pembelian (Qty)"
-                                                                            type="number"
-                                                                            value={
-                                                                                tier.minimum
-                                                                            }
-                                                                            onChange={(
-                                                                                e,
-                                                                            ) =>
-                                                                                updatePriceTier(
-                                                                                    idx,
-                                                                                    tIdx,
-                                                                                    'minimum',
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
-                                                                                )
-                                                                            }
-                                                                            error={
-                                                                                errors[
-                                                                                    `items.${idx}.price_tierings.${tIdx}.minimum` as any
-                                                                                ]
-                                                                            }
-                                                                        />
-                                                                    </div>
-                                                                    <div className="col-span-5">
-                                                                        <FormInput
-                                                                            name={`items.${idx}.price_tierings.${tIdx}.price`}
-                                                                            label="Harga per Unit (Rp)"
-                                                                            type="number"
-                                                                            value={
-                                                                                tier.price
-                                                                            }
-                                                                            onChange={(
-                                                                                e,
-                                                                            ) =>
-                                                                                updatePriceTier(
-                                                                                    idx,
-                                                                                    tIdx,
-                                                                                    'price',
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
-                                                                                )
-                                                                            }
-                                                                            error={
-                                                                                errors[
-                                                                                    `items.${idx}.price_tierings.${tIdx}.price` as any
-                                                                                ]
-                                                                            }
-                                                                        />
-                                                                    </div>
-                                                                    <div className="col-span-2 flex justify-end pb-1.5">
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() =>
-                                                                                removePriceTier(
-                                                                                    idx,
-                                                                                    tIdx,
-                                                                                )
-                                                                            }
-                                                                            className="rounded-lg p-2 text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
-                                                                        >
-                                                                            <Trash2 className="h-3.5 w-3.5" />
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            ),
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
+                                                     {item.show_wholesale && (
+                                                         <button
+                                                             type="button"
+                                                             onClick={() =>
+                                                                 addPriceTier(idx)
+                                                             }
+                                                             className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 hover:underline dark:text-emerald-400"
+                                                         >
+                                                             <Plus className="h-3 w-3" />{' '}
+                                                             Tambah Harga Grosir
+                                                         </button>
+                                                     )}
+                                                 </div>
+
+                                                 <div className="space-y-3">
+                                                     {!item.show_wholesale ? (
+                                                         /* If wholesale not provided, show only Harga Per Unit (Min. Pembelian hidden and forced to 1) */
+                                                         item.price_tierings && item.price_tierings[0] && (
+                                                             <div className="grid grid-cols-12 items-end gap-3 rounded-xl border border-slate-200/60 bg-slate-50/50 p-3.5 dark:border-slate-800/40 dark:bg-slate-900/20">
+                                                                 <div className="col-span-12">
+                                                                     <FormInput
+                                                                         name={`items.${idx}.price_tierings.0.price`}
+                                                                         label="Harga Per Unit (Rp)"
+                                                                         type="number"
+                                                                         placeholder="Masukkan harga satuan"
+                                                                         value={item.price_tierings[0].price}
+                                                                         onChange={(e) =>
+                                                                             updatePriceTier(
+                                                                                 idx,
+                                                                                 0,
+                                                                                 'price',
+                                                                                 e.target.value,
+                                                                             )
+                                                                         }
+                                                                         error={
+                                                                             errors[
+                                                                                 `items.${idx}.price_tierings.0.price` as any
+                                                                             ]
+                                                                         }
+                                                                     />
+                                                                 </div>
+                                                             </div>
+                                                         )
+                                                     ) : (
+                                                         /* If wholesale provided, show first tier with Min. Pembelian + Harga, plus subsequent tiers */
+                                                         <div className="space-y-2">
+                                                             {(item.price_tierings || []).map((tier: any, tIdx: number) => (
+                                                                 <div
+                                                                     key={tIdx}
+                                                                     className="grid grid-cols-12 items-end gap-3 rounded-xl border border-dashed border-emerald-200/60 bg-emerald-50/10 p-3.5 dark:border-emerald-800/40 dark:bg-emerald-900/5"
+                                                                 >
+                                                                     <div className="col-span-5">
+                                                                         <FormInput
+                                                                             name={`items.${idx}.price_tierings.${tIdx}.minimum`}
+                                                                             label={tIdx === 0 ? "Min. Pembelian" : "Min. Pembelian (Qty)"}
+                                                                             type="number"
+                                                                             placeholder="Misal: 1"
+                                                                             value={tier.minimum}
+                                                                             onChange={(e) =>
+                                                                                 updatePriceTier(
+                                                                                     idx,
+                                                                                     tIdx,
+                                                                                     'minimum',
+                                                                                     e.target.value,
+                                                                                 )
+                                                                             }
+                                                                             error={
+                                                                                 errors[
+                                                                                     `items.${idx}.price_tierings.${tIdx}.minimum` as any
+                                                                                 ]
+                                                                             }
+                                                                         />
+                                                                     </div>
+                                                                     <div className="col-span-5">
+                                                                         <FormInput
+                                                                             name={`items.${idx}.price_tierings.${tIdx}.price`}
+                                                                             label={tIdx === 0 ? "Harga per Unit (Rp)" : "Harga Grosir per Unit (Rp)"}
+                                                                             type="number"
+                                                                             placeholder="Masukkan harga"
+                                                                             value={tier.price}
+                                                                             onChange={(e) =>
+                                                                                 updatePriceTier(
+                                                                                     idx,
+                                                                                     tIdx,
+                                                                                     'price',
+                                                                                     e.target.value,
+                                                                                 )
+                                                                             }
+                                                                             error={
+                                                                                 errors[
+                                                                                     `items.${idx}.price_tierings.${tIdx}.price` as any
+                                                                                 ]
+                                                                             }
+                                                                         />
+                                                                     </div>
+                                                                     <div className="col-span-2 flex justify-end pb-1.5">
+                                                                         {tIdx > 0 && (
+                                                                             <button
+                                                                                 type="button"
+                                                                                 onClick={() =>
+                                                                                     removePriceTier(
+                                                                                         idx,
+                                                                                         tIdx,
+                                                                                     )
+                                                                                 }
+                                                                                 className="rounded-lg p-2 text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
+                                                                             >
+                                                                                 <Trash2 className="h-3.5 w-3.5" />
+                                                                             </button>
+                                                                         )}
+                                                                     </div>
+                                                                 </div>
+                                                             ))}
+                                                         </div>
+                                                     )}
+                                                 </div>
+                                             </div>
                                         </div>
                                     );
                                 })}

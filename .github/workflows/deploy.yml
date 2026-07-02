@@ -1,0 +1,99 @@
+name: Deploy Laravel to Shared Hosting
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+
+    # --- ALUR 1: COMPOSER CACHE & INSTALL ---
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer Dependencies
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies (Composer)
+      run: composer install --prefer-dist --no-progress --optimize-autoloader
+
+    # --- ALUR 2: NPM CACHE & INSTALL ---
+    - name: Cache NPM Dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: ${{ runner.os }}-node-
+
+    - name: Install NPM Dependencies
+      run: npm install
+
+    # --- ALUR 5: NPM RUN BUILD ---
+    - name: Compile Frontend Assets
+      run: npm run build
+
+    # --- ALUR 4: PHP ARTISAN TEST ---
+    - name: Prepare Environment for Testing
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        
+    - name: Run Tests
+      run: php artisan test
+
+    # --- ALUR 6: FTP UPLOAD ---
+    - name: 📂 Sync files (Hanya Upload yang Berubah)
+      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+      with:
+        server: ${{ secrets.SSH_HOST }}               
+        username: ${{ secrets.FTP_USERNAME }}         
+        password: ${{ secrets.FTP_PASSWORD }}         
+        port: 21                                       
+        protocol: ftp
+        # ⚠️ UBAH MENJADI SEPERTI DI BAWAH INI:
+        server-dir: ./ 
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/vendor/**
+          **/tests/**
+          .env
+          .env.example
+          .htaccess
+          **/storage/**
+          **/resources/js/**
+          **/resources/css/**
+
+    # --- ALUR 3: SSH COMMANDS (Jalur Absolut Diperbaiki) ---
+    - name: Run Artisan & Composer Commands via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          # 👈 PENTING: Jalur absolut ke folder proyek kamu sekarang sudah benar
+          cd /home/u754822298/domains/nocturnalprojects.dev/public_html/nocturnal-pos
+          
+          # Jalankan optimasi & instalasi dependensi
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+          php artisan migrate --force
+          php artisan optimize:clear
